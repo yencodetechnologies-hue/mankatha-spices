@@ -1,0 +1,34 @@
+const mongoose = require("mongoose");
+
+const weightSchema = new mongoose.Schema(
+  {
+    weight: { type: String, required: true, enum: ["100g", "250g", "500g", "1kg"] },
+    price: { type: Number, required: true, min: 0 },
+  },
+  { _id: false }
+);
+
+const pricingSchema = new mongoose.Schema(
+  {
+    country: { type: String, required: true, enum: ["India", "UAE", "USA"] },
+    currency: { type: String, required: true, enum: ["INR", "AED", "USD"] },
+    weights: { type: [weightSchema], default: [] },
+  },
+  { _id: false }
+);
+
+const productSchema = new mongoose.Schema({
+  name: { type: String, required: true, trim: true },
+  sku: { type: String, required: true, trim: true, unique: true },
+  category: { type: String, required: true, trim: true },
+  origin: { type: String, required: true, trim: true },
+  description: { type: String, required: true, trim: true },
+  stock: { type: Number, required: true, min: 0 },
+  minStock: { type: Number, required: true, min: 0 },
+  image: { type: String, default: "" },
+  sales: { type: Number, default: 0, min: 0 },
+  pricing: { type: [pricingSchema], default: [] },
+  createdAt: { type: Date, default: Date.now },
+});
+
+module.exports = mongoose.model("Product", productSchema);
