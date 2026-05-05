@@ -3,7 +3,9 @@ import { useSearchParams } from 'react-router-dom';
 import { Search, Filter, ShoppingCart, Star, ChevronDown, X, Heart } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import products from '../data/products.json';
+import { formatMoney } from '../utils/formatMoney';
 import categories from '../data/categories.json';
+import { catalogApi } from '../api/catalogApi';
 
 const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -12,10 +14,29 @@ const Products = () => {
   const [priceRange, setPriceRange] = useState({ min: 0, max: 100 });
   const [selectedCategory, setSelectedCategory] = useState('');
   const [showFilters, setShowFilters] = useState(false);
+  const [allProducts, setAllProducts] = useState(products);
   const { addToCart } = useCart();
 
   useEffect(() => {
-    let filtered = [...products];
+    let cancelled = false;
+    async function loadCatalog() {
+      try {
+        const apiProducts = await catalogApi.getProducts();
+        if (!cancelled && apiProducts.length > 0) {
+          setAllProducts(apiProducts);
+        }
+      } catch {
+        if (!cancelled) setAllProducts(products);
+      }
+    }
+    loadCatalog();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    let filtered = [...allProducts];
 
     // Filter by search query
     const searchQuery = searchParams.get('search');
@@ -57,7 +78,7 @@ const Products = () => {
     }
 
     setFilteredProducts(filtered);
-  }, [searchParams, sortBy, priceRange]);
+  }, [allProducts, searchParams, sortBy, priceRange]);
 
   const ProductCard = ({ product }) => {
     const discount = Math.round(((product.original_price - product.price) / product.original_price) * 100);
@@ -123,10 +144,10 @@ const Products = () => {
           {/* Price and Weight */}
           <div className="flex items-center justify-between mb-4">
             <div>
-              <span className="text-xl font-bold text-primary-600">${product.price}</span>
+              <span className="text-xl font-bold text-primary-600">{formatMoney(product.price)}</span>
               {product.original_price > product.price && (
                 <span className="text-sm text-gray-500 line-through ml-2">
-                  ${product.original_price}
+                  {formatMoney(product.original_price)}
                 </span>
               )}
             </div>
@@ -140,7 +161,7 @@ const Products = () => {
             onClick={handleAddToCart}
             className={`w-full py-3 px-4 rounded-lg flex items-center justify-center space-x-2 transition-all duration-300 transform hover:scale-105 ${
               isAdded 
-                ? 'bg-green-500 text-white' 
+                ? 'bg-primary-600 text-white' 
                 : 'bg-primary-500 hover:bg-primary-600 text-white hover:shadow-lg'
             }`}
           >
@@ -287,7 +308,7 @@ const Products = () => {
                 <h4 className="font-medium mb-3">Price Range</h4>
                 <div className="space-y-3">
                   <div>
-                    <label className="text-sm text-gray-600">Min: ${priceRange.min}</label>
+                    <label className="text-sm text-gray-600">Min: {formatMoney(priceRange.min)}</label>
                     <input
                       type="range"
                       min="0"
@@ -298,7 +319,7 @@ const Products = () => {
                     />
                   </div>
                   <div>
-                    <label className="text-sm text-gray-600">Max: ${priceRange.max}</label>
+                    <label className="text-sm text-gray-600">Max: {formatMoney(priceRange.max)}</label>
                     <input
                       type="range"
                       min="0"
@@ -317,7 +338,7 @@ const Products = () => {
           <div className="flex-1">
             <div className="mb-4 flex justify-between items-center">
               <p className="text-gray-600">
-                Showing {filteredProducts.length} of {products.length} products
+                Showing {filteredProducts.length} of {allProducts.length} products
               </p>
             </div>
 

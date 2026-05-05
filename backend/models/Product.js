@@ -11,7 +11,7 @@ const weightSchema = new mongoose.Schema(
 const pricingSchema = new mongoose.Schema(
   {
     country: { type: String, required: true, enum: ["India", "UAE", "USA"] },
-    currency: { type: String, required: true, enum: ["INR", "AED", "USD"] },
+    currency: { type: String, required: true, enum: ["LKR", "INR", "AED", "USD"] },
     weights: { type: [weightSchema], default: [] },
   },
   { _id: false }
@@ -25,6 +25,9 @@ const productSchema = new mongoose.Schema({
   description: { type: String, required: true, trim: true },
   stock: { type: Number, required: true, min: 0 },
   minStock: { type: Number, required: true, min: 0 },
+  /** Default batch size when placing a supplier reorder from Inventory. */
+  reorderQty: { type: Number, default: 100, min: 0 },
+  supplier: { type: String, default: "", trim: true },
   image: { type: String, default: "" },
   sales: { type: Number, default: 0, min: 0 },
   pricing: { type: [pricingSchema], default: [] },

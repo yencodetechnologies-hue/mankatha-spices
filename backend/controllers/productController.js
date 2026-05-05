@@ -7,6 +7,14 @@ const parsePayload = (body) => {
   }
   parsed.stock = Number(parsed.stock);
   parsed.minStock = Number(parsed.minStock);
+  if (parsed.reorderQty != null && parsed.reorderQty !== "") {
+    const rq = Math.max(0, Number(parsed.reorderQty));
+    if (Number.isFinite(rq)) parsed.reorderQty = rq;
+    else delete parsed.reorderQty;
+  }
+  if (parsed.supplier != null) {
+    parsed.supplier = String(parsed.supplier).trim();
+  }
   return parsed;
 };
 

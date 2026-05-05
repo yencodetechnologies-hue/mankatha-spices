@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingCart, CreditCard, Truck, User, Mail, Phone, MapPin } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
+import { formatMoney } from '../utils/formatMoney';
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -18,7 +19,7 @@ const Checkout = () => {
     city: user?.addresses?.[0]?.city || '',
     state: user?.addresses?.[0]?.state || '',
     zipCode: user?.addresses?.[0]?.zip_code || '',
-    country: user?.addresses?.[0]?.country || 'USA'
+    country: user?.addresses?.[0]?.country || 'Sri Lanka'
   });
 
   const [paymentInfo, setPaymentInfo] = useState({
@@ -321,7 +322,7 @@ const Checkout = () => {
                       <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
                     </div>
                     <span className="font-medium text-sm">
-                      ${(item.price * item.quantity).toFixed(2)}
+                      {formatMoney(item.price * item.quantity)}
                     </span>
                   </div>
                 ))}
@@ -330,17 +331,17 @@ const Checkout = () => {
               <div className="border-t pt-4 space-y-3">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Subtotal</span>
-                  <span className="font-medium">${getCartTotal().toFixed(2)}</span>
+                  <span className="font-medium">{formatMoney(getCartTotal())}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Shipping</span>
                   <span className="font-medium">
-                    {shipping === 0 ? 'FREE' : `$${shipping.toFixed(2)}`}
+                    {shipping === 0 ? 'FREE' : formatMoney(shipping)}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Tax</span>
-                  <span className="font-medium">${tax.toFixed(2)}</span>
+                  <span className="font-medium">{formatMoney(tax)}</span>
                 </div>
               </div>
 
@@ -348,7 +349,7 @@ const Checkout = () => {
                 <div className="flex justify-between items-center">
                   <span className="text-lg font-semibold">Total</span>
                   <span className="text-xl font-bold text-primary-600">
-                    ${total.toFixed(2)}
+                    {formatMoney(total)}
                   </span>
                 </div>
               </div>

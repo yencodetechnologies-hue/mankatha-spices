@@ -4,9 +4,12 @@ import { ShoppingCart, Star, Heart, Share2, Truck, Shield, RefreshCw, Plus, Minu
 import { useCart } from '../contexts/CartContext';
 import products from '../data/products.json';
 import vendors from '../data/vendors.json';
+import { formatMoney } from '../utils/formatMoney';
+import { catalogApi } from '../api/catalogApi';
 
 const ProductDetail = () => {
   const { slug } = useParams();
+  const [allProducts, setAllProducts] = useState(products);
   const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
@@ -14,18 +17,34 @@ const ProductDetail = () => {
   const { addToCart } = useCart();
 
   useEffect(() => {
-    const foundProduct = products.find(p => p.slug === slug);
+    let cancelled = false;
+    async function loadCatalog() {
+      try {
+        const apiProducts = await catalogApi.getProducts();
+        if (!cancelled && apiProducts.length > 0) setAllProducts(apiProducts);
+      } catch {
+        if (!cancelled) setAllProducts(products);
+      }
+    }
+    loadCatalog();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    const foundProduct = allProducts.find(p => p.slug === slug);
     if (foundProduct) {
       setProduct(foundProduct);
       setSelectedImage(0);
       
       // Get related products from same category
-      const related = products
+      const related = allProducts
         .filter(p => p.category === foundProduct.category && p.id !== foundProduct.id)
         .slice(0, 4);
       setRelatedProducts(related);
     }
-  }, [slug]);
+  }, [slug, allProducts]);
 
   if (!product) {
     return (
@@ -86,10 +105,10 @@ const ProductDetail = () => {
           </Link>
           <div className="flex items-center justify-between">
             <div>
-              <span className="text-sm font-bold text-primary-600">${relatedProduct.price}</span>
+              <span className="text-sm font-bold text-primary-600">{formatMoney(relatedProduct.price)}</span>
               {relatedProduct.original_price > relatedProduct.price && (
                 <span className="text-xs text-gray-500 line-through ml-1">
-                  ${relatedProduct.original_price}
+                  {formatMoney(relatedProduct.original_price)}
                 </span>
               )}
             </div>
@@ -173,10 +192,10 @@ const ProductDetail = () => {
 
             <div className="mb-6">
               <div className="flex items-center mb-4">
-                <span className="text-3xl font-bold text-primary-600">${product.price}</span>
+                <span className="text-3xl font-bold text-primary-600">{formatMoney(product.price)}</span>
                 {product.original_price > product.price && (
                   <span className="text-xl text-gray-500 line-through ml-3">
-                    ${product.original_price}
+                    {formatMoney(product.original_price)}
                   </span>
                 )}
               </div>

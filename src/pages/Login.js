@@ -1,7 +1,18 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { authApi } from '../api/authApi';
+import MankathaBanner from '../components/Brand/MankathaBanner';
+import MankathaLoader from '../components/Brand/MankathaLoader';
+
+function isSafeCustomerReturnPath(path) {
+  if (path == null || !String(path).startsWith('/')) return false;
+  const p = String(path);
+  if (p.startsWith('/adminpanel')) return false;
+  if (p.startsWith('/vendor')) return false;
+  return true;
+}
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -11,9 +22,65 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   
-  const { login } = useAuth();
+  const { loginWithSession, isAuthenticated, user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const fromPath = location.state?.from;
+
+  useEffect(() => {
+    if (authLoading || !isAuthenticated || !user) return;
+    if (user.role === 'admin') navigate('/adminpanel/overview', { replace: true });
+    else if (user.role === 'vendor') navigate('/vendor/dashboard', { replace: true });
+    else navigate(isSafeCustomerReturnPath(fromPath) ? fromPath : '/', { replace: true });
+  }, [authLoading, isAuthenticated, user, navigate, fromPath]);
+
+  useEffect(() => {
+    const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+    if (!clientId) return undefined;
+
+    const scriptId = 'google-identity-services-script';
+    let script = document.getElementById(scriptId);
+
+    const initGoogle = () => {
+      if (!window.google?.accounts?.id) return;
+      window.google.accounts.id.initialize({
+        client_id: clientId,
+        callback: async (response) => {
+          if (!response?.credential) return;
+          setIsGoogleLoading(true);
+          try {
+            const { token, user: nextUser } = await authApi.googleLogin(response.credential);
+            loginWithSession(token, nextUser);
+            if (nextUser.role === 'admin') navigate('/adminpanel/overview', { replace: true });
+            else if (nextUser.role === 'vendor') navigate('/vendor/dashboard', { replace: true });
+            else navigate('/', { replace: true });
+          } catch (error) {
+            setErrors({
+              general: error.response?.data?.message || 'Google sign-in failed. Try email/password login.',
+            });
+          } finally {
+            setIsGoogleLoading(false);
+          }
+        },
+      });
+    };
+
+    if (!script) {
+      script = document.createElement('script');
+      script.id = scriptId;
+      script.src = 'https://accounts.google.com/gsi/client';
+      script.async = true;
+      script.defer = true;
+      script.onload = initGoogle;
+      document.body.appendChild(script);
+    } else {
+      initGoogle();
+    }
+
+    return undefined;
+  }, [loginWithSession, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -52,55 +119,43 @@ const Login = () => {
     }
 
     setIsLoading(true);
-    
+
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Mock user data (in real app, this would come from API)
-      const userData = {
-        id: 1,
-        name: 'John Doe',
-        email: formData.email,
-        phone: '+1-555-0101',
-        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop',
-        role: 'customer',
-        is_verified: true,
-        is_active: true,
-        addresses: [
-          {
-            id: 1,
-            type: 'home',
-            default: true,
-            name: 'John Doe',
-            phone: '+1-555-0101',
-            address: '123 Main St',
-            city: 'New York',
-            state: 'NY',
-            zip_code: '10001',
-            country: 'USA',
-            latitude: 40.7128,
-            longitude: -74.0060
-          }
-        ]
-      };
-      
-      login(userData);
-      navigate('/');
+      const email = formData.email.trim().toLowerCase();
+      const password = formData.password;
+      const { token, user: nextUser } = await authApi.login(email, password);
+      loginWithSession(token, nextUser);
+      if (nextUser.role === 'admin') navigate('/adminpanel/overview', { replace: true });
+      else if (nextUser.role === 'vendor') navigate('/vendor/dashboard', { replace: true });
+      else if (isSafeCustomerReturnPath(fromPath)) navigate(fromPath, { replace: true });
+      else navigate('/', { replace: true });
     } catch (error) {
-      setErrors({ general: 'Invalid email or password' });
+      const msg =
+        error.response?.data?.message || 'Invalid email or password. Check your details or sign up.';
+      setErrors({ general: msg });
     } finally {
       setIsLoading(false);
     }
   };
 
+  if (authLoading) {
+    return <MankathaLoader fullScreen message="Checking your session…" />;
+  }
+
+  if (isAuthenticated && user) {
+    return <MankathaLoader fullScreen message="Redirecting…" />;
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen bg-primary-50 flex flex-col items-center justify-center py-10 px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-lg mb-8">
+        <MankathaBanner variant="strip" />
+      </div>
+      <div className="max-w-md w-full space-y-8 bg-white/90 rounded-2xl border border-primary-100 shadow-sm p-8 sm:p-10">
         <div>
           <div className="flex justify-center">
-            <div className="w-16 h-16 bg-primary-500 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-2xl">N</span>
+            <div className="w-16 h-16 bg-primary-700 rounded-lg flex items-center justify-center shadow-md">
+              <span className="text-primary-50 font-bold text-2xl font-serif">M</span>
             </div>
           </div>
           <h2 className="text-center text-3xl font-extrabold text-gray-900">
@@ -241,6 +296,22 @@ const Login = () => {
             <div className="mt-6 grid grid-cols-2 gap-3">
               <button
                 type="button"
+                onClick={() => {
+                  const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+                  if (!clientId) {
+                    setErrors({
+                      general:
+                        'Google login is not configured. Add REACT_APP_GOOGLE_CLIENT_ID in frontend .env and GOOGLE_CLIENT_ID in backend .env.',
+                    });
+                    return;
+                  }
+                  if (!window.google?.accounts?.id) {
+                    setErrors({ general: 'Google Sign-In is still loading. Please wait and try again.' });
+                    return;
+                  }
+                  window.google.accounts.id.prompt();
+                }}
+                disabled={isGoogleLoading}
                 className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors"
               >
                 <span className="sr-only">Sign in with Google</span>

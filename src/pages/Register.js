@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, User, Phone } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { authApi } from '../api/authApi';
+import MankathaBanner from '../components/Brand/MankathaBanner';
+import MankathaLoader from '../components/Brand/MankathaLoader';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -17,8 +20,12 @@ const Register = () => {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   
-  const { login } = useAuth();
+  const { loginWithSession, isAuthenticated, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!authLoading && isAuthenticated) navigate('/', { replace: true });
+  }, [authLoading, isAuthenticated, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -77,40 +84,39 @@ const Register = () => {
     }
 
     setIsLoading(true);
-    
+
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Mock user data (in real app, this would come from API)
-      const userData = {
-        id: Date.now(),
-        name: `${formData.firstName} ${formData.lastName}`,
+      const name = `${formData.firstName} ${formData.lastName}`.trim();
+      const { token, user } = await authApi.register({
+        name,
         email: formData.email,
+        password: formData.password,
         phone: formData.phone,
-        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop',
-        role: 'customer',
-        is_verified: true,
-        is_active: true,
-        addresses: []
-      };
-      
-      login(userData);
-      navigate('/');
+      });
+      loginWithSession(token, user);
+      navigate('/', { replace: true });
     } catch (error) {
-      setErrors({ general: 'Registration failed. Please try again.' });
+      const msg = error.response?.data?.message || 'Registration failed. Please try again.';
+      setErrors({ general: msg });
     } finally {
       setIsLoading(false);
     }
   };
 
+  if (authLoading) {
+    return <MankathaLoader fullScreen message="Checking your session…" />;
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen bg-primary-50 flex flex-col items-center justify-center py-10 px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-lg mb-8">
+        <MankathaBanner variant="strip" />
+      </div>
+      <div className="max-w-md w-full space-y-8 bg-white/90 rounded-2xl border border-primary-100 shadow-sm p-8 sm:p-10">
         <div>
           <div className="flex justify-center">
-            <div className="w-16 h-16 bg-primary-500 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-2xl">Y</span>
+            <div className="w-16 h-16 bg-primary-700 rounded-lg flex items-center justify-center shadow-md">
+              <span className="text-primary-50 font-bold text-2xl font-serif">M</span>
             </div>
           </div>
           <h2 className="text-center text-3xl font-extrabold text-gray-900">

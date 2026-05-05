@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { User, Mail, Phone, MapPin, ShoppingBag, Heart, Package, Settings, LogOut, Edit2, Save, X } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { formatMoney } from '../utils/formatMoney';
 
 const Profile = () => {
   const { user, logout, updateUser } = useAuth();
@@ -234,7 +235,7 @@ const Profile = () => {
           <div className="flex justify-between items-center">
             <div>
               <p className="text-sm text-gray-600">{order.items} items</p>
-              <p className="font-semibold">${order.total.toFixed(2)}</p>
+              <p className="font-semibold">{formatMoney(order.total)}</p>
             </div>
             <button className="text-primary-600 hover:text-primary-700 font-medium">
               View Details
@@ -257,7 +258,7 @@ const Profile = () => {
             />
             <div className="flex-1">
               <h4 className="font-medium line-clamp-2">{item.name}</h4>
-              <p className="text-primary-600 font-semibold">${item.price}</p>
+              <p className="text-primary-600 font-semibold">{formatMoney(item.price)}</p>
               <div className="flex gap-2 mt-2">
                 <button className="text-sm bg-primary-500 hover:bg-primary-600 text-white px-3 py-1 rounded transition-colors">
                   Add to Cart

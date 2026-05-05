@@ -2,17 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { Timer, Tag, Flame, Percent, ArrowRight, ShoppingCart } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import products from '../data/products.json';
+import { formatMoney } from '../utils/formatMoney';
+import { catalogApi } from '../api/catalogApi';
 
 const Deals = () => {
   const { addToCart } = useCart();
   const [timeLeft, setTimeLeft] = useState({ hours: 12, minutes: 45, seconds: 30 });
+  const [allProducts, setAllProducts] = useState(products);
   const [dealProducts, setDealProducts] = useState([]);
 
   useEffect(() => {
-    // Filter products with a discount for the deals page
-    const discounted = products.filter(p => p.original_price > p.price);
-    setDealProducts(discounted);
-
     const timer = setInterval(() => {
       setTimeLeft(prev => {
         if (prev.seconds > 0) return { ...prev, seconds: prev.seconds - 1 };
@@ -22,6 +21,27 @@ const Deals = () => {
     }, 1000);
     return () => clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadCatalog() {
+      try {
+        const apiProducts = await catalogApi.getProducts();
+        if (!cancelled && apiProducts.length > 0) setAllProducts(apiProducts);
+      } catch {
+        if (!cancelled) setAllProducts(products);
+      }
+    }
+    loadCatalog();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    const discounted = allProducts.filter((p) => p.original_price > p.price);
+    setDealProducts(discounted.length > 0 ? discounted : allProducts.slice(0, 8));
+  }, [allProducts]);
 
   return (
     <div className="min-h-screen bg-slate-50/50">
@@ -63,14 +83,14 @@ const Deals = () => {
                   <span className="text-xs">SAVE</span>
                   <span className="text-lg">40%</span>
                 </div>
-                <img src={products[0].featured_image} alt="Featured Deal" className="w-full h-64 object-cover rounded-2xl mb-6 hover:scale-105 transition-transform duration-500" />
-                <h3 className="text-2xl font-black text-gray-900 mb-2 truncate">{products[0].name}</h3>
+                <img src={allProducts[0]?.featured_image} alt="Featured Deal" className="w-full h-64 object-cover rounded-2xl mb-6 hover:scale-105 transition-transform duration-500" />
+                <h3 className="text-2xl font-black text-gray-900 mb-2 truncate">{allProducts[0]?.name || "Featured deal"}</h3>
                 <div className="flex items-center gap-3 mb-6">
                   <span className="text-3xl font-black text-primary-600">$4.99</span>
                   <span className="text-lg text-gray-400 line-through">$8.99</span>
                 </div>
                 <button 
-                  onClick={() => addToCart(products[0])}
+                  onClick={() => allProducts[0] && addToCart(allProducts[0])}
                   className="w-full btn-premium py-4 flex items-center justify-center gap-2"
                 >
                   <ShoppingCart size={20} /> Add to Cart
@@ -109,8 +129,8 @@ const Deals = () => {
               <h3 className="font-bold text-gray-900 mb-2 h-12 line-clamp-2">{product.name}</h3>
               <div className="flex items-center justify-between mt-4">
                 <div>
-                  <span className="text-2xl font-black text-primary-600">${product.price}</span>
-                  <p className="text-sm text-gray-400 line-through">${product.original_price}</p>
+                  <span className="text-2xl font-black text-primary-600">{formatMoney(product.price)}</span>
+                  <p className="text-sm text-gray-400 line-through">{formatMoney(product.original_price)}</p>
                 </div>
                 <button 
                   onClick={() => addToCart(product)}

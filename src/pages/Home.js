@@ -1,9 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Star, ShoppingCart, Truck, Shield, RefreshCw, Heart, ArrowRight } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import products from '../data/products.json';
 import categories from '../data/categories.json';
+import { formatMoney } from '../utils/formatMoney';
+import MankathaBanner from '../components/Brand/MankathaBanner';
+import { catalogApi } from '../api/catalogApi';
 
 const ProductCard = ({ product, index, addToCart }) => {
   const discount = Math.round(((product.original_price - product.price) / product.original_price) * 100);
@@ -65,10 +68,10 @@ const ProductCard = ({ product, index, addToCart }) => {
         <div className="flex items-center justify-between mb-5">
           <div>
             <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-extrabold text-gray-900">${product.price}</span>
+              <span className="text-2xl font-extrabold text-gray-900">{formatMoney(product.price)}</span>
               {product.original_price > product.price && (
                 <span className="text-sm text-gray-400 line-through">
-                  ${product.original_price}
+                  {formatMoney(product.original_price)}
                 </span>
               )}
             </div>
@@ -79,7 +82,7 @@ const ProductCard = ({ product, index, addToCart }) => {
         <button
           onClick={handleAddToCart}
           className={`w-full btn-premium py-3 flex items-center justify-center gap-2 group/btn ${
-            isAdded ? 'bg-green-500' : ''
+            isAdded ? 'bg-primary-600' : ''
           }`}
         >
           {isAdded ? (
@@ -101,14 +104,36 @@ const ProductCard = ({ product, index, addToCart }) => {
 
 const Home = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [allProducts, setAllProducts] = useState(products);
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [scrollY, setScrollY] = useState(0);
   const { addToCart } = useCart();
 
   useEffect(() => {
-    const featured = products.filter(product => product.is_featured);
-    setFeaturedProducts(featured);
+    let cancelled = false;
+    async function loadCatalog() {
+      try {
+        const apiProducts = await catalogApi.getProducts();
+        if (cancelled || apiProducts.length === 0) return;
+        setAllProducts(apiProducts);
+        setFeaturedProducts(apiProducts.filter((product) => product.is_featured));
+      } catch {
+        if (!cancelled) {
+          setAllProducts(products);
+          setFeaturedProducts(products.filter((product) => product.is_featured));
+        }
+      }
+    }
+    loadCatalog();
+    return () => {
+      cancelled = true;
+    };
   }, []);
+
+  useEffect(() => {
+    if (featuredProducts.length > 0) return;
+    setFeaturedProducts(allProducts.filter((product) => product.is_featured).slice(0, 8));
+  }, [allProducts, featuredProducts.length]);
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
@@ -190,12 +215,15 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-slate-50/30">
+      <section className="container mx-auto px-4 pt-6 pb-2">
+        <MankathaBanner variant="hero" className="shadow-md" />
+      </section>
       {/* Hero Slider with Parallax */}
       <section className="relative overflow-hidden h-[600px]">
         <div className="relative h-full">
           {/* Decorative Elements */}
           <div className="absolute top-20 left-[10%] w-64 h-64 bg-primary-200/20 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-20 right-[10%] w-96 h-96 bg-green-200/10 rounded-full blur-3xl animate-pulse delay-1000" />
+          <div className="absolute bottom-20 right-[10%] w-96 h-96 bg-primary-200/20 rounded-full blur-3xl animate-pulse delay-1000" />
           
           {slides.map((slide, index) => (
             <div
@@ -356,11 +384,11 @@ const Home = () => {
             alt="Promo"
             className="absolute inset-0 w-full h-full object-cover transform transition-transform duration-[2s] group-hover:scale-105"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-green-900/90 to-transparent flex items-center px-12 md:px-24">
+          <div className="absolute inset-0 bg-gradient-to-r from-primary-900/90 to-transparent flex items-center px-12 md:px-24">
             <div className="max-w-lg text-white">
               <span className="bg-orange-500 text-white px-4 py-1 rounded-full text-sm font-bold">Limited Offer</span>
               <h2 className="text-4xl md:text-6xl font-black mt-6 mb-4 leading-tight">Save up to 30% on Organic Seasonal Fruit</h2>
-              <p className="text-xl text-green-50 mb-10">Get fresh, organic seasonal fruits delivered and save big this week.</p>
+              <p className="text-xl text-primary-50 mb-10">Get fresh, organic seasonal fruits delivered and save big this week.</p>
               <Link to="/products" className="btn-premium inline-flex px-12 py-5 text-xl">
                 Get Deal Now
               </Link>

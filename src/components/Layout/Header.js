@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, ShoppingCart, User, Menu, X, ChevronDown } from 'lucide-react';
+import { Search, ShoppingCart, Menu, X, ChevronDown } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
 import categories from '../../data/categories.json';
@@ -36,7 +36,17 @@ const Header = () => {
             <span>📞 +1-555-0123</span>
             <span>✉️ info@yencodestore.com</span>
           </div>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center flex-wrap gap-x-4 gap-y-1">
+            {isAuthenticated && user?.role === 'admin' && (
+              <Link to="/adminpanel/overview" className="hover:text-primary-200 transition-colors">
+                Admin panel
+              </Link>
+            )}
+            {isAuthenticated && user?.role === 'vendor' && (
+              <Link to="/vendor/dashboard" className="hover:text-primary-200 transition-colors">
+                Vendor portal
+              </Link>
+            )}
             <Link to="/profile" className="hover:text-primary-200 transition-colors">
               {isAuthenticated ? `Welcome, ${user?.name}` : 'My Account'}
             </Link>

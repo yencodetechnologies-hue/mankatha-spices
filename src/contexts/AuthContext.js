@@ -1,37 +1,34 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useCallback } from "react";
+import { AUTH_TOKEN_KEY } from "../constants/authStorage";
+import { authApi } from "../api/authApi";
 
-const AuthContext = createContext();
+const AuthContext = createContext(null);
 
 const authReducer = (state, action) => {
   switch (action.type) {
-    case 'LOGIN':
+    case "LOGIN":
       return {
         ...state,
-        user: action.payload,
+        user: action.payload.user,
+        token: action.payload.token,
         isAuthenticated: true,
-        loading: false
+        loading: false,
       };
-
-    case 'LOGOUT':
+    case "LOGOUT":
       return {
         ...state,
         user: null,
+        token: null,
         isAuthenticated: false,
-        loading: false
+        loading: false,
       };
-
-    case 'SET_LOADING':
+    case "SET_LOADING":
+      return { ...state, loading: action.payload };
+    case "UPDATE_USER":
       return {
         ...state,
-        loading: action.payload
+        user: state.user ? { ...state.user, ...action.payload } : state.user,
       };
-
-    case 'UPDATE_USER':
-      return {
-        ...state,
-        user: { ...state.user, ...action.payload }
-      };
-
     default:
       return state;
   }
@@ -40,57 +37,61 @@ const authReducer = (state, action) => {
 export const AuthProvider = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, {
     user: null,
+    token: null,
     isAuthenticated: false,
-    loading: true
+    loading: true,
   });
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      dispatch({
-        type: 'LOGIN',
-        payload: JSON.parse(savedUser)
-      });
-    } else {
-      dispatch({ type: 'SET_LOADING', payload: false });
+    let cancelled = false;
+    async function hydrate() {
+      const token = typeof localStorage !== "undefined" ? localStorage.getItem(AUTH_TOKEN_KEY) : null;
+      if (!token) {
+        if (!cancelled) dispatch({ type: "SET_LOADING", payload: false });
+        return;
+      }
+      try {
+        const { user } = await authApi.me();
+        if (!cancelled) {
+          dispatch({ type: "LOGIN", payload: { token, user } });
+        }
+      } catch {
+        localStorage.removeItem(AUTH_TOKEN_KEY);
+        if (!cancelled) dispatch({ type: "LOGOUT" });
+      }
     }
+    hydrate();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  useEffect(() => {
-    if (state.user) {
-      localStorage.setItem('user', JSON.stringify(state.user));
-    } else {
-      localStorage.removeItem('user');
-    }
-  }, [state.user]);
+  const loginWithSession = useCallback((token, user) => {
+    localStorage.setItem(AUTH_TOKEN_KEY, token);
+    dispatch({ type: "LOGIN", payload: { token, user } });
+  }, []);
 
-  const login = (user) => {
-    dispatch({
-      type: 'LOGIN',
-      payload: user
-    });
-  };
+  const logout = useCallback(() => {
+    localStorage.removeItem(AUTH_TOKEN_KEY);
+    dispatch({ type: "LOGOUT" });
+  }, []);
 
-  const logout = () => {
-    dispatch({ type: 'LOGOUT' });
-  };
-
-  const updateUser = (userData) => {
-    dispatch({
-      type: 'UPDATE_USER',
-      payload: userData
-    });
-  };
+  const updateUser = useCallback((patch) => {
+    dispatch({ type: "UPDATE_USER", payload: patch });
+  }, []);
 
   return (
-    <AuthContext.Provider value={{
-      user: state.user,
-      isAuthenticated: state.isAuthenticated,
-      loading: state.loading,
-      login,
-      logout,
-      updateUser
-    }}>
+    <AuthContext.Provider
+      value={{
+        user: state.user,
+        token: state.token,
+        isAuthenticated: state.isAuthenticated,
+        loading: state.loading,
+        loginWithSession,
+        logout,
+        updateUser,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -99,7 +100,7 @@ export const AuthProvider = ({ children }) => {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };

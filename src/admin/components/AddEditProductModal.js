@@ -12,6 +12,8 @@ const emptyProduct = {
   weight: "100g",
   stock: 0,
   minStock: 0,
+  reorderQty: 100,
+  supplier: "",
   image: null,
   pricing: [],
 };
@@ -27,6 +29,8 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
       price: firstWeightPricing?.price ?? 1,
       weight: firstWeightPricing?.weight ?? "100g",
       pricing: initialData.pricing?.length ? initialData.pricing : [],
+      reorderQty: initialData.reorderQty ?? 100,
+      supplier: initialData.supplier ?? "",
     };
   }, [initialData]);
 
@@ -46,8 +50,8 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
       ...form,
       pricing: [
         {
-          country: "India",
-          currency: "INR",
+          country: "Sri Lanka",
+          currency: "LKR",
           weights: [{ weight: form.weight, price: Number(form.price) }],
         },
       ],
@@ -88,7 +92,7 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
 
             <div className="form-group">
               <label>Origin</label>
-              <input placeholder="e.g. Kashmir, India" value={form.origin} onChange={(e) => setField("origin", e.target.value)} required />
+              <input placeholder="e.g. Matale, Sri Lanka" value={form.origin} onChange={(e) => setField("origin", e.target.value)} required />
             </div>
 
             <div className="form-group">
@@ -97,7 +101,7 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
             </div>
 
             <div className="form-group">
-              <label>Price (₹)</label>
+              <label>Price (LKR)</label>
               <input type="number" placeholder="1" value={form.price} onChange={(e) => setField("price", Number(e.target.value))} required />
             </div>
 
@@ -109,6 +113,23 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
             <div className="form-group">
               <label>Min. Stock Alert</label>
               <input type="number" placeholder="50" value={form.minStock} onChange={(e) => setField("minStock", Number(e.target.value))} required />
+            </div>
+
+            <div className="form-group">
+              <label>Reorder qty</label>
+              <input
+                type="number"
+                min={0}
+                placeholder="200"
+                value={form.reorderQty}
+                onChange={(e) => setField("reorderQty", Number(e.target.value))}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Supplier</label>
+              <input placeholder="e.g. Kashmir Valley Co." value={form.supplier} onChange={(e) => setField("supplier", e.target.value)} />
             </div>
           </div>
 
