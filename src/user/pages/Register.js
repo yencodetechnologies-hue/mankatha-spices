@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, User, Phone } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
-import { authApi } from '../api/authApi';
-import MankathaBanner from '../components/Brand/MankathaBanner';
-import MankathaLoader from '../components/Brand/MankathaLoader';
+import { useAuth } from '../../contexts/AuthContext';
+import { authApi } from '../../api/authApi';
+import MankathaBanner from '../../components/Brand/MankathaBanner';
+import MankathaLoader from '../../components/Brand/MankathaLoader';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -411,3 +411,4 @@ const Register = () => {
 };
 
 export default Register;
+

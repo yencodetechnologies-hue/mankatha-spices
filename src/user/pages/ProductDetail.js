@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ShoppingCart, Star, Heart, Share2, Truck, Shield, RefreshCw, Plus, Minus } from 'lucide-react';
-import { useCart } from '../contexts/CartContext';
-import products from '../data/products.json';
-import vendors from '../data/vendors.json';
-import { formatMoney } from '../utils/formatMoney';
-import { catalogApi } from '../api/catalogApi';
+import { useCart } from '../../contexts/CartContext';
+import products from '../../data/products.json';
+import vendors from '../../data/vendors.json';
+import { formatMoney } from '../../utils/formatMoney';
+import { catalogApi } from '../../api/catalogApi';
 
 const ProductDetail = () => {
   const { slug } = useParams();
@@ -295,3 +295,4 @@ const ProductDetail = () => {
 };
 
 export default ProductDetail;
+

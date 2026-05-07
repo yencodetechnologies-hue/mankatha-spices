@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingCart, CreditCard, Truck, User, Mail, Phone, MapPin } from 'lucide-react';
-import { useCart } from '../contexts/CartContext';
-import { useAuth } from '../contexts/AuthContext';
-import { formatMoney } from '../utils/formatMoney';
+import { useCart } from '../../contexts/CartContext';
+import { useAuth } from '../../contexts/AuthContext';
+import { formatMoney } from '../../utils/formatMoney';
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -381,3 +381,4 @@ const Checkout = () => {
 };
 
 export default Checkout;
+

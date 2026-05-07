@@ -1,8 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Trash2, Plus, Minus, ShoppingBag } from 'lucide-react';
-import { useCart } from '../contexts/CartContext';
-import { formatMoney } from '../utils/formatMoney';
+import { useCart } from '../../contexts/CartContext';
+import { formatMoney } from '../../utils/formatMoney';
 
 const Cart = () => {
   const { items, removeFromCart, updateQuantity, getCartTotal, clearCart } = useCart();
@@ -188,3 +188,4 @@ const Cart = () => {
 };
 
 export default Cart;
+

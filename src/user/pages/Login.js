@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
-import { authApi } from '../api/authApi';
-import MankathaBanner from '../components/Brand/MankathaBanner';
-import MankathaLoader from '../components/Brand/MankathaLoader';
+import { useAuth } from '../../contexts/AuthContext';
+import { authApi } from '../../api/authApi';
+import MankathaBanner from '../../components/Brand/MankathaBanner';
+import MankathaLoader from '../../components/Brand/MankathaLoader';
 
 function isSafeCustomerReturnPath(path) {
   if (path == null || !String(path).startsWith('/')) return false;
@@ -12,6 +12,18 @@ function isSafeCustomerReturnPath(path) {
   if (p.startsWith('/adminpanel')) return false;
   if (p.startsWith('/vendor')) return false;
   return true;
+}
+
+function redirectByRole(navigate, nextUser, fromPath) {
+  if (nextUser.role === 'admin') {
+    navigate('/adminpanel/overview', { replace: true });
+    return;
+  }
+  if (nextUser.role === 'vendor') {
+    navigate('/vendor/dashboard', { replace: true });
+    return;
+  }
+  navigate(isSafeCustomerReturnPath(fromPath) ? fromPath : '/', { replace: true });
 }
 
 const Login = () => {
@@ -31,9 +43,7 @@ const Login = () => {
 
   useEffect(() => {
     if (authLoading || !isAuthenticated || !user) return;
-    if (user.role === 'admin') navigate('/adminpanel/overview', { replace: true });
-    else if (user.role === 'vendor') navigate('/vendor/dashboard', { replace: true });
-    else navigate(isSafeCustomerReturnPath(fromPath) ? fromPath : '/', { replace: true });
+    redirectByRole(navigate, user, fromPath);
   }, [authLoading, isAuthenticated, user, navigate, fromPath]);
 
   useEffect(() => {
@@ -53,9 +63,7 @@ const Login = () => {
           try {
             const { token, user: nextUser } = await authApi.googleLogin(response.credential);
             loginWithSession(token, nextUser);
-            if (nextUser.role === 'admin') navigate('/adminpanel/overview', { replace: true });
-            else if (nextUser.role === 'vendor') navigate('/vendor/dashboard', { replace: true });
-            else navigate('/', { replace: true });
+            redirectByRole(navigate, nextUser, fromPath);
           } catch (error) {
             setErrors({
               general: error.response?.data?.message || 'Google sign-in failed. Try email/password login.',
@@ -80,7 +88,7 @@ const Login = () => {
     }
 
     return undefined;
-  }, [loginWithSession, navigate]);
+  }, [loginWithSession, navigate, fromPath]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -125,10 +133,7 @@ const Login = () => {
       const password = formData.password;
       const { token, user: nextUser } = await authApi.login(email, password);
       loginWithSession(token, nextUser);
-      if (nextUser.role === 'admin') navigate('/adminpanel/overview', { replace: true });
-      else if (nextUser.role === 'vendor') navigate('/vendor/dashboard', { replace: true });
-      else if (isSafeCustomerReturnPath(fromPath)) navigate(fromPath, { replace: true });
-      else navigate('/', { replace: true });
+      redirectByRole(navigate, nextUser, fromPath);
     } catch (error) {
       const msg =
         error.response?.data?.message || 'Invalid email or password. Check your details or sign up.';
@@ -353,3 +358,4 @@ const Login = () => {
 };
 
 export default Login;
+

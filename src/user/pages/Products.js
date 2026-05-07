@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Search, Filter, ShoppingCart, Star, ChevronDown, X, Heart } from 'lucide-react';
-import { useCart } from '../contexts/CartContext';
-import products from '../data/products.json';
-import { formatMoney } from '../utils/formatMoney';
-import categories from '../data/categories.json';
-import { catalogApi } from '../api/catalogApi';
+import { useCart } from '../../contexts/CartContext';
+import products from '../../data/products.json';
+import { formatMoney } from '../../utils/formatMoney';
+import categories from '../../data/categories.json';
+import { catalogApi } from '../../api/catalogApi';
 
 const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -365,3 +365,4 @@ const Products = () => {
 };
 
 export default Products;
+

@@ -5,17 +5,17 @@ import { AuthProvider } from './contexts/AuthContext';
 import Header from './components/Layout/Header';
 import Footer from './components/Layout/Footer';
 import CartNotification from './components/Notifications/CartNotification';
-import Home from './pages/Home';
-import Products from './pages/Products';
-import ProductDetail from './pages/ProductDetail';
-import Cart from './pages/Cart';
-import Checkout from './pages/Checkout';
-import Profile from './pages/Profile';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import About from './pages/About';
-import Deals from './pages/Deals';
-import Contact from './pages/Contact';
+import Home from './user/pages/Home';
+import Products from './user/pages/Products';
+import ProductDetail from './user/pages/ProductDetail';
+import Cart from './user/pages/Cart';
+import Checkout from './user/pages/Checkout';
+import Profile from './user/pages/Profile';
+import Login from './user/pages/Login';
+import Register from './user/pages/Register';
+import About from './user/pages/About';
+import Deals from './user/pages/Deals';
+import Contact from './user/pages/Contact';
 import AdminPanelPage from './admin/pages/AdminPanelPage';
 import AdminProductsPanel from './admin/pages/AdminProductsPanel';
 import AdminOrdersPanel from './admin/pages/AdminOrdersPanel';
@@ -156,3 +156,4 @@ function App() {
 }
 
 export default App;
+
