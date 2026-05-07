@@ -3,7 +3,7 @@ import { Timer, Tag, Flame, Percent, ArrowRight, ShoppingCart } from 'lucide-rea
 import { useCart } from '../../contexts/CartContext';
 import products from '../../data/products.json';
 import { formatMoney } from '../../utils/formatMoney';
-import { catalogApi } from '../../api/catalogApi';
+import { catalogApi } from '../api/catalogApi';
 
 const Deals = () => {
   const { addToCart } = useCart();
@@ -168,4 +168,5 @@ const Deals = () => {
 };
 
 export default Deals;
+
 

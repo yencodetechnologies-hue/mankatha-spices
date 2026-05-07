@@ -5,7 +5,7 @@ import { useCart } from '../../contexts/CartContext';
 import products from '../../data/products.json';
 import { formatMoney } from '../../utils/formatMoney';
 import categories from '../../data/categories.json';
-import { catalogApi } from '../../api/catalogApi';
+import { catalogApi } from '../api/catalogApi';
 
 const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -365,4 +365,5 @@ const Products = () => {
 };
 
 export default Products;
+
 

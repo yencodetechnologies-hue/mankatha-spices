@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useReducer, useEffect, useCallback } from "react";
 import { AUTH_TOKEN_KEY } from "../constants/authStorage";
-import { authApi } from "../api/authApi";
+import { authApi } from "../user/api/authApi";
 
 const AuthContext = createContext(null);
 
@@ -104,3 +104,4 @@ export const useAuth = () => {
   }
   return context;
 };
+

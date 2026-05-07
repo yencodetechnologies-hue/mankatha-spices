@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import { authApi } from '../../api/authApi';
+import { authApi } from '../api/authApi';
 import MankathaBanner from '../../components/Brand/MankathaBanner';
 import MankathaLoader from '../../components/Brand/MankathaLoader';
 
@@ -358,4 +358,5 @@ const Login = () => {
 };
 
 export default Login;
+
 

@@ -6,7 +6,7 @@ import products from '../../data/products.json';
 import categories from '../../data/categories.json';
 import { formatMoney } from '../../utils/formatMoney';
 import MankathaBanner from '../../components/Brand/MankathaBanner';
-import { catalogApi } from '../../api/catalogApi';
+import { catalogApi } from '../api/catalogApi';
 
 const ProductCard = ({ product, index, addToCart }) => {
   const discount = Math.round(((product.original_price - product.price) / product.original_price) * 100);
@@ -401,4 +401,5 @@ const Home = () => {
 };
 
 export default Home;
+
 

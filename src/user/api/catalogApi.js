@@ -1,6 +1,6 @@
 import axios from "axios";
-import { getAdminApiBase } from "../admin/api/adminApiBase";
-import { adaptBackendProduct, markFeatured } from "../utils/productAdapter";
+import { getAdminApiBase } from "../../admin/api/adminApiBase";
+import { adaptBackendProduct, markFeatured } from "../../utils/productAdapter";
 
 export const catalogApi = {
   async getProducts(limit = 500) {
@@ -10,3 +10,4 @@ export const catalogApi = {
     return markFeatured(adapted);
   },
 };
+

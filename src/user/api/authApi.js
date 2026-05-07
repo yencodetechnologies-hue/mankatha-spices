@@ -1,6 +1,6 @@
 import axios from "axios";
-import { getAdminApiBase } from "../admin/api/adminApiBase";
-import { AUTH_TOKEN_KEY } from "../constants/authStorage";
+import { getAdminApiBase } from "../../admin/api/adminApiBase";
+import { AUTH_TOKEN_KEY } from "../../constants/authStorage";
 
 const client = axios.create();
 
@@ -35,3 +35,4 @@ export const authApi = {
     return data;
   },
 };
+
