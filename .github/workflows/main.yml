@@ -9,6 +9,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: backend
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -56,12 +60,9 @@ jobs:
             pm2 describe mankatha-backend > /dev/null
 
             if [ $? -eq 0 ]; then
-              echo "♻️ Restarting existing app"
               pm2 restart mankatha-backend
             else
-              echo "🆕 Starting new app"
               pm2 start server.js --name mankatha-backend
             fi
 
-            echo "💾 Saving PM2 process list..."
             pm2 save
