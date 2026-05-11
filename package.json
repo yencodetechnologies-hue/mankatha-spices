@@ -1,0 +1,9 @@
+{
+  "name": "react-frontend",
+  "private": true,
+  "scripts": {
+    "build": "npm run build --prefix frontend",
+    "start": "npm start --prefix frontend",
+    "start:backend": "npm start --prefix backend"
+  }
+}
