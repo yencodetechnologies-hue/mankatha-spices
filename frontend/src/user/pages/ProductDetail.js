@@ -3,7 +3,6 @@ import { useParams, Link } from 'react-router-dom';
 import { ShoppingCart, Star, Heart, Share2, Truck, Shield, RefreshCw, Plus, Minus } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
 import products from '../../data/products.json';
-import vendors from '../../data/vendors.json';
 import { formatMoney } from '../../utils/formatMoney';
 import { catalogApi } from '../api/catalogApi';
 
@@ -59,7 +58,6 @@ const ProductDetail = () => {
     );
   }
 
-  const vendor = vendors.find(v => v.id === product.vendor_id);
   const discount = Math.round(((product.original_price - product.price) / product.original_price) * 100);
 
   const handleAddToCart = () => {

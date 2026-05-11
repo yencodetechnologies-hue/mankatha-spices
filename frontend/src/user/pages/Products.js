@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search, Filter, ShoppingCart, Star, ChevronDown, X, Heart } from 'lucide-react';
+import { Search, Filter, ShoppingCart, Star, Heart } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
 import products from '../../data/products.json';
 import { formatMoney } from '../../utils/formatMoney';

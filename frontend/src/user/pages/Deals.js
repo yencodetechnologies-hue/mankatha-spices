@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Timer, Tag, Flame, Percent, ArrowRight, ShoppingCart } from 'lucide-react';
+import { Flame, ShoppingCart } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
 import products from '../../data/products.json';
 import { formatMoney } from '../../utils/formatMoney';
@@ -15,7 +15,7 @@ const Deals = () => {
     const timer = setInterval(() => {
       setTimeLeft(prev => {
         if (prev.seconds > 0) return { ...prev, seconds: prev.seconds - 1 };
-        if (prev.minutes > 0) return { ...prev, minutes: 59, seconds: 59, minutes: prev.minutes - 1 };
+        if (prev.minutes > 0) return { ...prev, minutes: prev.minutes - 1, seconds: 59 };
         return { hours: prev.hours - 1, minutes: 59, seconds: 59 };
       });
     }, 1000);
