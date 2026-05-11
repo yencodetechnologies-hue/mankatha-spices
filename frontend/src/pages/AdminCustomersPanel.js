@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Search } from "lucide-react";
 import { customerApi } from "../api/customerApi";
-import { formatMoneyWhole } from "../../utils/formatMoney";
+import { formatMoneyWhole } from "../utils/formatMoney";
 
 const PAGE_SIZE = 8;
 

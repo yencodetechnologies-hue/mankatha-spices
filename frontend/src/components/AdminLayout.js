@@ -15,8 +15,8 @@ import {
   Truck,
 } from "lucide-react";
 import { SIDEBAR_GROUPS } from "../constants";
-import { useAuth } from "../../contexts/AuthContext";
-import MankathaBanner from "../../components/Brand/MankathaBanner";
+import { useAuth } from "../contexts/AuthContext";
+import MankathaBanner from "./Brand/MankathaBanner";
 
 const ICON_MAP = {
   overview: LayoutDashboard,

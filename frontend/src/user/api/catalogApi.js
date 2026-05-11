@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getAdminApiBase } from "../../admin/api/adminApiBase";
+import { getAdminApiBase } from "../../api/adminApiBase";
 import { adaptBackendProduct, markFeatured } from "../../utils/productAdapter";
 
 export const catalogApi = {

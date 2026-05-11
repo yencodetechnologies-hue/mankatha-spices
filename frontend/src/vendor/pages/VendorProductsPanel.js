@@ -1,5 +1,5 @@
 import React from "react";
-import AdminDistributorsPanel from "../../admin/pages/AdminDistributorsPanel";
+import AdminDistributorsPanel from "../../pages/AdminDistributorsPanel";
 
 const VendorProductsPanel = () => {
   return <AdminDistributorsPanel />;

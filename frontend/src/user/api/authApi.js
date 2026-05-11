@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getAdminApiBase } from "../../admin/api/adminApiBase";
+import { getAdminApiBase } from "../../api/adminApiBase";
 import { AUTH_TOKEN_KEY } from "../../constants/authStorage";
 
 const client = axios.create();

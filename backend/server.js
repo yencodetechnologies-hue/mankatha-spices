@@ -20,9 +20,29 @@ dotenv.config();
 
 const app = express();
 
+/** CORS: allow CLIENT_ORIGIN (from .env) plus local CRA dev when not in production. */
+function corsOriginCallback() {
+  const fromEnv = (process.env.CLIENT_ORIGIN || "")
+    .split(",")
+    .map((s) => s.trim().replace(/\/$/, ""))
+    .filter(Boolean);
+  const devOrigins =
+    process.env.NODE_ENV !== "production"
+      ? ["http://localhost:3000", "http://127.0.0.1:3000"]
+      : [];
+  const allowed = [...new Set([...devOrigins, ...fromEnv])];
+  if (allowed.length === 0) return true;
+  return (origin, cb) => {
+    if (!origin) return cb(null, true);
+    const normalized = origin.replace(/\/$/, "");
+    if (allowed.includes(normalized)) return cb(null, true);
+    cb(null, false);
+  };
+}
+
 const adminOnly = [requireAuth, requireRoles("admin")];
 
-app.use(cors());
+app.use(cors({ origin: corsOriginCallback(), credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/api/auth", authRoutes);

@@ -3,7 +3,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { LayoutDashboard, Truck, LogOut, Store } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import MankathaBanner from "../../components/Brand/MankathaBanner";
-import "../../admin/admin.css";
+import "../../admin.css";
 
 const VendorLayout = ({ children }) => {
   const { logout, user } = useAuth();

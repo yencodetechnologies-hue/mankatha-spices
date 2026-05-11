@@ -1,4 +1,4 @@
-import { getBackendOrigin } from "../admin/api/adminApiBase";
+import { getBackendOrigin } from "../api/adminApiBase";
 
 function slugify(input) {
   return String(input || "")

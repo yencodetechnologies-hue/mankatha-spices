@@ -1,4 +1,4 @@
-import { AUTH_TOKEN_KEY } from "../../constants/authStorage";
+import { AUTH_TOKEN_KEY } from "../constants/authStorage";
 
 /** Merge Authorization header for admin API calls when a JWT is stored. */
 export function withAuthHeaders(config = {}) {
