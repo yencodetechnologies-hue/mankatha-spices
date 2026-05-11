@@ -20,6 +20,18 @@ function devBackendOrigin() {
   return `http://127.0.0.1:${port}`;
 }
 
+function runtimeApiBase() {
+  if (typeof window === "undefined") return null;
+  const cfg = window.__APP_CONFIG__ || {};
+  const raw =
+    (typeof cfg.API_BASE_URL === "string" && cfg.API_BASE_URL) ||
+    (typeof cfg.REACT_APP_API_BASE_URL === "string" && cfg.REACT_APP_API_BASE_URL) ||
+    (typeof window.__API_BASE_URL__ === "string" && window.__API_BASE_URL__);
+  if (!raw) return null;
+  const trimmed = String(raw).trim();
+  return trimmed ? trimmed : null;
+}
+
 /**
  * Resolves the admin API base for axios/fetch (absolute URL or path ending with `/api`).
  * In development without REACT_APP_API_BASE_URL, uses same-origin `/api` so CRA setupProxy.js
@@ -27,7 +39,7 @@ function devBackendOrigin() {
  * app (not this backend) is bound to that port.
  */
 export function getAdminApiBase() {
-  let base = process.env.REACT_APP_API_BASE_URL;
+  let base = runtimeApiBase() || process.env.REACT_APP_API_BASE_URL;
   if (!base) {
     if (process.env.NODE_ENV === "development") {
       base = "/api";
@@ -48,7 +60,7 @@ export function getAdminApiBase() {
 
 /** Origin for `/uploads/...` and other non-proxied static paths from the Express server. */
 export function getBackendOrigin() {
-  const raw = process.env.REACT_APP_API_BASE_URL;
+  const raw = runtimeApiBase() || process.env.REACT_APP_API_BASE_URL;
   if (raw && /^https?:\/\//i.test(raw)) {
     try {
       const u = new URL(raw.replace(/\/$/, ""));
