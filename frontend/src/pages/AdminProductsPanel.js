@@ -107,7 +107,18 @@ const AdminProductsPanel = () => {
       setEditProduct(null);
       await fetchProducts();
     } catch (error) {
-      setErrorMessage("Product save failed. Please verify backend is running and try again.");
+      const status = error?.response?.status;
+      const detail = error?.response?.data?.message;
+      const isNetwork = error?.code === "ERR_NETWORK" || !error?.response;
+      if (status === 401) {
+        setErrorMessage("Session expired. Please login again and retry.");
+      } else if (status === 403) {
+        setErrorMessage(detail || "Only admin users can create or update products.");
+      } else if (isNetwork) {
+        setErrorMessage("Cannot reach product API. Verify deployed API base URL and backend CORS settings.");
+      } else {
+        setErrorMessage(detail || "Product save failed. Please try again.");
+      }
     }
   };
 
