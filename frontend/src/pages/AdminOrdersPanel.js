@@ -70,7 +70,6 @@ const AdminOrdersPanel = () => {
     cancelled: 0,
     pendingAction: 0,
   });
-  const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All Status");
@@ -127,8 +126,6 @@ const AdminOrdersPanel = () => {
               : error.message || "Request failed.")
       );
       setOrders([]);
-    } finally {
-      setLoading(false);
     }
   }, [periodFilter]);
 

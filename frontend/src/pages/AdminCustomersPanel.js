@@ -39,7 +39,6 @@ const AdminCustomersPanel = () => {
   const [stats, setStats] = useState(null);
   const [customers, setCustomers] = useState([]);
   const [pagination, setPagination] = useState({ total: 0, page: 1, pages: 1 });
-  const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [search, setSearch] = useState("");
   const [tierFilter, setTierFilter] = useState("All");

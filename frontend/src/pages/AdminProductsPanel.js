@@ -9,7 +9,6 @@ const PAGE_SIZE = 6;
 
 const AdminProductsPanel = () => {
   const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("All");

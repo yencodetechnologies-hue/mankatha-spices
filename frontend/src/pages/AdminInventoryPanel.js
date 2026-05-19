@@ -46,7 +46,6 @@ const statusLabel = (status) => {
 
 const AdminInventoryPanel = () => {
   const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [toast, setToast] = useState("");
   const [busyId, setBusyId] = useState(null);
@@ -140,7 +139,7 @@ const AdminInventoryPanel = () => {
         <button
           type="button"
           className="top-add-btn"
-          disabled={bulkBusy || loading || readOnlyInventory}
+          disabled={bulkBusy || readOnlyInventory}
           onClick={onBulkRestock}
           title={readOnlyInventory ? "Restart the backend with the latest server.js to log restock orders." : undefined}
         >
