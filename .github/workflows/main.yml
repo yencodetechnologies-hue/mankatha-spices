@@ -72,4 +72,22 @@ jobs:
 
             pm2 save
 
+            echo "=== DIAGNOSTIC REPORT ==="
+            echo "🔍 PM2 Status:"
+            pm2 list
+            echo "🔍 Active Listening Ports (TCP):"
+            ss -lntp || netstat -lntp || true
+            echo "🔍 Nginx Config files:"
+            ls -l /etc/nginx/sites-enabled/ || true
+            echo "🔍 Nginx Configuration contents:"
+            cat /etc/nginx/sites-enabled/* || true
+            echo "🔍 Backend .env contents (excluding MONGO_URI and secrets):"
+            if [ -f .env ]; then
+              grep -v -E "MONGO_URI|SECRET|KEY|PASSWORD" .env || true
+            else
+              echo ".env not found"
+            fi
+            echo "========================="
+
             echo "✅ Deployment completed"
+

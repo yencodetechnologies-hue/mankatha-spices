@@ -36,7 +36,9 @@ function corsOriginCallback() {
     "https://mankatha-spices.vercel.app",
     "https://mankathaspi.octosofttechnologies.in/"
   ];
-  const allowed = [...new Set([...devOrigins, ...prodOrigins, ...fromEnv])];
+  const allowed = [...new Set([...devOrigins, ...prodOrigins, ...fromEnv])].map(
+    (origin) => origin.replace(/\/$/, "")
+  );
   if (allowed.length === 0) return true;
   return (origin, cb) => {
     if (!origin) return cb(null, true);
