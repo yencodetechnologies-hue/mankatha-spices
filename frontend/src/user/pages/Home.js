@@ -5,7 +5,6 @@ import { useCart } from '../../contexts/CartContext';
 import products from '../../data/products.json';
 import categories from '../../data/categories.json';
 import { formatMoney } from '../../utils/formatMoney';
-import MankathaBanner from '../../components/Brand/MankathaBanner';
 import { catalogApi } from '../api/catalogApi';
 
 const ProductCard = ({ product, index, addToCart }) => {
