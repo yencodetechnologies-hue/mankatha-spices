@@ -44,6 +44,10 @@ function corsOriginCallback() {
     if (!origin) return cb(null, true);
     const normalized = origin.replace(/\/$/, "");
     if (allowed.includes(normalized)) return cb(null, true);
+    // Allow all Vercel preview/production deployments
+    if (normalized.endsWith(".vercel.app") || /^https?:\/\/[a-zA-Z0-9-]+\.vercel\.app$/i.test(normalized)) {
+      return cb(null, true);
+    }
     cb(null, false);
   };
 }
