@@ -26,11 +26,17 @@ function corsOriginCallback() {
     .split(",")
     .map((s) => s.trim().replace(/\/$/, ""))
     .filter(Boolean);
-  const devOrigins =
-    process.env.NODE_ENV !== "production"
-      ? ["http://localhost:3000", "http://127.0.0.1:3000"]
-      : [];
-  const allowed = [...new Set([...devOrigins, ...fromEnv])];
+  const devOrigins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173"
+  ];
+  const prodOrigins = [
+    "https://mankatha-spices.vercel.app",
+    "https://mankathaspi.octosofttechnologies.in"
+  ];
+  const allowed = [...new Set([...devOrigins, ...prodOrigins, ...fromEnv])];
   if (allowed.length === 0) return true;
   return (origin, cb) => {
     if (!origin) return cb(null, true);
