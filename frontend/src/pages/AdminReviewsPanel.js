@@ -67,7 +67,7 @@ const AdminReviewsPanel = () => {
       let msg = detail || error.message || "Failed to load reviews.";
       if (error.response?.status === 404) {
         msg =
-          "Reviews API returned 404. Stop the backend (Ctrl+C), run npm start again from this project’s backend folder, then open http://127.0.0.1:5000/api/reviews/stats — it should return JSON.";
+          "Reviews API endpoint was not found (404). Please verify that the backend server is running and configured correctly.";
       }
       setErrorMessage(msg);
       setReviews([]);

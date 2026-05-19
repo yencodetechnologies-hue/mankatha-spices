@@ -122,7 +122,7 @@ const AdminOverviewPanel = () => {
       let msg = detail || error.message || "Failed to load overview.";
       if (status === 404) {
         msg =
-          "Overview API not found (404). 1) Stop and restart the API: cd react-frontend/backend then npm start. 2) Stop and restart the React app (npm start) so dev proxy loads. 3) Open http://127.0.0.1:5000/api/overview in the browser — it should return JSON, not 404.";
+          "Overview API endpoint was not found (404). Please verify that the backend server is running and configured correctly.";
       }
       setErrorMessage(msg);
     } finally {

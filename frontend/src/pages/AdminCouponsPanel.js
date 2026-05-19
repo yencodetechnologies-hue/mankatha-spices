@@ -57,7 +57,7 @@ const AdminCouponsPanel = () => {
       let msg = detail || error.message || "Failed to load coupons.";
       if (error.response?.status === 404) {
         msg =
-          "Coupons API returned 404. Stop the backend (Ctrl+C), run npm start from this project’s backend folder, then open http://127.0.0.1:5000/api/coupons — you should see JSON with coupons and stats.";
+          "Coupons API endpoint was not found (404). Please verify that the backend server is running and configured correctly.";
       }
       setErrorMessage(msg);
       setCoupons([]);

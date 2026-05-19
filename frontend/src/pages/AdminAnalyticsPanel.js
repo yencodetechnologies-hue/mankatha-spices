@@ -49,7 +49,7 @@ const AdminAnalyticsPanel = () => {
       let msg = detail || error.message || "Failed to load analytics.";
       if (error.response?.status === 404) {
         msg =
-          "Analytics API not found (404). Stop the backend (Ctrl+C in its terminal), run npm start again from the backend folder, then open http://127.0.0.1:5000/api/health — the JSON should list routes.analytics. If it does not, this Node process is still running an old server.js.";
+          "Analytics API endpoint was not found (404). Please verify that the backend server is running and configured correctly.";
       }
       setErrorMessage(msg);
       setData(null);

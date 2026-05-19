@@ -44,7 +44,7 @@ export function getAdminApiBase() {
     if (process.env.NODE_ENV === "development") {
       base = "/api";
     } else {
-      base = "http://127.0.0.1:5000/api";
+      base = "https://mankathaspi.octosofttechnologies.in/api";
     }
   }
   base = base.replace(/\/$/, "");
@@ -71,7 +71,7 @@ export function getBackendOrigin() {
       }
       return u.origin;
     } catch {
-      return "http://127.0.0.1:5000";
+      return "https://mankathaspi.octosofttechnologies.in";
     }
   }
   if (process.env.NODE_ENV === "development") return devBackendOrigin();
