@@ -6,6 +6,46 @@ import products from '../../data/products.json';
 import { formatMoney } from '../../utils/formatMoney';
 import categories from '../../data/categories.json';
 import { catalogApi } from '../api/catalogApi';
+import { categoryApi } from '../../api/categoryApi';
+
+const slugify = (input) => {
+  return String(input || "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+};
+
+const getCategoryIcon = (name, staticIcon) => {
+  if (staticIcon) return staticIcon;
+  const slug = slugify(name);
+  const icons = {
+    fruits: "🍎", vegetables: "🥬", dairy: "🥛", bakery: "🍞", "meat-fish": "🥩",
+    pantry: "🥫", beverages: "🧃", snacks: "🍿", "ground-spices": "🌶️",
+    "whole-spices": "🌰", herbs: "🌿", "blended-masalas": "🥣"
+  };
+  return icons[slug] || "🏷️";
+};
+
+const getCategoryImg = (name, staticImg) => {
+  if (staticImg) return staticImg;
+  const slug = slugify(name);
+  const images = {
+    fruits: "https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=400&h=300&fit=crop",
+    vegetables: "https://images.unsplash.com/photo-1540420775628-1e6b0d6b4dc0?w=400&h=300&fit=crop",
+    dairy: "https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400&h=300&fit=crop",
+    bakery: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&h=300&fit=crop",
+    "meat-fish": "https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?w=400&h=300&fit=crop",
+    pantry: "https://images.unsplash.com/photo-1525373612132-b3e820b87cea?w=400&h=300&fit=crop",
+    beverages: "https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400&h=300&fit=crop",
+    snacks: "https://images.unsplash.com/photo-1511690743698-d9d85f2fbf38?w=400&h=300&fit=crop",
+    "ground-spices": "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400&h=300&fit=crop",
+    "whole-spices": "https://images.unsplash.com/photo-1509358271058-acd22cc93898?w=400&h=300&fit=crop",
+    herbs: "https://images.unsplash.com/photo-1515002246390-7bf7e8f87b54?w=400&h=300&fit=crop",
+    "blended-masalas": "https://images.unsplash.com/photo-1532336414038-cf19250c5757?w=400&h=300&fit=crop"
+  };
+  return images[slug] || "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400&h=300&fit=crop";
+};
 
 const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -15,7 +55,48 @@ const Products = () => {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [allProducts, setAllProducts] = useState(products);
-  const { addToCart, removeFromCart, updateQuantity, items: cartItems } = useCart();
+  const { addToCart, updateQuantity, items: cartItems } = useCart();
+  const [categoriesList, setCategoriesList] = useState([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadCats() {
+      try {
+        const res = await categoryApi.list();
+        if (cancelled) return;
+        const list = res.categories || [];
+        if (list.length > 0) {
+          const formatted = list.map(cat => ({
+            id: cat._id,
+            name: cat.name,
+            slug: cat.name,
+            icon: getCategoryIcon(cat.name),
+            image: getCategoryImg(cat.name),
+            description: `Explore our high quality ${cat.name}`
+          }));
+          setCategoriesList(formatted);
+        } else {
+          setCategoriesList(categories.map(c => ({
+            ...c,
+            slug: c.name,
+            image: getCategoryImg(c.name, c.image)
+          })));
+        }
+      } catch {
+        if (!cancelled) {
+          setCategoriesList(categories.map(c => ({
+            ...c,
+            slug: c.name,
+            image: getCategoryImg(c.name, c.image)
+          })));
+        }
+      }
+    }
+    loadCats();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -50,7 +131,9 @@ const Products = () => {
     // Filter by category
     const categoryParam = searchParams.get('category');
     if (categoryParam) {
-      filtered = filtered.filter(product => product.category === categoryParam);
+      filtered = filtered.filter(product =>
+        String(product.category || "").toLowerCase() === categoryParam.toLowerCase()
+      );
       setSelectedCategory(categoryParam);
     }
 
@@ -405,12 +488,12 @@ const Products = () => {
                     />
                     <span>All Categories</span>
                   </label>
-                  {categories.map((category) => (
+                  {categoriesList.map((category) => (
                     <label key={category.id} className="flex items-center">
                       <input
                         type="radio"
                         name="category"
-                        checked={selectedCategory === category.slug}
+                        checked={selectedCategory?.toLowerCase() === category.slug?.toLowerCase()}
                         onChange={() => handleCategoryChange(category.slug)}
                         className="mr-2"
                       />

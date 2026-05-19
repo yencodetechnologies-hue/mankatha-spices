@@ -1,10 +1,50 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Search, ShoppingCart, Menu, X, ChevronDown, Minus, Plus, Trash2 } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
 import categories from '../../data/categories.json';
 import { formatMoney } from '../../utils/formatMoney';
+import { categoryApi } from '../../api/categoryApi';
+
+const slugify = (input) => {
+  return String(input || "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+};
+
+const getCategoryIcon = (name, staticIcon) => {
+  if (staticIcon) return staticIcon;
+  const slug = slugify(name);
+  const icons = {
+    fruits: "🍎", vegetables: "🥬", dairy: "🥛", bakery: "🍞", "meat-fish": "🥩",
+    pantry: "🥫", beverages: "🧃", snacks: "🍿", "ground-spices": "🌶️",
+    "whole-spices": "🌰", herbs: "🌿", "blended-masalas": "🥣"
+  };
+  return icons[slug] || "🏷️";
+};
+
+const getCategoryImg = (name, staticImg) => {
+  if (staticImg) return staticImg;
+  const slug = slugify(name);
+  const images = {
+    fruits: "https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=400&h=300&fit=crop",
+    vegetables: "https://images.unsplash.com/photo-1540420775628-1e6b0d6b4dc0?w=400&h=300&fit=crop",
+    dairy: "https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400&h=300&fit=crop",
+    bakery: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&h=300&fit=crop",
+    "meat-fish": "https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?w=400&h=300&fit=crop",
+    pantry: "https://images.unsplash.com/photo-1525373612132-b3e820b87cea?w=400&h=300&fit=crop",
+    beverages: "https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400&h=300&fit=crop",
+    snacks: "https://images.unsplash.com/photo-1511690743698-d9d85f2fbf38?w=400&h=300&fit=crop",
+    "ground-spices": "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400&h=300&fit=crop",
+    "whole-spices": "https://images.unsplash.com/photo-1509358271058-acd22cc93898?w=400&h=300&fit=crop",
+    herbs: "https://images.unsplash.com/photo-1515002246390-7bf7e8f87b54?w=400&h=300&fit=crop",
+    "blended-masalas": "https://images.unsplash.com/photo-1532336414038-cf19250c5757?w=400&h=300&fit=crop"
+  };
+  return images[slug] || "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400&h=300&fit=crop";
+};
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -14,6 +54,47 @@ const Header = () => {
   const navigate = useNavigate();
   const { items, getCartCount, getCartTotal, updateQuantity, removeFromCart } = useCart();
   const { user, isAuthenticated, logout } = useAuth();
+  const [categoriesList, setCategoriesList] = useState([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadCats() {
+      try {
+        const res = await categoryApi.list();
+        if (cancelled) return;
+        const list = res.categories || [];
+        if (list.length > 0) {
+          const formatted = list.map(cat => ({
+            id: cat._id,
+            name: cat.name,
+            slug: cat.name,
+            icon: getCategoryIcon(cat.name),
+            image: getCategoryImg(cat.name),
+            description: `Explore our high quality ${cat.name}`
+          }));
+          setCategoriesList(formatted);
+        } else {
+          setCategoriesList(categories.map(c => ({
+            ...c,
+            slug: c.name,
+            image: getCategoryImg(c.name, c.image)
+          })));
+        }
+      } catch {
+        if (!cancelled) {
+          setCategoriesList(categories.map(c => ({
+            ...c,
+            slug: c.name,
+            image: getCategoryImg(c.name, c.image)
+          })));
+        }
+      }
+    }
+    loadCats();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -169,10 +250,10 @@ const Header = () => {
                     onMouseLeave={() => setIsCategoriesOpen(false)}
                     className="absolute top-full left-0 mt-2 w-64 bg-white shadow-lg rounded-lg border border-gray-200 py-2 z-50"
                   >
-                    {categories.map((category) => (
+                    {categoriesList.map((category) => (
                       <Link
                         key={category.id}
-                        to={`/products?category=${category.slug}`}
+                        to={`/products?category=${encodeURIComponent(category.slug)}`}
                         className="flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 transition-colors"
                         onClick={() => setIsCategoriesOpen(false)}
                       >
@@ -224,10 +305,10 @@ const Header = () => {
               <div className="border-t border-gray-100 pt-3">
                 <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">Categories</span>
                 <div className="grid grid-cols-2 gap-2">
-                  {categories.map((category) => (
+                  {categoriesList.map((category) => (
                     <Link
                       key={category.id}
-                      to={`/products?category=${category.slug}`}
+                      to={`/products?category=${encodeURIComponent(category.slug)}`}
                       className="flex items-center space-x-2 text-sm text-gray-600 hover:text-primary-600 p-2.5 rounded-lg bg-gray-50 font-medium"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
