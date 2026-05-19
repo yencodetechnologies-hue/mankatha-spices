@@ -7,6 +7,6 @@
 //
 // IMPORTANT: This is evaluated in the browser. Do not put secrets here.
 window.__APP_CONFIG__ = {
-  API_BASE_URL: "https://mankathaspi.octosofttechnologies.in/api",
+  API_BASE_URL: "https://mankathaspi.octosofttechnologies.in/",
 };
 
