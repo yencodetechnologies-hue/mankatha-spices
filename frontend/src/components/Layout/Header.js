@@ -70,13 +70,12 @@ const Header = () => {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link to="/">
-            <div className="flex items-center space-x-2">
-              <div className="w-10 h-10 bg-primary-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">M</span>
-              </div>
-              <span className="text-2xl font-bold text-gray-800">Mankatha Spices</span>
-            </div>
+          <Link to="/" className="flex items-center">
+            <img
+              src="/brand/mankatha-spices.png"
+              alt="Mankatha Spices"
+              className="h-16 md:h-20 w-auto object-contain transition-transform duration-300 hover:scale-105"
+            />
           </Link>
 
           {/* Search Bar */}
