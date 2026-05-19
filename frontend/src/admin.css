@@ -231,8 +231,8 @@
 .modal-form textarea:focus,
 .modal-form select:focus {
   outline: none;
-  border-color: #558b2f;
-  box-shadow: 0 0 0 3px rgba(85, 139, 47, 0.15);
+  border-color: #6b9312;
+  box-shadow: 0 0 0 3px rgba(107, 147, 18, 0.15);
 }
 
 .modal-form input[type="checkbox"],
@@ -501,25 +501,25 @@ th {
 }
 
 .primary-btn {
-  background: #558b2f !important;
-  border-color: #558b2f !important;
+  background: #6b9312 !important;
+  border-color: #6b9312 !important;
   color: #fff;
   font-weight: 700;
 }
 
 .primary-btn:hover {
-  background: #33691e !important;
-  border-color: #33691e !important;
+  background: #4e6b0d !important;
+  border-color: #4e6b0d !important;
 }
 
 .modal-actions button[type="button"] {
-  border: 1px solid #558b2f;
-  color: #558b2f;
+  border: 1px solid #6b9312;
+  color: #6b9312;
 }
 
 .modal-actions button[type="button"]:hover {
-  background: #f1f8e9;
-  color: #33691e;
+  background: #f2f7e8;
+  color: #4e6b0d;
 }
 
 .status-error {
@@ -532,9 +532,9 @@ th {
 }
 
 .status-info {
-  background: #f1f8e9;
-  color: #558b2f;
-  border: 1px solid #dcedc8;
+  background: #f2f7e8;
+  color: #6b9312;
+  border: 1px solid #e1eccb;
   border-radius: 8px;
   padding: 0.65rem 0.8rem;
 }
@@ -862,8 +862,8 @@ th {
 }
 
 .overview-btn-primary {
-  border: 1px solid #d97706;
-  background: #d97706;
+  border: 1px solid #6b9312;
+  background: #6b9312;
   color: #fff;
   border-radius: 10px;
   padding: 0.55rem 1rem;
@@ -872,10 +872,12 @@ th {
   text-decoration: none;
   display: inline-flex;
   align-items: center;
+  transition: background 0.15s ease, border-color 0.15s ease;
 }
 
 .overview-btn-primary:hover {
-  filter: brightness(0.96);
+  background: #4e6b0d;
+  border-color: #4e6b0d;
 }
 
 .overview-kpi-grid {
@@ -909,23 +911,23 @@ th {
 }
 
 .overview-kpi-icon.wallet {
-  background: #ecfdf5;
-  color: #15803d;
+  background: #f2f7e8;
+  color: #6b9312;
 }
 
 .overview-kpi-icon.package {
-  background: #eff6ff;
-  color: #1d4ed8;
+  background: #f2f7e8;
+  color: #6b9312;
 }
 
 .overview-kpi-icon.users {
-  background: #fef3c7;
-  color: #b45309;
+  background: #f2f7e8;
+  color: #6b9312;
 }
 
 .overview-kpi-icon.return {
-  background: #fce7f3;
-  color: #be185d;
+  background: #fee2e2;
+  color: #b91c1c;
 }
 
 .overview-kpi-label {
@@ -1011,12 +1013,12 @@ th {
 .overview-bar-fill {
   height: 100%;
   border-radius: 999px;
-  background: linear-gradient(90deg, #fdba74, #ea580c);
+  background: linear-gradient(90deg, #c2e263, #6b9312);
   transition: width 0.25s ease;
 }
 
 .overview-bar-fill.current {
-  background: linear-gradient(90deg, #fbbf24, #d97706);
+  background: linear-gradient(90deg, #d1eb7a, #4e6b0d);
 }
 
 .overview-bar-value {
@@ -1156,7 +1158,7 @@ th {
 }
 
 .overview-recent-highlight {
-  background: #fffbeb !important;
+  background: #f1f8e9 !important;
 }
 
 .overview-fail-state {
@@ -2544,52 +2546,52 @@ th {
 }
 
 /*
- * Organic green theme (#558B2F / #FCFDFB) — overrides warm defaults above
+ * Organic green theme (#6b9312 / #FCFDFB) — overrides warm defaults above
  */
 .admin-shell {
   background: #fafcf8;
 }
 
 .admin-sidebar {
-  background: #1e293b;
-  color: #f1f5f9;
+  background: #6b9312;
+  color: #ffffff;
 }
 
 .admin-logo {
-  color: #f8fafc;
+  color: #ffffff;
 }
 
 .admin-subtitle {
-  color: rgba(241, 245, 249, 0.55);
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .admin-nav-group-title {
-  color: rgba(241, 245, 249, 0.4);
+  color: rgba(255, 255, 255, 0.65);
 }
 
 .admin-nav-link {
-  color: rgba(241, 245, 249, 0.78);
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .admin-nav-link:hover {
-  background: rgba(85, 139, 47, 0.15);
-  color: #fff;
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
 }
 
 .admin-nav-link.active {
-  background: rgba(85, 139, 47, 0.22);
-  color: #fff;
-  box-shadow: inset 3px 0 0 #558b2f;
+  background: #4e6b0d;
+  color: #ffffff;
+  box-shadow: inset 4px 0 0 #ffffff;
 }
 
 .admin-topbar {
   background: #ffffff;
-  border-bottom: 1px solid #dcedc8;
+  border-bottom: 1px solid #e1eccb;
 }
 
 .top-add-btn {
-  border: 1px solid #558b2f;
-  background: #558b2f;
+  border: 1px solid #6b9312;
+  background: #6b9312;
   color: #fff;
 }
 
@@ -2599,7 +2601,7 @@ th {
 
 .toolbar {
   background: #fff;
-  border: 1px solid #dcedc8;
+  border: 1px solid #e1eccb;
 }
 
 .modal-form input:not([type="checkbox"]):not([type="radio"]),
@@ -2611,5 +2613,6 @@ th {
 }
 
 .admin-nav-badge {
-  background: #558b2f;
+  background: #ffffff;
+  color: #6b9312;
 }

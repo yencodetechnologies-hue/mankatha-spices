@@ -5,11 +5,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&display=swap');
 
 :root {
-  --primary: 92 56% 34%;
+  --primary: 79 78% 32%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 92 15% 40%;
-  --accent: 89 46% 48%;
-  --background: 92 20% 98%;
+  --secondary: 79 20% 38%;
+  --accent: 79 70% 45%;
+  --background: 79 25% 98%;
   --card: 0 0% 100%;
   --glass: rgba(255, 255, 255, 0.7);
   --glass-border: rgba(255, 255, 255, 0.3);
@@ -133,12 +133,12 @@ body {
 .product-card:hover {
   @apply border-primary-500/20;
   transform: translateY(-10px) scale(1.01);
-  box-shadow: 0 20px 40px rgba(85, 139, 47, 0.12);
+  box-shadow: 0 20px 40px rgba(107, 147, 18, 0.12);
 }
 
 .btn-premium {
   @apply px-8 py-4 rounded-xl font-semibold transition-all duration-300 active:scale-95 shadow-lg flex items-center justify-center gap-2;
-  background: linear-gradient(135deg, #7cb342 0%, #558b2f 100%);
+  background: linear-gradient(135deg, #91c322 0%, #6b9312 100%);
   color: white;
 }
 
@@ -155,7 +155,7 @@ body {
 }
 
 .text-gradient-primary {
-  background: linear-gradient(135deg, #7cb342 0%, #33691e 100%);
+  background: linear-gradient(135deg, #91c322 0%, #4e6b0d 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

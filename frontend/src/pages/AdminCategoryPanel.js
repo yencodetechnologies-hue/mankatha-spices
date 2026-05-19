@@ -121,7 +121,7 @@ const AdminCategoryPanel = () => {
                 onClick={() => setSelectedCategory(cat)}
                 className={`w-full flex items-center justify-between p-4 rounded-xl border text-left transition-all ${
                   isSelected
-                    ? "bg-[#3d2f26] border-[#3d2f26] text-white shadow-md"
+                    ? "bg-[#6b9312] border-[#6b9312] text-white shadow-md"
                     : "bg-white border-[#f0e8dc] text-[#37474F] hover:bg-[#F5F5F5]"
                 }`}
               >
