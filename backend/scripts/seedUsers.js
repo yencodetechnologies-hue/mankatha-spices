@@ -13,8 +13,8 @@ const connectDB = require("../config/db");
 
 const DEMO_USERS = [
   {
-    email: "admin@mankathaspices.com",
-    password: "AdminDemo123!",
+    email: "admin@gmail.com",
+    password: "Admin123",
     name: "Mankatha Admin",
     phone: "+1-555-0100",
     role: "admin",
