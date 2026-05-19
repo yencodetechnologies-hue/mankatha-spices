@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search, Filter, ShoppingCart, Star, Heart } from 'lucide-react';
+import { Search, Filter, ShoppingCart, Star, Heart, Trash2, Minus, Plus } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
 import products from '../../data/products.json';
 import { formatMoney } from '../../utils/formatMoney';
@@ -15,7 +15,7 @@ const Products = () => {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [allProducts, setAllProducts] = useState(products);
-  const { addToCart } = useCart();
+  const { addToCart, removeFromCart, updateQuantity, items: cartItems } = useCart();
 
   useEffect(() => {
     let cancelled = false;
@@ -81,18 +81,35 @@ const Products = () => {
   }, [allProducts, searchParams, sortBy, priceRange]);
 
   const ProductCard = ({ product }) => {
-    const discount = Math.round(((product.original_price - product.price) / product.original_price) * 100);
-    const [isAdded, setIsAdded] = useState(false);
+    const discount = product.original_price > product.price
+      ? Math.round(((product.original_price - product.price) / product.original_price) * 100)
+      : 0;
 
-    const handleAddToCart = () => {
-      addToCart(product);
-      setIsAdded(true);
-      setTimeout(() => setIsAdded(false), 2000);
+    const cartItem = cartItems?.find(i => (i.cartItemId || i.id) === product.id);
+    const qty = cartItem?.quantity || 0;
+
+    const [bulkOpen, setBulkOpen] = useState(false);
+    const [bulkQty, setBulkQty] = useState(qty || 5);
+
+    const handleAdd = () => addToCart({ ...product, quantity: 1 });
+    const handleIncrease = () => {
+      if (qty >= 5) {
+        setBulkQty(qty + 1);
+        setBulkOpen(true);
+      } else {
+        updateQuantity(product.id, qty + 1);
+      }
+    };
+    const handleDecrease = () => updateQuantity(product.id, qty - 1);
+    const handleBulkConfirm = () => {
+      const n = Math.min(99, Math.max(1, Number(bulkQty) || 1));
+      updateQuantity(product.id, n);
+      setBulkOpen(false);
     };
 
     return (
       <div className="product-card bg-white rounded-xl shadow-lg hover:shadow-2xl overflow-hidden group relative">
-        {/* Animated Badge */}
+        {/* Discount Badge */}
         {discount > 0 && (
           <div className="absolute top-3 left-3 z-10">
             <div className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold animate-bounce shadow-lg">
@@ -126,7 +143,7 @@ const Products = () => {
           >
             {product.name}
           </h3>
-          
+
           {/* Rating */}
           <div className="flex items-center mb-3">
             <div className="flex items-center">
@@ -142,49 +159,149 @@ const Products = () => {
           </div>
 
           {/* Price and Weight */}
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <span className="text-xl font-bold text-primary-600">{formatMoney(product.price)}</span>
+          <div className="flex items-center justify-between mb-4" style={{minWidth:0}}>
+            <div style={{minWidth:0, overflow:'hidden'}}>
+              <span className="text-xl font-bold text-primary-600" style={{overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',maxWidth:'100%',display:'block'}}>{formatMoney(product.price)}</span>
               {product.original_price > product.price && (
-                <span className="text-sm text-gray-500 line-through ml-2">
+                <span className="text-sm text-gray-500 line-through ml-2" style={{whiteSpace:'nowrap'}}>
                   {formatMoney(product.original_price)}
                 </span>
               )}
             </div>
-            <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+            <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full" style={{whiteSpace:'nowrap',flexShrink:0,marginLeft:'0.5rem'}}>
               {product.weight} {product.unit}
             </span>
           </div>
 
-          {/* Add to Cart Button */}
-          <button
-            onClick={handleAddToCart}
-            className={`w-full py-3 px-4 rounded-lg flex items-center justify-center space-x-2 transition-all duration-300 transform hover:scale-105 ${
-              isAdded 
-                ? 'bg-primary-600 text-white' 
-                : 'bg-primary-500 hover:bg-primary-600 text-white hover:shadow-lg'
-            }`}
-          >
-            {isAdded ? (
-              <>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Added!</span>
-              </>
-            ) : (
-              <>
-                <ShoppingCart size={18} />
-                <span>Add to Cart</span>
-              </>
-            )}
-          </button>
+          {/* D-Mart style cart control */}
+          {qty === 0 ? (
+            <button
+              onClick={handleAdd}
+              className="w-full py-3 px-4 rounded-lg flex items-center justify-center space-x-2 transition-all duration-300 bg-primary-500 hover:bg-primary-600 text-white hover:shadow-lg"
+            >
+              <ShoppingCart size={18} />
+              <span>Add to Cart</span>
+            </button>
+          ) : (
+            <div className="flex items-center gap-2 w-full">
+              <button
+                onClick={handleDecrease}
+                style={{
+                  width: '40px', height: '40px', borderRadius: '8px',
+                  background: qty === 1 ? '#fee2e2' : '#f3f4f6',
+                  border: 'none', cursor: 'pointer', display: 'flex',
+                  alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                  transition: 'background 0.2s'
+                }}
+                aria-label="Decrease"
+              >
+                {qty === 1
+                  ? <Trash2 size={16} color="#ef4444" />
+                  : <Minus size={16} color="#374151" />}
+              </button>
+
+              <div style={{
+                flex: 1, height: '40px', background: '#6b9312', borderRadius: '8px',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                color: '#fff', fontWeight: 700, fontSize: '1rem'
+              }}>
+                {qty}
+              </div>
+
+              <button
+                onClick={handleIncrease}
+                style={{
+                  width: '40px', height: '40px', borderRadius: '8px',
+                  background: '#6b9312', border: 'none', cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  flexShrink: 0
+                }}
+                aria-label="Increase"
+              >
+                <Plus size={16} color="#fff" />
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Shimmer Effect */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
         </div>
+
+        {/* Bulk Quantity Popup */}
+        {bulkOpen && (
+          <div
+            style={{
+              position: 'fixed', inset: 0, zIndex: 9999,
+              background: 'rgba(0,0,0,0.45)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center'
+            }}
+            onClick={() => setBulkOpen(false)}
+          >
+            <div
+              onClick={e => e.stopPropagation()}
+              style={{
+                background: '#fff', borderRadius: '16px',
+                padding: '2rem', width: '340px', maxWidth: '92vw',
+                boxShadow: '0 20px 60px rgba(0,0,0,0.18)', position: 'relative'
+              }}
+            >
+              <button
+                onClick={() => setBulkOpen(false)}
+                style={{
+                  position: 'absolute', top: '1rem', right: '1rem',
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  fontSize: '1.2rem', color: '#374151', lineHeight: 1
+                }}
+              >✕</button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+                <div style={{
+                  width: '40px', height: '40px', borderRadius: '50%',
+                  background: '#e8f5e9', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                }}>
+                  <ShoppingCart size={18} color="#6b9312" />
+                </div>
+                <h3 style={{ margin: 0, fontWeight: 700, fontSize: '1.1rem', color: '#111827' }}>
+                  Available in Bulk Quantity
+                </h3>
+              </div>
+              <p style={{ color: '#6b7280', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
+                {product.name}{product.weight ? ` : ${product.weight}${product.unit ? ' ' + product.unit : ''}` : ''}
+              </p>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
+                <div>
+                  <div style={{ fontWeight: 600, color: '#111827', marginBottom: '2px' }}>Enter Quantities</div>
+                  <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>Max allowed quantity: 99</div>
+                </div>
+                <input
+                  type="number"
+                  min={1} max={99}
+                  value={bulkQty}
+                  onChange={e => setBulkQty(e.target.value)}
+                  style={{
+                    width: '80px', padding: '0.5rem 0.75rem',
+                    border: '1.5px solid #d1b97a', borderRadius: '8px',
+                    fontSize: '1rem', fontWeight: 700, textAlign: 'center',
+                    background: '#fffbef', color: '#111827', outline: 'none'
+                  }}
+                />
+              </div>
+              <button
+                onClick={handleBulkConfirm}
+                style={{
+                  width: '100%', padding: '0.85rem',
+                  background: '#6b9312', color: '#fff',
+                  border: 'none', borderRadius: '10px',
+                  fontWeight: 700, fontSize: '1rem',
+                  cursor: 'pointer', letterSpacing: '0.04em'
+                }}
+              >
+                ADD TO CART
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     );
   };

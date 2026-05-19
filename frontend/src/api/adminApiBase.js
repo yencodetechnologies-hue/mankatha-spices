@@ -44,7 +44,7 @@ export function getAdminApiBase() {
     if (process.env.NODE_ENV === "development") {
       base = "/api";
     } else {
-      base = "https://mankathaspi.octosofttechnologies.in/";
+      base = "https://mankathaspi.octosofttechnologies.in";
     }
   }
   base = base.replace(/\/$/, "");

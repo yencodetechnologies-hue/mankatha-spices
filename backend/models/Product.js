@@ -32,6 +32,7 @@ const productSchema = new mongoose.Schema({
   image: { type: String, default: "" },
   sales: { type: Number, default: 0, min: 0 },
   pricing: { type: [pricingSchema], default: [] },
+  vatPercent: { type: Number, default: 0, min: 0, max: 100 },
   createdAt: { type: Date, default: Date.now },
 });
 

@@ -1,72 +1,80 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { productApi } from "../api/productApi";
 import { categoryApi } from "../api/categoryApi";
-import { Package, Tag, Plus, X } from "lucide-react";
+import { Package, Tag, Plus, X, Pencil, Trash2 } from "lucide-react";
 
 const AdminCategoryPanel = () => {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
+
+  // Add modal
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  // Edit modal
+  const [editModal, setEditModal] = useState(null); // { id, name }
+  const [editName, setEditName] = useState("");
+  const [editSubmitting, setEditSubmitting] = useState(false);
+
+  // Delete confirm modal
+  const [deleteModal, setDeleteModal] = useState(null); // { id, name }
+  const [deleteSubmitting, setDeleteSubmitting] = useState(false);
+
   const fetchData = async () => {
-    // 1. Populate immediately from cache if available
     const cachedCats = categoryApi.getCached();
     if (cachedCats) {
-      const catList = (cachedCats.categories || []).map((c) => c.name);
+      const catList = cachedCats.categories || [];
       setCategories(catList);
       if (catList.length > 0) {
-        setSelectedCategory((prev) => (catList.includes(prev) ? prev : catList[0]));
+        setSelectedCategory((prev) =>
+          catList.find((c) => c._id === prev?._id) ? prev : catList[0]
+        );
       }
     }
     const cachedProds = productApi.getCached();
-    if (cachedProds) {
-      setProducts(cachedProds.products || []);
-    }
+    if (cachedProds) setProducts(cachedProds.products || []);
 
-    // 2. Silently fetch from server in background
     setErrorMessage("");
-    
+
     try {
       const catRes = await categoryApi.list();
-      const catList = (catRes.categories || []).map((c) => c.name);
+      const catList = catRes.categories || [];
       setCategories(catList);
       if (catList.length > 0) {
-        setSelectedCategory((prev) => (catList.includes(prev) ? prev : catList[0]));
+        setSelectedCategory((prev) =>
+          catList.find((c) => c._id === prev?._id) ? prev : catList[0]
+        );
       }
     } catch (error) {
-      setErrorMessage(error.response?.data?.message || "Failed to load category data.");
+      setErrorMessage(error.response?.data?.message || "Failed to load categories.");
     }
 
     try {
       const prodRes = await productApi.getProducts();
       setProducts(prodRes.products || []);
     } catch (error) {
-      setErrorMessage((prev) => prev || error.response?.data?.message || "Failed to load category products.");
+      setErrorMessage((prev) => prev || error.response?.data?.message || "Failed to load products.");
     }
   };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  useEffect(() => { fetchData(); }, []);
 
-  // Compute product counts for each category
   const categoryCounts = useMemo(() => {
     const counts = {};
     categories.forEach((cat) => {
-      counts[cat] = products.filter((p) => p.category === cat).length;
+      counts[cat._id] = products.filter((p) => p.category === cat.name).length;
     });
     return counts;
   }, [products, categories]);
 
-  // Filter products by selected category
   const categoryProducts = useMemo(() => {
-    return products.filter((p) => p.category === selectedCategory);
+    return products.filter((p) => p.category === selectedCategory?.name);
   }, [products, selectedCategory]);
 
+  // ── Add ────────────────────────────────────────────────────
   const handleAddCategory = async (e) => {
     e.preventDefault();
     if (!newCategoryName.trim()) return;
@@ -81,6 +89,52 @@ const AdminCategoryPanel = () => {
       setErrorMessage(error.response?.data?.message || "Failed to add category.");
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  // ── Edit ───────────────────────────────────────────────────
+  const openEdit = (cat, e) => {
+    e.stopPropagation();
+    setEditModal(cat);
+    setEditName(cat.name);
+  };
+
+  const handleRename = async (e) => {
+    e.preventDefault();
+    if (!editName.trim() || !editModal) return;
+    setEditSubmitting(true);
+    try {
+      setErrorMessage("");
+      await categoryApi.rename(editModal._id, editName.trim());
+      setEditModal(null);
+      await fetchData();
+    } catch (error) {
+      setErrorMessage(error.response?.data?.message || "Failed to rename category.");
+    } finally {
+      setEditSubmitting(false);
+    }
+  };
+
+  // ── Delete ─────────────────────────────────────────────────
+  const openDelete = (cat, e) => {
+    e.stopPropagation();
+    setDeleteModal(cat);
+  };
+
+  const handleDelete = async () => {
+    if (!deleteModal) return;
+    setDeleteSubmitting(true);
+    try {
+      setErrorMessage("");
+      await categoryApi.remove(deleteModal._id);
+      if (selectedCategory?._id === deleteModal._id) setSelectedCategory(null);
+      setDeleteModal(null);
+      await fetchData();
+    } catch (error) {
+      setErrorMessage(error.response?.data?.message || "Failed to delete category.");
+      setDeleteModal(null);
+    } finally {
+      setDeleteSubmitting(false);
     }
   };
 
@@ -107,38 +161,70 @@ const AdminCategoryPanel = () => {
       )}
 
       <div className="grid gap-6 md:grid-cols-3">
-        {/* Left: Category list card */}
+        {/* Left: Category list */}
         <div className="md:col-span-1 flex flex-col gap-3">
           <h3 className="text-sm font-semibold uppercase tracking-wider text-[#78909C] mb-2 px-1">
             Spice Groups
           </h3>
           {categories.map((cat) => {
-            const count = categoryCounts[cat] || 0;
-            const isSelected = selectedCategory === cat;
+            const count = categoryCounts[cat._id] || 0;
+            const isSelected = selectedCategory?._id === cat._id;
             return (
-              <button
-                key={cat}
+              <div
+                key={cat._id}
                 onClick={() => setSelectedCategory(cat)}
-                className={`w-full flex items-center justify-between p-4 rounded-xl border text-left transition-all ${
+                className={`w-full flex items-center justify-between p-4 rounded-xl border text-left transition-all cursor-pointer group ${
                   isSelected
                     ? "bg-[#6b9312] border-[#6b9312] text-white shadow-md"
                     : "bg-white border-[#f0e8dc] text-[#37474F] hover:bg-[#F5F5F5]"
                 }`}
               >
-                <div className="flex items-center gap-3">
+                {/* Name + count */}
+                <div className="flex items-center gap-3 flex-1 min-w-0">
                   <Tag size={18} className={isSelected ? "text-white" : "text-[#78909C]"} />
-                  <span className="font-medium text-sm sm:text-base">{cat}</span>
+                  <span className="font-medium text-sm sm:text-base truncate">{cat.name}</span>
                 </div>
-                <span
-                  className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${
-                    isSelected
-                      ? "bg-white/20 text-white"
-                      : "bg-[#faf7f2] text-[#8c6239]"
-                  }`}
-                >
-                  {count} {count === 1 ? "Product" : "Products"}
-                </span>
-              </button>
+
+                <div className="flex items-center gap-1 ml-2 shrink-0">
+                  <span
+                    className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${
+                      isSelected ? "bg-white/20 text-white" : "bg-[#faf7f2] text-[#8c6239]"
+                    }`}
+                  >
+                    {count} {count === 1 ? "Product" : "Products"}
+                  </span>
+
+                  {/* Edit button */}
+                  <button
+                    type="button"
+                    title="Rename"
+                    onClick={(e) => openEdit(cat, e)}
+                    className={`p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity ${
+                      isSelected
+                        ? "hover:bg-white/20 text-white"
+                        : "hover:bg-[#eaf0d8] text-[#6b9312]"
+                    }`}
+                    style={{ boxShadow: "none", background: "transparent", border: "none" }}
+                  >
+                    <Pencil size={14} />
+                  </button>
+
+                  {/* Delete button */}
+                  <button
+                    type="button"
+                    title="Delete"
+                    onClick={(e) => openDelete(cat, e)}
+                    className={`p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity ${
+                      isSelected
+                        ? "hover:bg-white/20 text-white"
+                        : "hover:bg-red-50 text-red-500"
+                    }`}
+                    style={{ boxShadow: "none", background: "transparent", border: "none" }}
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              </div>
             );
           })}
         </div>
@@ -148,7 +234,7 @@ const AdminCategoryPanel = () => {
           <div className="rounded-2xl border border-[#f0e8dc] bg-white p-6 shadow-sm min-h-[400px]">
             <div className="border-b border-[#ECEFF1] pb-4 mb-4 flex items-center justify-between">
               <h3 className="text-lg font-bold text-[#263238]">
-                {selectedCategory || "No Category Selected"}
+                {selectedCategory?.name || "No Category Selected"}
               </h3>
               <span className="text-sm text-[#78909C]">
                 {categoryProducts.length} items found
@@ -174,9 +260,7 @@ const AdminCategoryPanel = () => {
                   <tbody>
                     {categoryProducts.map((p) => (
                       <tr key={p._id} className="border-b border-[#F5F5F5] hover:bg-[#FAFAFA] text-[#37474F]">
-                        <td className="py-3 pr-4 font-mono text-xs text-[#8c6239]">
-                          {p.sku}
-                        </td>
+                        <td className="py-3 pr-4 font-mono text-xs text-[#8c6239]">{p.sku}</td>
                         <td className="py-3 pr-4 font-medium">{p.name}</td>
                         <td className="py-3 pr-4 text-xs text-[#78909C]">{p.origin}</td>
                         <td className={`py-3 pr-4 text-right font-semibold ${p.stock <= 0 ? "text-red-500" : "text-[#37474F]"}`}>
@@ -192,7 +276,7 @@ const AdminCategoryPanel = () => {
         </div>
       </div>
 
-      {/* Add Category Modal */}
+      {/* ── Add Category Modal ── */}
       {addModalOpen && (
         <div className="modal-overlay">
           <div className="modal-card">
@@ -223,6 +307,85 @@ const AdminCategoryPanel = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── Edit (Rename) Modal ── */}
+      {editModal && (
+        <div className="modal-overlay">
+          <div className="modal-card">
+            <div className="modal-header">
+              <h3>Rename Category</h3>
+              <button type="button" className="modal-close-btn" onClick={() => setEditModal(null)}>
+                <X size={22} />
+              </button>
+            </div>
+            <form onSubmit={handleRename} className="modal-form">
+              <div className="form-group">
+                <label>New Category Name</label>
+                <input
+                  type="text"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  required
+                  autoFocus
+                />
+              </div>
+              <div className="actions-row modal-actions">
+                <button type="button" onClick={() => setEditModal(null)} disabled={editSubmitting}>
+                  Cancel
+                </button>
+                <button type="submit" className="primary-btn" disabled={editSubmitting}>
+                  {editSubmitting ? "Saving..." : "Save"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── Delete Confirm Modal ── */}
+      {deleteModal && (
+        <div className="modal-overlay">
+          <div className="modal-card" style={{ maxWidth: "420px" }}>
+            <div className="modal-header">
+              <h3>Delete Category</h3>
+              <button type="button" className="modal-close-btn" onClick={() => setDeleteModal(null)}>
+                <X size={22} />
+              </button>
+            </div>
+            <div className="modal-form">
+              <p style={{ color: "#374151", marginBottom: "1.25rem", lineHeight: 1.6 }}>
+                Are you sure you want to delete{" "}
+                <strong style={{ color: "#b45309" }}>{deleteModal.name}</strong>?
+                <br />
+                <small style={{ color: "#6b7280" }}>
+                  Any products in this category will become uncategorized.
+                </small>
+              </p>
+              <div className="actions-row modal-actions">
+                <button type="button" onClick={() => setDeleteModal(null)} disabled={deleteSubmitting}>
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  disabled={deleteSubmitting}
+                  style={{
+                    background: "#ef4444",
+                    color: "#fff",
+                    border: "none",
+                    padding: "0.55rem 1.25rem",
+                    borderRadius: "8px",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                  }}
+                >
+                  {deleteSubmitting ? "Deleting..." : "Delete"}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

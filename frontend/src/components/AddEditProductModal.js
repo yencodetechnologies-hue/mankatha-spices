@@ -15,6 +15,7 @@ const emptyProduct = {
   reorderQty: 100,
   supplier: "",
   barcode: "",
+  vatPercent: 0,
   image: null,
   pricing: [],
 };
@@ -62,6 +63,7 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
       reorderQty: initialData.reorderQty ?? 100,
       supplier: initialData.supplier ?? "",
       barcode: initialData.barcode ?? "",
+      vatPercent: initialData.vatPercent ?? 0,
       weightsMap,
     };
   }, [initialData]);
@@ -317,52 +319,70 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
               }}>
                 {(UNIT_OPTIONS_MAP[unitSystem] || UNIT_OPTIONS_MAP.g_kg).map((wt) => {
                   const item = form.weightsMap?.[wt] || { enabled: false, price: "" };
+                  const basePrice = Number(item.price) || 0;
+                  const vatAmt = item.enabled && basePrice > 0 && Number(form.vatPercent) > 0
+                    ? ((basePrice * Number(form.vatPercent)) / 100).toFixed(2)
+                    : null;
                   return (
                     <div key={wt} style={{
                       display: "flex",
-                      alignItems: "center",
-                      gap: "0.6rem",
+                      flexDirection: "column",
+                      gap: "0.3rem",
                       background: "#fff",
                       border: "1px solid #ede6dc",
                       padding: "0.5rem 0.75rem",
                       borderRadius: "8px"
                     }}>
-                      <input
-                        type="checkbox"
-                        checked={item.enabled}
-                        onChange={(e) => {
-                          const updated = {
-                            ...form.weightsMap,
-                            [wt]: { ...item, enabled: e.target.checked }
-                          };
-                          setField("weightsMap", updated);
-                        }}
-                        style={{ cursor: "pointer", width: "auto", margin: 0 }}
-                      />
-                      <span style={{ fontSize: "0.85rem", fontWeight: "600", width: "50px", color: "#3d2f26" }}>{wt}</span>
-                      <input
-                        type="number"
-                        placeholder="Price"
-                        value={item.price}
-                        disabled={!item.enabled}
-                        onChange={(e) => {
-                          const updated = {
-                            ...form.weightsMap,
-                            [wt]: { ...item, price: e.target.value === "" ? "" : Number(e.target.value) }
-                          };
-                          setField("weightsMap", updated);
-                        }}
-                        style={{
-                          flex: 1,
-                          fontSize: "0.85rem",
-                          padding: "0.25rem 0.5rem",
-                          border: "1px solid #d7dce8",
-                          borderRadius: "4px",
-                          margin: 0
-                        }}
-                        required={item.enabled}
-                        min="0"
-                      />
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+                        <input
+                          type="checkbox"
+                          checked={item.enabled}
+                          onChange={(e) => {
+                            const updated = {
+                              ...form.weightsMap,
+                              [wt]: { ...item, enabled: e.target.checked }
+                            };
+                            setField("weightsMap", updated);
+                          }}
+                          style={{ cursor: "pointer", width: "auto", margin: 0 }}
+                        />
+                        <span style={{ fontSize: "0.85rem", fontWeight: "600", width: "50px", color: "#3d2f26" }}>{wt}</span>
+                        <input
+                          type="number"
+                          placeholder="Price"
+                          value={item.price}
+                          disabled={!item.enabled}
+                          onChange={(e) => {
+                            const updated = {
+                              ...form.weightsMap,
+                              [wt]: { ...item, price: e.target.value === "" ? "" : Number(e.target.value) }
+                            };
+                            setField("weightsMap", updated);
+                          }}
+                          style={{
+                            flex: 1,
+                            fontSize: "0.85rem",
+                            padding: "0.25rem 0.5rem",
+                            border: "1px solid #d7dce8",
+                            borderRadius: "4px",
+                            margin: 0
+                          }}
+                          required={item.enabled}
+                          min="0"
+                        />
+                      </div>
+                      {vatAmt && (
+                        <div style={{
+                          fontSize: "0.75rem",
+                          color: "#6b7280",
+                          paddingLeft: "1.6rem",
+                          display: "flex",
+                          gap: "0.5rem"
+                        }}>
+                          <span>VAT ({form.vatPercent}%): <strong style={{ color: "#b45309" }}>+{vatAmt}</strong></span>
+                          <span style={{ color: "#374151" }}>→ Total: <strong>{(basePrice + Number(vatAmt)).toFixed(2)}</strong></span>
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -394,6 +414,24 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
             <div className="form-group">
               <label>Barcode / QR Code</label>
               <input placeholder="e.g. 88010972..." value={form.barcode || ""} onChange={(e) => setField("barcode", e.target.value)} />
+            </div>
+
+            <div className="form-group">
+              <label>VAT (%)</label>
+              <input
+                type="number"
+                placeholder="e.g. 5"
+                value={form.vatPercent ?? 0}
+                min="0"
+                max="100"
+                step="0.01"
+                onChange={(e) => setField("vatPercent", e.target.value === "" ? 0 : Number(e.target.value))}
+              />
+              {Number(form.vatPercent) > 0 && (
+                <small style={{ color: "#6b7280", marginTop: "0.25rem", display: "block" }}>
+                  VAT amount will be shown per weight option above.
+                </small>
+              )}
             </div>
           </div>
 

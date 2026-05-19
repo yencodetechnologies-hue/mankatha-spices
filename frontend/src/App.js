@@ -78,6 +78,10 @@ function AppContent() {
     return () => window.removeEventListener('cartNotification', handleCartNotification);
   }, []);
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+
   return (
     <>
       <div className="min-h-screen flex flex-col">

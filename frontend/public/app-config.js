@@ -6,7 +6,11 @@
 // - "https://example.com/spice-api"      -> frontend will call https://example.com/spice-api/auth/login ...
 //
 // IMPORTANT: This is evaluated in the browser. Do not put secrets here.
+// Leave API_BASE_URL empty for local development — the CRA dev server's
+// setupProxy.js will forward /api/* to http://127.0.0.1:5000 automatically.
+// On production (VPS), the deployment script overwrites this file with the
+// real backend URL so the browser knows where to call the API.
 window.__APP_CONFIG__ = {
-  API_BASE_URL: "https://mankathaspi.octosofttechnologies.in/",
+  API_BASE_URL: "",
 };
 

@@ -1,27 +1,47 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Star, ShoppingCart, Truck, Shield, RefreshCw, Heart, ArrowRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Star, ShoppingCart, Truck, Shield, RefreshCw, Heart, ArrowRight, Trash2, Minus, Plus } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
 import products from '../../data/products.json';
 import categories from '../../data/categories.json';
 import { formatMoney } from '../../utils/formatMoney';
 import { catalogApi } from '../api/catalogApi';
+import heroBlendedMasala from '../../assets/hero_blended_masala.png';
+import heroOrganicSpices from '../../assets/hero_organic_spices.png';
+import heroWholeSpices from '../../assets/hero_whole_spices.png';
 
-const ProductCard = ({ product, index, addToCart }) => {
-  const discount = Math.round(((product.original_price - product.price) / product.original_price) * 100);
-  const [isAdded, setIsAdded] = useState(false);
+const ProductCard = ({ product, index, addToCart, removeFromCart, updateQuantity, cartItems }) => {
+  const discount = product.original_price > product.price
+    ? Math.round(((product.original_price - product.price) / product.original_price) * 100)
+    : 0;
 
-  const handleAddToCart = () => {
-    addToCart(product);
-    setIsAdded(true);
-    setTimeout(() => setIsAdded(false), 2000);
+  const cartItem = cartItems?.find(i => (i.cartItemId || i.id) === product.id);
+  const qty = cartItem?.quantity || 0;
+
+  const [bulkOpen, setBulkOpen] = useState(false);
+  const [bulkQty, setBulkQty] = useState(qty || 5);
+
+  const handleAdd = () => addToCart({ ...product, quantity: 1 });
+  const handleIncrease = () => {
+    if (qty >= 5) {
+      setBulkQty(qty + 1);
+      setBulkOpen(true);
+    } else {
+      updateQuantity(product.id, qty + 1);
+    }
+  };
+  const handleDecrease = () => updateQuantity(product.id, qty - 1);
+  const handleBulkConfirm = () => {
+    const n = Math.min(99, Math.max(1, Number(bulkQty) || 1));
+    updateQuantity(product.id, n);
+    setBulkOpen(false);
   };
 
   return (
-    <div 
+    <div
       className={`product-card group relative shine-effect reveal reveal-up stagger-${(index % 4) + 1}`}
     >
-      {/* Animated Badge */}
+      {/* Discount Badge */}
       {discount > 0 && (
         <div className="absolute top-4 left-4 z-20">
           <div className="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg animate-pulse">
@@ -30,7 +50,7 @@ const ProductCard = ({ product, index, addToCart }) => {
         </div>
       )}
 
-      {/* Quick Actions */}
+      {/* Quick Wishlist */}
       <div className="absolute top-4 right-4 z-20 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-4 group-hover:translate-x-0">
         <button className="w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full shadow-lg flex items-center justify-center hover:bg-red-50 transition-colors">
           <Heart size={18} className="text-gray-600 hover:text-red-500 transition-colors" />
@@ -57,19 +77,19 @@ const ProductCard = ({ product, index, addToCart }) => {
             <span className="text-xs font-bold text-gray-700 ml-1">{product.rating}</span>
           </div>
         </div>
-        
+
         <Link to={`/product/${product.slug}`}>
           <h3 className="font-bold text-gray-800 mb-2 hover:text-primary-600 transition-colors line-clamp-2 h-12">
             {product.name}
           </h3>
         </Link>
 
-        <div className="flex items-center justify-between mb-5">
-          <div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-extrabold text-gray-900">{formatMoney(product.price)}</span>
+        <div className="flex items-center justify-between mb-5" style={{minWidth:0}}>
+          <div style={{minWidth:0, overflow:'hidden'}}>
+            <div className="flex items-baseline gap-2" style={{flexWrap:'nowrap', overflow:'hidden'}}>
+              <span className="text-2xl font-extrabold text-gray-900" style={{overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',maxWidth:'100%',display:'block'}}>{formatMoney(product.price)}</span>
               {product.original_price > product.price && (
-                <span className="text-sm text-gray-400 line-through">
+                <span className="text-sm text-gray-400 line-through" style={{whiteSpace:'nowrap'}}>
                   {formatMoney(product.original_price)}
                 </span>
               )}
@@ -78,25 +98,140 @@ const ProductCard = ({ product, index, addToCart }) => {
           </div>
         </div>
 
-        <button
-          onClick={handleAddToCart}
-          className={`w-full btn-premium py-3 flex items-center justify-center gap-2 group/btn ${
-            isAdded ? 'bg-primary-600' : ''
-          }`}
-        >
-          {isAdded ? (
-            <>
-              <Shield size={18} />
-              <span>Added to Cart</span>
-            </>
-          ) : (
-            <>
-              <ShoppingCart size={18} className="transition-transform group-hover/btn:-translate-y-1" />
-              <span>Add to Cart</span>
-            </>
-          )}
-        </button>
+        {/* D-Mart style cart control */}
+        {qty === 0 ? (
+          <button
+            onClick={handleAdd}
+            className="w-full btn-premium py-3 flex items-center justify-center gap-2 group/btn"
+          >
+            <ShoppingCart size={18} className="transition-transform group-hover/btn:-translate-y-1" />
+            <span>Add to Cart</span>
+          </button>
+        ) : (
+          <div className="flex items-center gap-2 w-full">
+            {/* Trash / decrease to 0 */}
+            <button
+              onClick={handleDecrease}
+              style={{
+                width: '40px', height: '40px', borderRadius: '8px',
+                background: qty === 1 ? '#fee2e2' : '#f3f4f6',
+                border: 'none', cursor: 'pointer', display: 'flex',
+                alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                transition: 'background 0.2s'
+              }}
+              aria-label="Decrease"
+            >
+              {qty === 1
+                ? <Trash2 size={16} color="#ef4444" />
+                : <Minus size={16} color="#374151" />}
+            </button>
+
+            {/* Quantity display */}
+            <div style={{
+              flex: 1, height: '40px', background: '#6b9312', borderRadius: '8px',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: '#fff', fontWeight: 700, fontSize: '1rem'
+            }}>
+              {qty}
+            </div>
+
+            {/* Increase */}
+            <button
+              onClick={handleIncrease}
+              style={{
+                width: '40px', height: '40px', borderRadius: '8px',
+                background: '#6b9312', border: 'none', cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                flexShrink: 0, transition: 'background 0.2s'
+              }}
+              aria-label="Increase"
+            >
+              <Plus size={16} color="#fff" />
+            </button>
+          </div>
+        )}
       </div>
+
+      {/* Bulk Quantity Popup */}
+      {bulkOpen && (
+        <div
+          style={{
+            position: 'fixed', inset: 0, zIndex: 9999,
+            background: 'rgba(0,0,0,0.45)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center'
+          }}
+          onClick={() => setBulkOpen(false)}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              background: '#fff', borderRadius: '16px',
+              padding: '2rem', width: '340px', maxWidth: '92vw',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.18)', position: 'relative'
+            }}
+          >
+            {/* Close */}
+            <button
+              onClick={() => setBulkOpen(false)}
+              style={{
+                position: 'absolute', top: '1rem', right: '1rem',
+                background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem',
+                color: '#374151', lineHeight: 1
+              }}
+            >✕</button>
+
+            {/* Header */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+              <div style={{
+                width: '40px', height: '40px', borderRadius: '50%',
+                background: '#e8f5e9', display: 'flex', alignItems: 'center', justifyContent: 'center'
+              }}>
+                <ShoppingCart size={18} color="#6b9312" />
+              </div>
+              <h3 style={{ margin: 0, fontWeight: 700, fontSize: '1.1rem', color: '#111827' }}>
+                Available in Bulk Quantity
+              </h3>
+            </div>
+
+            <p style={{ color: '#6b7280', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
+              {product.name}{product.weight ? ` : ${product.weight}${product.unit ? ' ' + product.unit : ''}` : ''}
+            </p>
+
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
+              <div>
+                <div style={{ fontWeight: 600, color: '#111827', marginBottom: '2px' }}>Enter Quantities</div>
+                <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>Max allowed quantity: 99</div>
+              </div>
+              <input
+                type="number"
+                min={1}
+                max={99}
+                value={bulkQty}
+                onChange={e => setBulkQty(e.target.value)}
+                style={{
+                  width: '80px', padding: '0.5rem 0.75rem',
+                  border: '1.5px solid #d1b97a', borderRadius: '8px',
+                  fontSize: '1rem', fontWeight: 700, textAlign: 'center',
+                  background: '#fffbef', color: '#111827', outline: 'none'
+                }}
+              />
+            </div>
+
+            <button
+              onClick={handleBulkConfirm}
+              style={{
+                width: '100%', padding: '0.85rem',
+                background: '#6b9312', color: '#fff',
+                border: 'none', borderRadius: '10px',
+                fontWeight: 700, fontSize: '1rem',
+                cursor: 'pointer', letterSpacing: '0.04em'
+              }}
+            >
+              ADD TO CART
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -106,7 +241,7 @@ const Home = () => {
   const [allProducts, setAllProducts] = useState(products);
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [scrollY, setScrollY] = useState(0);
-  const { addToCart } = useCart();
+  const { addToCart, removeFromCart, updateQuantity, items: cartItems } = useCart();
 
   useEffect(() => {
     let cancelled = false;
@@ -176,7 +311,7 @@ const Home = () => {
       title: "Mankatha Blended Masalas",
       subtitle: "Authentic Flavors, Rich Tradition",
       description: "Experience the premium taste of our handcrafted spice blends, perfect for enhancing your traditional home cooking.",
-      image: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=1600&h=600&fit=crop",
+      image: heroBlendedMasala,
       cta: "Explore Blends",
       ctaLink: "/products"
     },
@@ -185,7 +320,7 @@ const Home = () => {
       title: "Pure & Organic Spices",
       subtitle: "100% Certified Organic Spice Powders",
       description: "Sourced directly from the finest organic farms, packed with natural flavor, color, and rich aromatics.",
-      image: "https://images.unsplash.com/photo-1606787366850-de6330128bfc?w=1600&h=600&fit=crop",
+      image: heroOrganicSpices,
       cta: "Shop Pure Powders",
       ctaLink: "/products"
     },
@@ -194,7 +329,7 @@ const Home = () => {
       title: "Traditional Whole Spices",
       subtitle: "Gourmet Aromatics for Fine Culinary Art",
       description: "Carefully selected whole cardamom, cloves, cinnamon, and pepper to bring gourmet level depth to your kitchen.",
-      image: "https://images.unsplash.com/photo-1509358271058-acd22cc93898?w=1600&h=600&fit=crop",
+      image: heroWholeSpices,
       cta: "Shop Whole Spices",
       ctaLink: "/products"
     }
@@ -331,7 +466,7 @@ const Home = () => {
         <div className="container-custom">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 reveal reveal-up">
             <div className="max-w-xl">
-              <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-4 tracking-tight">
+              <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-4 tracking-tight leading-tight">
                 Shop by <span className="text-gradient-primary">Category</span>
               </h2>
               <p className="text-gray-500 text-lg">Check out our most popular categories and find the freshest organic products.</p>
@@ -367,7 +502,7 @@ const Home = () => {
             <span className="bg-primary-100 text-primary-700 px-4 py-1.5 rounded-full text-sm font-bold tracking-wide">
               OUR SELECTIONS
             </span>
-            <h2 className="text-4xl md:text-5xl font-black text-gray-900 mt-6 mb-4">
+            <h2 className="text-4xl md:text-5xl font-black text-gray-900 mt-6 mb-4 leading-tight">
               Featured <span className="text-gradient-primary">Products</span>
             </h2>
             <p className="text-gray-500 text-lg max-w-2xl mx-auto">
@@ -377,7 +512,9 @@ const Home = () => {
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {featuredProducts.map((product, index) => (
-              <ProductCard key={product.id} product={product} index={index} addToCart={addToCart} />
+              <ProductCard key={product.id} product={product} index={index}
+                addToCart={addToCart} removeFromCart={removeFromCart}
+                updateQuantity={updateQuantity} cartItems={cartItems} />
             ))}
           </div>
         </div>

@@ -60,6 +60,13 @@ jobs:
             echo "🗄️ Seeding database..."
             npm run seed:users
 
+            echo "🌐 Writing production app-config.js..."
+            cat > ~/mankathaspeices/mankatha-spices/frontend/public/app-config.js << 'APPCFG'
+            window.__APP_CONFIG__ = {
+              API_BASE_URL: "https://mankathaspi.octosofttechnologies.in",
+            };
+            APPCFG
+
             echo "🚀 Restarting PM2..."
 
             pm2 describe mankatha-backend > /dev/null
@@ -90,4 +97,3 @@ jobs:
             echo "========================="
 
             echo "✅ Deployment completed"
-
