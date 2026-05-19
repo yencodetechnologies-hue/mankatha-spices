@@ -34,7 +34,7 @@ function corsOriginCallback() {
   ];
   const prodOrigins = [
     "https://mankatha-spices.vercel.app",
-    "https://mankathaspi.octosofttechnologies.in"
+    "https://mankathaspi.octosofttechnologies.in/"
   ];
   const allowed = [...new Set([...devOrigins, ...prodOrigins, ...fromEnv])];
   if (allowed.length === 0) return true;
