@@ -249,7 +249,7 @@ const Home = () => {
                 <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
               </div>
               
-              <div className="relative container-custom h-full flex items-center">
+              <div className="relative container-custom h-full flex items-center pb-20 md:pb-28">
                 <div className={`max-w-2xl text-white px-4 transition-all duration-1000 delay-300 ${
                   index === currentSlide ? 'translate-x-0 opacity-100' : '-translate-x-20 opacity-0'
                 }`}>
@@ -282,7 +282,7 @@ const Home = () => {
           ))}
 
           {/* Slider Navigation Icons */}
-          <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-30 flex items-center gap-6 glass px-6 py-3 rounded-2xl">
+          <div className="absolute bottom-24 md:bottom-28 left-1/2 -translate-x-1/2 z-30 flex items-center gap-6 glass px-6 py-3 rounded-2xl">
             <button onClick={prevSlide} className="text-white hover:text-primary-400 transition-colors">
               <ChevronLeft size={28} />
             </button>
@@ -305,21 +305,23 @@ const Home = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 -mt-20 relative z-40 container-custom">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <section className="relative z-40 container-custom -mt-16 sm:-mt-24 mb-8 reveal reveal-up">
+        <div className="bg-white rounded-[2rem] shadow-xl border border-gray-100 p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-8">
           {features.map((feature, i) => (
-            <div 
-              key={i}
-                    className="glass p-8 rounded-3xl flex items-center gap-6 reveal reveal-up stagger-1"
-            >
-              <div className="w-16 h-16 bg-primary-100 rounded-2xl flex items-center justify-center text-primary-600">
-                {feature.icon}
+            <React.Fragment key={i}>
+              <div className="flex-1 flex items-center gap-6 w-full px-4">
+                <div className="w-16 h-16 bg-primary-100 rounded-2xl flex items-center justify-center text-primary-600 flex-shrink-0">
+                  {feature.icon}
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900">{feature.title}</h3>
+                  <p className="text-gray-500 text-sm mt-1">{feature.description}</p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-xl font-bold text-gray-900">{feature.title}</h3>
-                <p className="text-gray-500 text-sm mt-1">{feature.description}</p>
-              </div>
-            </div>
+              {i < features.length - 1 && (
+                <div className="hidden md:block w-px bg-gray-200/80 self-stretch my-2" />
+              )}
+            </React.Fragment>
           ))}
         </div>
       </section>
