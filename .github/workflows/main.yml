@@ -57,6 +57,9 @@ jobs:
             echo "📦 Installing dependencies..."
             npm install
 
+            echo "🗄️ Seeding database..."
+            npm run seed:users
+
             echo "🚀 Restarting PM2..."
 
             pm2 describe mankatha-backend > /dev/null
