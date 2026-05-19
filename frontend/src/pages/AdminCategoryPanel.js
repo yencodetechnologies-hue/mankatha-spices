@@ -1,13 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { productApi } from "../api/productApi";
 import { categoryApi } from "../api/categoryApi";
-import { Package, Tag, ArrowRight, Eye, Plus, X } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Package, Tag, Plus, X } from "lucide-react";
 
 const AdminCategoryPanel = () => {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [addModalOpen, setAddModalOpen] = useState(false);

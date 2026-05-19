@@ -37,12 +37,10 @@ const TrendLine = ({ up }) => {
 const AdminAnalyticsPanel = () => {
   const [rangeDays, setRangeDays] = useState(30);
   const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   const load = useCallback(async () => {
     try {
-      setLoading(true);
       setErrorMessage("");
       const res = await analyticsApi.getAnalytics(rangeDays);
       setData(res);
@@ -55,8 +53,6 @@ const AdminAnalyticsPanel = () => {
       }
       setErrorMessage(msg);
       setData(null);
-    } finally {
-      setLoading(false);
     }
   }, [rangeDays]);
 

@@ -1,5 +1,4 @@
-import React from "react";
-import { getStockStatus, resolvePriceByCountryAndWeight } from "../utils/pricing";
+import { getStockStatus } from "../utils/pricing";
 
 const ProductTable = ({
   products,
