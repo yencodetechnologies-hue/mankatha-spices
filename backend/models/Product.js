@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const weightSchema = new mongoose.Schema(
   {
-    weight: { type: String, required: true, enum: ["100g", "250g", "500g", "1kg"] },
+    weight: { type: String, required: true },
     price: { type: Number, required: true, min: 0 },
   },
   { _id: false }
@@ -10,7 +10,7 @@ const weightSchema = new mongoose.Schema(
 
 const pricingSchema = new mongoose.Schema(
   {
-    country: { type: String, required: true, enum: ["India", "UAE", "USA"] },
+    country: { type: String, required: true, enum: ["Sri Lanka", "India", "UAE", "USA"] },
     currency: { type: String, required: true, enum: ["LKR", "INR", "AED", "USD"] },
     weights: { type: [weightSchema], default: [] },
   },
@@ -28,6 +28,7 @@ const productSchema = new mongoose.Schema({
   /** Default batch size when placing a supplier reorder from Inventory. */
   reorderQty: { type: Number, default: 100, min: 0 },
   supplier: { type: String, default: "", trim: true },
+  barcode: { type: String, default: "", trim: true },
   image: { type: String, default: "" },
   sales: { type: Number, default: 0, min: 0 },
   pricing: { type: [pricingSchema], default: [] },

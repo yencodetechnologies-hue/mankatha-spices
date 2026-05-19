@@ -37,7 +37,7 @@ const TrendLine = ({ up }) => {
 const AdminAnalyticsPanel = () => {
   const [rangeDays, setRangeDays] = useState(30);
   const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   const load = useCallback(async () => {
@@ -76,7 +76,7 @@ const AdminAnalyticsPanel = () => {
           <h2 className="analytics-title">Analytics</h2>
           <p className="analytics-sub">
             {data?.periodLabel ? `${data.periodLabel} · ` : ""}
-            {data?.updatedAt ? formatRelativeUpdated(data.updatedAt) : "Loading…"}
+            {data?.updatedAt ? formatRelativeUpdated(data.updatedAt) : ""}
           </p>
         </div>
         <div className="analytics-head-actions">
@@ -112,9 +112,7 @@ const AdminAnalyticsPanel = () => {
         </div>
       ) : null}
 
-      {loading && !data ? (
-        <p className="analytics-loading">Loading analytics…</p>
-      ) : null}
+
 
       {kpis ? (
         <div className="analytics-kpi-grid">

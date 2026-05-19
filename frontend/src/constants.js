@@ -21,20 +21,24 @@ export const SIDEBAR_GROUPS = [
     title: "MAIN",
     items: [
       { id: "overview", label: "Overview", path: "overview" },
-      { id: "orders", label: "Orders", path: "orders", badge: 12 },
+      { id: "distributors", label: "Vendors", path: "distributors" },
+      { id: "inventory", label: "Inventory", path: "inventory" },
+      { id: "category", label: "Category", path: "category" },
       { id: "products", label: "Products", path: "products" },
+      { id: "orders", label: "Orders", path: "orders", badge: 12 },
       { id: "customers", label: "Customers", path: "customers" },
-      { id: "analytics", label: "Analytics", path: "analytics" },
     ],
   },
   {
     title: "MANAGE",
     items: [
-      { id: "inventory", label: "Inventory", path: "inventory" },
-      { id: "reviews", label: "Reviews", path: "reviews" },
       { id: "coupons", label: "Coupons", path: "coupons" },
-      { id: "distributors", label: "Distributors", path: "distributors" },
+      { id: "analytics", label: "Analytics", path: "analytics" },
       { id: "settings", label: "Settings", path: "settings" },
+      { id: "banners", label: "Banners", path: "banners" },
+      { id: "sliders", label: "Sliders", path: "sliders" },
+      { id: "reviews", label: "Reviews", path: "reviews" },
     ],
   },
 ];
+

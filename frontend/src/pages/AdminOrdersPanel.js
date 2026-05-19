@@ -70,15 +70,32 @@ const AdminOrdersPanel = () => {
     cancelled: 0,
     pendingAction: 0,
   });
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All Status");
   const [periodFilter, setPeriodFilter] = useState("This Month");
 
   const loadData = useCallback(async () => {
+    // 1. Populate immediately from cache if available
+    const cachedOrders = orderApi.getCachedOrders();
+    const cachedStats = orderApi.getCachedStats();
+    if (cachedOrders) {
+      setOrders(cachedOrders.orders || []);
+    }
+    if (cachedStats) {
+      setStats({
+        totalOrders: cachedStats.totalOrders ?? 0,
+        delivered: cachedStats.delivered ?? 0,
+        processing: cachedStats.processing ?? 0,
+        pending: cachedStats.pending ?? 0,
+        cancelled: cachedStats.cancelled ?? 0,
+        pendingAction: cachedStats.pendingAction ?? 0,
+      });
+    }
+
+    // 2. Silently fetch from server in background
     try {
-      setLoading(true);
       setErrorMessage("");
       const period = PERIOD_API[periodFilter] || "all";
       const [listRes, statsRes] = await Promise.all([
@@ -219,10 +236,7 @@ const AdminOrdersPanel = () => {
           </div>
         </div>
 
-        {loading ? (
-          <div className="status-info orders-loading">Loading orders...</div>
-        ) : (
-          <div className="table-wrap orders-table-wrap">
+        <div className="table-wrap orders-table-wrap">
             <table className="orders-table">
               <thead>
                 <tr>
@@ -287,7 +301,6 @@ const AdminOrdersPanel = () => {
               </tbody>
             </table>
           </div>
-        )}
       </div>
     </>
   );

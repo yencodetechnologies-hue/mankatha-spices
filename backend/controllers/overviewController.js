@@ -87,26 +87,69 @@ const getOverview = async (req, res) => {
     const lastStart = startOfMonth(new Date(now.getFullYear(), now.getMonth() - 1, 1));
     const lastEnd = endOfMonth(new Date(now.getFullYear(), now.getMonth() - 1, 1));
 
+    // Category mix date threshold
+    const d90 = new Date(now);
+    d90.setDate(d90.getDate() - 90);
+
+    // Setup monthly revenue queries (last 7 months)
+    const monthQueries = [];
+    for (let i = 6; i >= 0; i -= 1) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const s = startOfMonth(d);
+      const e = endOfMonth(d);
+      monthQueries.push({
+        d,
+        promise: sumRevenue(s, e)
+      });
+    }
+
+    // Execute everything in parallel
     const [
-      revThis,
-      revLast,
-      ordThis,
-      ordLast,
-      custThis,
-      custLast,
-      retThis,
-      retLast,
+      [
+        revThis,
+        revLast,
+        ordThis,
+        ordLast,
+        custThis,
+        custLast,
+        retThis,
+        retLast,
+      ],
+      monthlyRevenues,
+      orderBatch,
+      recent,
+      customerDashboard,
     ] = await Promise.all([
-      sumRevenue(thisStart, thisEnd),
-      sumRevenue(lastStart, lastEnd),
-      countOrders(thisStart, thisEnd),
-      countOrders(lastStart, lastEnd),
-      countUniqueCustomers(thisStart, thisEnd),
-      countUniqueCustomers(lastStart, lastEnd),
-      returnRatePercent(thisStart, thisEnd),
-      returnRatePercent(lastStart, lastEnd),
+      // 1. KPI metrics
+      Promise.all([
+        sumRevenue(thisStart, thisEnd),
+        sumRevenue(lastStart, lastEnd),
+        countOrders(thisStart, thisEnd),
+        countOrders(lastStart, lastEnd),
+        countUniqueCustomers(thisStart, thisEnd),
+        countUniqueCustomers(lastStart, lastEnd),
+        returnRatePercent(thisStart, thisEnd),
+        returnRatePercent(lastStart, lastEnd),
+      ]),
+      // 2. Monthly Revenues
+      Promise.all(monthQueries.map(mq => mq.promise)),
+      // 3. Category Mix
+      Order.find({
+        orderDate: { $gte: d90 },
+        status: { $ne: "Cancelled" },
+      })
+        .select("total lineItems")
+        .lean(),
+      // 4. Recent Orders
+      Order.find()
+        .sort({ orderDate: -1 })
+        .limit(5)
+        .lean(),
+      // 5. Customer Dashboard stats
+      getCustomerStatsPayload().catch(() => null),
     ]);
 
+    // Build KPIs
     const kpis = {
       totalRevenue: {
         value: revThis,
@@ -127,32 +170,19 @@ const getOverview = async (req, res) => {
       },
     };
 
-    // Last 7 calendar months (ending current month)
-    const revenueByMonth = [];
-    for (let i = 6; i >= 0; i -= 1) {
-      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const s = startOfMonth(d);
-      const e = endOfMonth(d);
-      const rev = await sumRevenue(s, e);
-      revenueByMonth.push({
+    // Format Monthly revenues
+    const revenueByMonth = monthlyRevenues.map((rev, index) => {
+      const d = monthQueries[index].d;
+      return {
         key: `${d.getFullYear()}-${d.getMonth()}`,
         month: MONTH_LABELS[d.getMonth()],
         year: d.getFullYear(),
         revenue: rev,
         label: formatInShortLKR(rev),
-      });
-    }
+      };
+    });
 
-    // Category mix: last 90 days, non-cancelled
-    const d90 = new Date(now);
-    d90.setDate(d90.getDate() - 90);
-    const orderBatch = await Order.find({
-      orderDate: { $gte: d90 },
-      status: { $ne: "Cancelled" },
-    })
-      .select("total lineItems")
-      .lean();
-
+    // Category mix calculations
     const catTotals = {};
     for (const o of orderBatch) {
       const parts = allocateOrderTotalToCategories(o);
@@ -174,11 +204,7 @@ const getOverview = async (req, res) => {
       ? { percent: top.percent, label: top.category.split("&")[0].trim() }
       : { percent: 0, label: "—" };
 
-    const recent = await Order.find()
-      .sort({ orderDate: -1 })
-      .limit(5)
-      .lean();
-
+    // Format Recent Orders
     const recentOrders = recent.map((o) => {
       const productsLabel =
         o.lineItems && o.lineItems.length
@@ -193,13 +219,6 @@ const getOverview = async (req, res) => {
         orderDate: o.orderDate,
       };
     });
-
-    let customerDashboard = null;
-    try {
-      customerDashboard = await getCustomerStatsPayload();
-    } catch (_) {
-      customerDashboard = null;
-    }
 
     res.json({
       kpis,

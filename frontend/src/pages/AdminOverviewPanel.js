@@ -52,17 +52,70 @@ const statusDot = (status) => {
   return "order-status-dot dot-amber";
 };
 
+const SkeletonCard = () => (
+  <div className="overview-kpi-card animate-pulse bg-white border border-[#ede6dc]">
+    <div className="h-10 w-10 rounded-lg bg-gray-200 mb-4" />
+    <div className="h-3 bg-gray-200 rounded w-20 mb-2" />
+    <div className="h-7 bg-gray-200 rounded w-28 mb-3" />
+    <div className="h-3 bg-gray-200 rounded w-24" />
+  </div>
+);
+
+const SkeletonChart = () => (
+  <div className="overview-chart-card animate-pulse bg-white border border-[#ede6dc] p-6">
+    <div className="h-4 bg-gray-200 rounded w-40 mb-6" />
+    <div className="space-y-4">
+      {[1, 2, 3, 4, 5].map((i) => (
+        <div key={i} className="flex items-center gap-4">
+          <div className="h-3 bg-gray-200 rounded w-12" />
+          <div className="h-3.5 bg-gray-100 rounded flex-1" />
+          <div className="h-3 bg-gray-200 rounded w-16" />
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+const SkeletonRecentOrders = () => (
+  <div className="overview-recent-card animate-pulse bg-white border border-[#ede6dc] p-6">
+    <div className="h-4 bg-gray-200 rounded w-32 mb-6" />
+    <div className="space-y-4">
+      {[1, 2, 3, 4].map((i) => (
+        <div key={i} className="flex justify-between items-center border-b border-gray-100 pb-3 last:border-0 last:pb-0">
+          <div className="flex gap-4 items-center">
+            <div className="h-8 w-8 rounded-full bg-gray-200" />
+            <div className="space-y-2">
+              <div className="h-3 bg-gray-200 rounded w-24" />
+              <div className="h-2.5 bg-gray-150 rounded w-32" />
+            </div>
+          </div>
+          <div className="h-5 bg-gray-200 rounded w-16" />
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
 const AdminOverviewPanel = () => {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState(() => {
+    try {
+      const cached = localStorage.getItem("admin_overview_data");
+      return cached ? JSON.parse(cached) : null;
+    } catch (_) {
+      return null;
+    }
+  });
+  const [loading, setLoading] = useState(!data);
   const [errorMessage, setErrorMessage] = useState("");
 
   const load = useCallback(async () => {
     try {
-      setLoading(true);
       setErrorMessage("");
       const res = await overviewApi.getOverview();
       setData(res);
+      try {
+        localStorage.setItem("admin_overview_data", JSON.stringify(res));
+      } catch (_) {}
     } catch (error) {
       const status = error.response?.status;
       const detail = error.response?.data?.message;
@@ -72,7 +125,6 @@ const AdminOverviewPanel = () => {
           "Overview API not found (404). 1) Stop and restart the API: cd react-frontend/backend then npm start. 2) Stop and restart the React app (npm start) so dev proxy loads. 3) Open http://127.0.0.1:5000/api/overview in the browser — it should return JSON, not 404.";
       }
       setErrorMessage(msg);
-      setData(null);
     } finally {
       setLoading(false);
     }
@@ -138,8 +190,20 @@ const AdminOverviewPanel = () => {
         </div>
       </header>
 
-      {loading ? (
-        <div className="status-info">Loading overview…</div>
+      {loading && !data ? (
+        <>
+          <section className="overview-kpi-grid">
+            <SkeletonCard />
+            <SkeletonCard />
+            <SkeletonCard />
+            <SkeletonCard />
+          </section>
+          <section className="overview-charts-row">
+            <SkeletonChart />
+            <SkeletonChart />
+          </section>
+          <SkeletonRecentOrders />
+        </>
       ) : errorMessage ? (
         <div className="overview-fail-state" role="alert">
           <p className="overview-fail-title">Couldn&apos;t load dashboard data</p>

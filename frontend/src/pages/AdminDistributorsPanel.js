@@ -12,6 +12,8 @@ import {
   Settings,
   LayoutGrid,
   Building2,
+  Edit2,
+  Trash2,
 } from "lucide-react";
 import { distributorApi } from "../api/distributorApi";
 
@@ -20,6 +22,7 @@ const PAYMENT_TYPES = ["Credit", "Cash", "Prepaid"];
 const ACCOUNT_STATUSES = ["Active", "Inactive", "Suspended"];
 
 const emptyForm = () => ({
+  _id: "",
   distributorId: "",
   businessType: "Distributor",
   companyName: "",
@@ -45,8 +48,8 @@ const emptyForm = () => ({
 
 function SectionHeader({ Icon, title }) {
   return (
-    <div className="dist-section-head mb-6 flex items-center gap-3 border-b border-[#CFD8DC] pb-3">
-      <span className="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-[#E3F2FD] text-[#1976D2]">
+    <div className="dist-section-head mb-6 flex items-center gap-3 border-b border-[#f0e8dc] pb-3">
+      <span className="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-[#faf7f2] text-[#d4a017]">
         <Icon size={22} strokeWidth={1.75} aria-hidden />
       </span>
       <h3 className="text-lg font-semibold tracking-tight text-[#263238]">{title}</h3>
@@ -71,10 +74,10 @@ function Input(props) {
   const { icon: Icon, className = "", ...rest } = props;
   return (
     <div
-      className={`flex overflow-hidden rounded-lg border border-[#CFD8DC] bg-white focus-within:border-[#1976D2] focus-within:ring-1 focus-within:ring-[#1976D2]/40 ${className}`}
+      className={`flex overflow-hidden rounded-lg border border-[#ede6dc] bg-white focus-within:border-[#d4a017] focus-within:ring-1 focus-within:ring-[#d4a017]/40 ${className}`}
     >
       {Icon ? (
-        <span className="flex items-center bg-[#FAFAFA] px-3 text-[#78909C]">
+        <span className="flex items-center bg-[#fffcf7] px-3 text-[#91755f]">
           <Icon size={18} strokeWidth={1.75} aria-hidden />
         </span>
       ) : null}
@@ -88,9 +91,9 @@ function Input(props) {
 
 function Select({ icon: Icon, children, ...rest }) {
   return (
-    <div className="flex overflow-hidden rounded-lg border border-[#CFD8DC] bg-white focus-within:border-[#1976D2] focus-within:ring-1 focus-within:ring-[#1976D2]/40">
+    <div className="flex overflow-hidden rounded-lg border border-[#ede6dc] bg-white focus-within:border-[#d4a017] focus-within:ring-1 focus-within:ring-[#d4a017]/40">
       {Icon ? (
-        <span className="flex items-center bg-[#FAFAFA] px-3 text-[#78909C]">
+        <span className="flex items-center bg-[#fffcf7] px-3 text-[#91755f]">
           <Icon size={18} strokeWidth={1.75} aria-hidden />
         </span>
       ) : null}
@@ -119,9 +122,9 @@ const AdminDistributorsPanel = () => {
     } catch (err) {
       const msg = err.response?.data?.message;
       if (msg) {
-        setError(`Could not load a distributor ID. Server says: ${msg}`);
+        setError(`Could not load a vendor ID. Server says: ${msg}`);
       } else {
-        setError("Could not load a distributor ID. Sign in again and ensure backend is restarted.");
+        setError("Could not load a vendor ID. Sign in again and ensure backend is restarted.");
       }
     }
   }, []);
@@ -163,7 +166,7 @@ const AdminDistributorsPanel = () => {
     setSuccess("");
     setSubmitting(true);
     try {
-      await distributorApi.create({
+      const payload = {
         distributorId: form.distributorId,
         businessType: form.businessType,
         companyName: form.companyName.trim(),
@@ -185,15 +188,68 @@ const AdminDistributorsPanel = () => {
         openingBalance: form.openingBalance === "" ? 0 : Number(form.openingBalance),
         accountStatus: form.accountStatus,
         notesSpecialRemarks: form.notesSpecialRemarks.trim(),
-      });
-      setSuccess("Distributor created successfully.");
+      };
+
+      if (form._id) {
+        await distributorApi.update(form._id, payload);
+        setSuccess("Vendor updated successfully.");
+      } else {
+        await distributorApi.create(payload);
+        setSuccess("Vendor created successfully.");
+      }
+
       setForm(emptyForm());
       await refreshId();
       await loadList();
     } catch (err) {
-      setError(err.response?.data?.message || "Could not create distributor.");
+      setError(err.response?.data?.message || `Could not ${form._id ? 'update' : 'create'} vendor.`);
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleEdit = (d) => {
+    setForm({
+      _id: d._id,
+      distributorId: d.distributorId || "",
+      businessType: d.businessType || "Distributor",
+      companyName: d.companyName || "",
+      payableName: d.payableName || "",
+      fullOfficeAddress: d.fullOfficeAddress || "",
+      areaCity: d.areaCity || "",
+      state: d.state || "",
+      pincode: d.pincode || "",
+      contactPersonName: d.contactPersonName || "",
+      mobileNumber: d.mobileNumber || "",
+      officePhoneNumber: d.officePhoneNumber || "",
+      email: d.email || "",
+      gstRegistrationNo: d.gstRegistrationNo || "",
+      drugLicenseNo: d.drugLicenseNo || "",
+      panNumber: d.panNumber || "",
+      fssaiLicenseNo: d.fssaiLicenseNo || "",
+      paymentType: d.paymentType || "Credit",
+      creditLimitDays: d.creditLimitDays !== undefined ? d.creditLimitDays : "",
+      openingBalance: d.openingBalance !== undefined ? d.openingBalance : "",
+      accountStatus: d.accountStatus || "Active",
+      notesSpecialRemarks: d.notesSpecialRemarks || "",
+    });
+    setError("");
+    setSuccess("");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleDelete = async (id) => {
+  
+    try {
+      await distributorApi.delete(id);
+      setSuccess("Vendor deleted successfully.");
+      await loadList();
+      if (form._id === id) {
+        setForm(emptyForm());
+        await refreshId();
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || "Could not delete vendor.");
     }
   };
 
@@ -203,8 +259,8 @@ const AdminDistributorsPanel = () => {
     <div className="distributors-page mx-auto max-w-6xl">
       <header className="products-head mb-2">
         <div>
-          <h2>Distributors</h2>
-          <p>Create distributor accounts aligned with compliance, payment terms, and contact records.</p>
+          <h2>Vendors</h2>
+          <p>Create vendor accounts aligned with compliance, payment terms, and contact records.</p>
         </div>
       </header>
 
@@ -322,11 +378,11 @@ const AdminDistributorsPanel = () => {
         <SectionHeader Icon={Shield} title="Legal & Compliance" />
 
         <div className="mb-10 grid gap-4 md:grid-cols-2">
-          <Field label="GST Registration No" required>
-            <Input value={form.gstRegistrationNo} onChange={onChange("gstRegistrationNo")} required />
+          <Field label="GST Registration No">
+            <Input value={form.gstRegistrationNo} onChange={onChange("gstRegistrationNo")} />
           </Field>
-          <Field label="Drug License No" required>
-            <Input value={form.drugLicenseNo} onChange={onChange("drugLicenseNo")} required />
+          <Field label="Drug License No">
+            <Input value={form.drugLicenseNo} onChange={onChange("drugLicenseNo")} />
           </Field>
           <Field label="PAN Number">
             <Input value={form.panNumber} onChange={onChange("panNumber")} />
@@ -385,7 +441,7 @@ const AdminDistributorsPanel = () => {
             <Field label="Notes / Special Remarks">
               <textarea
                 rows={3}
-                className="w-full rounded-lg border border-[#CFD8DC] bg-white px-3 py-2.5 text-sm text-[#263238] outline-none placeholder:text-[#90A4AE] focus:border-[#1976D2] focus:ring-1 focus:ring-[#1976D2]/40"
+                className="w-full rounded-lg border border-[#ede6dc] bg-white px-3 py-2.5 text-sm text-[#263238] outline-none placeholder:text-[#90A4AE] focus:border-[#d4a017] focus:ring-1 focus:ring-[#d4a017]/40"
                 placeholder="Delivery windows, rebates, approvals…"
                 value={form.notesSpecialRemarks}
                 onChange={onChange("notesSpecialRemarks")}
@@ -397,7 +453,7 @@ const AdminDistributorsPanel = () => {
         <div className="flex flex-wrap justify-end gap-3 border-t border-[#ECEFF1] pt-6">
           <button
             type="button"
-            className="rounded-lg border-2 border-[#1976D2] bg-white px-5 py-2.5 text-sm font-semibold text-[#1976D2] transition hover:bg-[#E3F2FD]"
+            className="rounded-lg border border-[#d4a017] bg-white px-5 py-2.5 text-sm font-semibold text-[#6a4b00] transition hover:bg-[#faf7f2]"
             onClick={discard}
             disabled={submitting}
           >
@@ -405,20 +461,20 @@ const AdminDistributorsPanel = () => {
           </button>
           <button
             type="submit"
-            className="rounded-lg bg-[#1976D2] px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#1565C0] disabled:opacity-60"
+            className="rounded-lg bg-[#a61e1e] px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#7f1616] disabled:opacity-60"
             disabled={submitting}
           >
-            {submitting ? "Saving…" : "Create Distributor"}
+            {submitting ? "Saving…" : form._id ? "Update Vendor" : "Create Vendor"}
           </button>
         </div>
       </form>
 
-      <section className="mt-10 rounded-2xl border border-[#E3F2FD] bg-white p-6 shadow-sm">
-        <h3 className="mb-4 text-base font-semibold text-[#263238]">Recent distributors</h3>
+      <section className="mt-10 rounded-2xl border border-[#f0e8dc] bg-white p-6 shadow-sm">
+        <h3 className="mb-4 text-base font-semibold text-[#263238]">Recent vendors</h3>
         {loadingList ? (
           <p className="text-sm text-[#78909C]">Loading…</p>
         ) : tableRows.length === 0 ? (
-          <p className="text-sm text-[#78909C]">No distributors yet.</p>
+          <p className="text-sm text-[#78909C]">No vendors yet.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[640px] text-left text-sm">
@@ -428,7 +484,8 @@ const AdminDistributorsPanel = () => {
                   <th className="py-2 pr-4 font-semibold">Company</th>
                   <th className="py-2 pr-4 font-semibold">City</th>
                   <th className="py-2 pr-4 font-semibold">Status</th>
-                  <th className="py-2 font-semibold">Created</th>
+                  <th className="py-2 pr-4 font-semibold">Created</th>
+                  <th className="py-2 font-semibold">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -438,12 +495,36 @@ const AdminDistributorsPanel = () => {
                     <td className="py-2.5 pr-4">{d.companyName}</td>
                     <td className="py-2.5 pr-4">{d.areaCity}</td>
                     <td className="py-2.5 pr-4">
-                      <span className="rounded-full bg-[#E3F2FD] px-2 py-0.5 text-xs font-medium text-[#1565C0]">
+                      <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                        d.accountStatus === "Active"
+                          ? "bg-emerald-50 text-emerald-700"
+                          : d.accountStatus === "Suspended"
+                          ? "bg-rose-50 text-rose-700"
+                          : "bg-gray-100 text-gray-700"
+                      }`}>
                         {d.accountStatus}
                       </span>
                     </td>
-                    <td className="py-2.5 text-xs text-[#90A4AE]">
+                    <td className="py-2.5 pr-4 text-xs text-[#90A4AE]">
                       {d.createdAt ? new Date(d.createdAt).toLocaleDateString() : "—"}
+                    </td>
+                    <td className="py-2.5">
+                      <div className="flex gap-2">
+                        <button
+                          className="rounded p-1 text-[#78909C] hover:bg-[#faf7f2] hover:text-[#d4a017]"
+                          title="Edit"
+                          onClick={() => handleEdit(d)}
+                        >
+                          <Edit2 size={16} />
+                        </button>
+                        <button
+                          className="rounded p-1 text-[#78909C] hover:bg-red-50 hover:text-red-600"
+                          title="Delete"
+                          onClick={() => handleDelete(d._id)}
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}

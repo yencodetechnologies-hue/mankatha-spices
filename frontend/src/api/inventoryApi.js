@@ -52,6 +52,8 @@ function buildInventoryFromProducts(products) {
   };
 }
 
+let inventoryCache = null;
+
 export const inventoryApi = {
   getInventory: async () => {
     const base = getAdminApiBase();
@@ -60,12 +62,15 @@ export const inventoryApi = {
         `${base}/products/inventory`,
         withAuthHeaders({ timeout: 15000 })
       );
+      inventoryCache = response.data;
       return response.data;
     } catch (e) {
       if (e.response?.status === 404) {
         try {
           const data = await productApi.getProducts({ limit: 500 });
-          return buildInventoryFromProducts(data.products || []);
+          const built = buildInventoryFromProducts(data.products || []);
+          inventoryCache = built;
+          return built;
         } catch (e2) {
           const wrapped = new Error(
             "Inventory returned 404 and the product list could not be loaded. Confirm the backend is running on the same host/port as this page (e.g. http://localhost:5000 if you use http://localhost:3000), or set REACT_APP_API_BASE_URL in .env."
@@ -77,6 +82,8 @@ export const inventoryApi = {
       throw e;
     }
   },
+  getCached: () => inventoryCache,
+
   reorder: async (productId, opts = {}) => {
     const base = getAdminApiBase();
     const response = await axios.post(
@@ -84,11 +91,13 @@ export const inventoryApi = {
       opts,
       withAuthHeaders()
     );
+    inventoryCache = null;
     return response.data;
   },
   restockBulk: async () => {
     const base = getAdminApiBase();
     const response = await axios.post(`${base}/products/inventory/restock-bulk`, {}, withAuthHeaders());
+    inventoryCache = null;
     return response.data;
   },
 };

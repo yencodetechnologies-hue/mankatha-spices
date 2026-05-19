@@ -14,20 +14,32 @@ async function fetchOverviewCustomerDashboard() {
   return cd;
 }
 
+let customersCache = null;
+let statsCache = null;
+
 export const customerApi = {
   getCustomers: async (params = {}) => {
     const response = await axios.get(`${base()}/customers`, withAuthHeaders({ params }));
+    const isDefaultCall = Object.keys(params).length === 0;
+    if (isDefaultCall) {
+      customersCache = response.data;
+    }
     return response.data;
   },
-  /** Uses GET /customers/stats; if that route is missing (old API), falls back to overview.customerDashboard. */
+  getCachedCustomers: () => customersCache,
+
   getStats: async () => {
     const b = base();
     try {
       const response = await axios.get(`${b}/customers/stats`, withAuthHeaders());
+      statsCache = response.data;
       return response.data;
     } catch (e) {
       if (e.response?.status !== 404) throw e;
-      return fetchOverviewCustomerDashboard();
+      const data = await fetchOverviewCustomerDashboard();
+      statsCache = data;
+      return data;
     }
   },
+  getCachedStats: () => statsCache,
 };

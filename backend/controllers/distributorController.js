@@ -62,8 +62,45 @@ async function createDistributor(req, res) {
       return res.status(409).json({ message: "Duplicate key (email or distributor ID)." });
     }
     console.error(err);
-    res.status(500).json({ message: "Could not create distributor." });
+    res.status(500).json({ message: "Could not create vendor." });
   }
 }
 
-module.exports = { suggestId, listDistributors, createDistributor };
+async function updateDistributor(req, res) {
+  try {
+    const { id } = req.params;
+    const body = req.body || {};
+    
+    // Convert string inputs to proper types for model
+    if (body.creditLimitDays !== undefined) body.creditLimitDays = Number(body.creditLimitDays) || 0;
+    if (body.openingBalance !== undefined) body.openingBalance = Number(body.openingBalance) || 0;
+    
+    const doc = await Distributor.findByIdAndUpdate(id, body, { new: true, runValidators: true });
+    if (!doc) return res.status(404).json({ message: "Vendor not found." });
+    
+    res.json({ distributor: doc });
+  } catch (err) {
+    if (err.name === "ValidationError") {
+      return res.status(400).json({ message: err.message });
+    }
+    if (err.code === 11000) {
+      return res.status(409).json({ message: "Duplicate key (email or vendor ID)." });
+    }
+    console.error(err);
+    res.status(500).json({ message: "Could not update vendor." });
+  }
+}
+
+async function deleteDistributor(req, res) {
+  try {
+    const { id } = req.params;
+    const doc = await Distributor.findByIdAndDelete(id);
+    if (!doc) return res.status(404).json({ message: "Vendor not found." });
+    res.json({ message: "Vendor deleted successfully." });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Could not delete vendor." });
+  }
+}
+
+module.exports = { suggestId, listDistributors, createDistributor, updateDistributor, deleteDistributor };

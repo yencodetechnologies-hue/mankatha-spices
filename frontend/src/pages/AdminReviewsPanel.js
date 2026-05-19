@@ -41,7 +41,7 @@ const StarRow = ({ rating }) => {
 const AdminReviewsPanel = () => {
   const [stats, setStats] = useState(null);
   const [reviews, setReviews] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [busyId, setBusyId] = useState(null);
@@ -116,7 +116,7 @@ const AdminReviewsPanel = () => {
   const sub =
     stats != null
       ? `${stats.avgRating} avg rating · ${stats.totalReviews.toLocaleString("en-IN")} total reviews · ${stats.pendingModeration} pending moderation`
-      : "Loading summary…";
+      : "";
 
   return (
     <div className="admin-reviews">
@@ -147,7 +147,7 @@ const AdminReviewsPanel = () => {
         </div>
       ) : null}
 
-      {loading && !reviews.length ? <p className="analytics-loading">Loading reviews…</p> : null}
+
 
       <div className="reviews-table-card">
         <div className="reviews-table-wrap">

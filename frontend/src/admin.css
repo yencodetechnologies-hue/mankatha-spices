@@ -6,6 +6,10 @@
 }
 
 .admin-sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
   background: #1a1614;
   color: #f4f1ec;
   padding: 1.35rem 1rem 1.5rem;
@@ -218,6 +222,17 @@
   width: 100%;
   background: #fff;
   font-size: 1.05rem;
+}
+
+.toolbar input:focus,
+.toolbar select:focus,
+.table-controls select:focus,
+.modal-form input:not([type="checkbox"]):not([type="radio"]):focus,
+.modal-form textarea:focus,
+.modal-form select:focus {
+  outline: none;
+  border-color: #1976d2;
+  box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.15);
 }
 
 .modal-form input[type="checkbox"],
@@ -486,25 +501,25 @@ th {
 }
 
 .primary-btn {
-  background: #a61e1e !important;
-  border-color: #a61e1e !important;
+  background: #1976d2 !important;
+  border-color: #1976d2 !important;
   color: #fff;
   font-weight: 700;
 }
 
 .primary-btn:hover {
-  background: #7f1616 !important;
-  border-color: #7f1616 !important;
+  background: #1565c0 !important;
+  border-color: #1565c0 !important;
 }
 
 .modal-actions button[type="button"] {
-  border-color: #d4a017;
-  color: #6a4b00;
+  border: 1px solid #1976d2;
+  color: #1976d2;
 }
 
 .modal-actions button[type="button"]:hover {
-  background: #d4a017;
-  color: #1d2230;
+  background: #e3f2fd;
+  color: #1565c0;
 }
 
 .status-error {

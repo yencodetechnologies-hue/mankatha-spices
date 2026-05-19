@@ -26,8 +26,22 @@ const ProductTable = ({
         </thead>
         <tbody>
           {products.map((product) => {
-            const pricing = resolvePriceByCountryAndWeight(product, selectedCountry, selectedWeight);
             const status = getStockStatus(product.stock, product.minStock);
+
+            const getPricesDisplay = () => {
+              const countryPricing = product?.pricing?.find((entry) => entry.country === selectedCountry) || product?.pricing?.[0];
+              if (!countryPricing || !countryPricing.weights || countryPricing.weights.length === 0) return "--";
+              
+              return (
+                <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                  {countryPricing.weights.map((w) => (
+                    <div key={w.weight} style={{ fontSize: "0.8rem", whiteSpace: "nowrap", color: "#3d2f26" }}>
+                      <span style={{ fontWeight: "600" }}>{w.weight}:</span> LKR {w.price}
+                    </div>
+                  ))}
+                </div>
+              );
+            };
 
             return (
               <tr key={product._id}>
@@ -35,10 +49,15 @@ const ProductTable = ({
                   <div className="product-name-cell">
                     <strong>{product.name}</strong>
                     <span>SKU: {product.sku}</span>
+                    {product.barcode && (
+                      <span style={{ fontSize: "0.72rem", color: "#8B5E3C", display: "block", marginTop: "2px" }}>
+                        Barcode: {product.barcode}
+                      </span>
+                    )}
                   </div>
                 </td>
                 <td>{product.category}</td>
-                <td>{pricing ? `${pricing.symbol} ${pricing.price}` : "--"}</td>
+                <td>{getPricesDisplay()}</td>
                 <td className={product.stock <= product.minStock ? "stock-alert" : "stock-ok"}>{product.stock} units</td>
                 <td>{product.sales || 0} sold</td>
                 <td>

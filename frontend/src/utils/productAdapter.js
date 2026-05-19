@@ -46,6 +46,7 @@ export function adaptBackendProduct(raw = {}, index = 0) {
     is_featured: false,
     sales: Number(raw.sales || 0),
     createdAt: raw.createdAt,
+    pricing: raw.pricing || [],
   };
 }
 

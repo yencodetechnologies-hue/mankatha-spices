@@ -174,20 +174,29 @@ const Home = () => {
   const slides = [
     {
       id: 1,
-      title: "Fresh Organic Produce",
-      subtitle: "From Local Farms to Your Table",
-      description: "Shop our wide selection of organic fruits and vegetables sourced directly from trusted local farmers.",
-      image: "https://images.unsplash.com/photo-1542838132-92c53300491e?w=1200&h=400&fit=crop",
-      cta: "Shop Now",
+      title: "Mankatha Blended Masalas",
+      subtitle: "Authentic Flavors, Rich Tradition",
+      description: "Experience the premium taste of our handcrafted spice blends, perfect for enhancing your traditional home cooking.",
+      image: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=1600&h=600&fit=crop",
+      cta: "Explore Blends",
+      ctaLink: "/products"
+    },
+    {
+      id: 2,
+      title: "Pure & Organic Spices",
+      subtitle: "100% Certified Organic Spice Powders",
+      description: "Sourced directly from the finest organic farms, packed with natural flavor, color, and rich aromatics.",
+      image: "https://images.unsplash.com/photo-1606787366850-de6330128bfc?w=1600&h=600&fit=crop",
+      cta: "Shop Pure Powders",
       ctaLink: "/products"
     },
     {
       id: 3,
-      title: "Healthy Living Made Easy",
-      subtitle: "Organic groceries delivered to your door",
-      description: "Get fresh, organic groceries delivered right to your doorstep. Quality you can trust, convenience you deserve.",
-      image: "https://images.unsplash.com/photo-1542838132-92c53300491e?w=1200&h=400&fit=crop",
-      cta: "Start Shopping",
+      title: "Traditional Whole Spices",
+      subtitle: "Gourmet Aromatics for Fine Culinary Art",
+      description: "Carefully selected whole cardamom, cloves, cinnamon, and pepper to bring gourmet level depth to your kitchen.",
+      image: "https://images.unsplash.com/photo-1509358271058-acd22cc93898?w=1600&h=600&fit=crop",
+      cta: "Shop Whole Spices",
       ctaLink: "/products"
     }
   ];
@@ -215,9 +224,6 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-slate-50/30">
-      <section className="container mx-auto px-4 pt-6 pb-2">
-        <MankathaBanner variant="hero" className="shadow-md" />
-      </section>
       {/* Hero Slider with Parallax */}
       <section className="relative overflow-hidden h-[600px]">
         <div className="relative h-full">

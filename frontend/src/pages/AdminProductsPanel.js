@@ -9,7 +9,7 @@ const PAGE_SIZE = 6;
 
 const AdminProductsPanel = () => {
   const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("All");
@@ -21,8 +21,14 @@ const AdminProductsPanel = () => {
   const [editProduct, setEditProduct] = useState(null);
 
   const fetchProducts = async () => {
+    // 1. Populate immediately from cache if available
+    const cachedData = productApi.getCached();
+    if (cachedData) {
+      setProducts(cachedData.products || []);
+    }
+
+    // 2. Silently fetch from server in background
     try {
-      setLoading(true);
       setErrorMessage("");
       const data = await productApi.getProducts();
       setProducts(data.products || []);
@@ -38,9 +44,9 @@ const AdminProductsPanel = () => {
             ? "Cannot reach the API. Start the backend (cd backend, npm start on port 5000), then restart the React dev server so the /api proxy is active."
             : error.message || "Request failed.")
       );
-      setProducts([]);
-    } finally {
-      setLoading(false);
+      if (!cachedData) {
+        setProducts([]);
+      }
     }
   };
 
@@ -182,43 +188,39 @@ const AdminProductsPanel = () => {
         </div>
       )}
 
-      {loading ? (
-        <div className="status-info">Loading products...</div>
-      ) : (
-        <>
-          <ProductTable
-            products={pagedProducts}
-            selectedCountry={selectedCountry}
-            setSelectedCountry={setSelectedCountry}
-            selectedWeight={selectedWeight}
-            setSelectedWeight={setSelectedWeight}
-            onEdit={(product) => {
-              setEditProduct(product);
-              setModalOpen(true);
-            }}
-            onDelete={handleDelete}
-          />
+      <>
+        <ProductTable
+          products={pagedProducts}
+          selectedCountry={selectedCountry}
+          setSelectedCountry={setSelectedCountry}
+          selectedWeight={selectedWeight}
+          setSelectedWeight={setSelectedWeight}
+          onEdit={(product) => {
+            setEditProduct(product);
+            setModalOpen(true);
+          }}
+          onDelete={handleDelete}
+        />
 
-          <div className="pager">
-            {Array.from({ length: totalPages }).map((_, idx) => {
-              const pageNumber = idx + 1;
-              return (
-                <button
-                  type="button"
-                  key={pageNumber}
-                  className={pageNumber === page ? "page-chip active" : "page-chip"}
-                  onClick={() => setPage(pageNumber)}
-                >
-                  {pageNumber}
-                </button>
-              );
-            })}
-            <button type="button" className="page-chip" onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}>
-              →
-            </button>
-          </div>
-        </>
-      )}
+        <div className="pager">
+          {Array.from({ length: totalPages }).map((_, idx) => {
+            const pageNumber = idx + 1;
+            return (
+              <button
+                type="button"
+                key={pageNumber}
+                className={pageNumber === page ? "page-chip active" : "page-chip"}
+                onClick={() => setPage(pageNumber)}
+              >
+                {pageNumber}
+              </button>
+            );
+          })}
+          <button type="button" className="page-chip" onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}>
+            →
+          </button>
+        </div>
+      </>
 
       <AddEditProductModal
         isOpen={modalOpen}

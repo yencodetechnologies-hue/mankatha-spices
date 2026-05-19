@@ -46,7 +46,7 @@ const statusLabel = (status) => {
 
 const AdminInventoryPanel = () => {
   const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [toast, setToast] = useState("");
   const [busyId, setBusyId] = useState(null);
@@ -58,8 +58,11 @@ const AdminInventoryPanel = () => {
   const items = data?.items || [];
 
   const load = useCallback(async () => {
+    const cached = inventoryApi.getCached();
+    if (cached) {
+      setData(cached);
+    }
     try {
-      setLoading(true);
       setErrorMessage("");
       const res = await inventoryApi.getInventory();
       setData(res);
@@ -67,9 +70,9 @@ const AdminInventoryPanel = () => {
       const detail = error.response?.data?.message;
       let msg = detail || error.message || "Failed to load inventory.";
       setErrorMessage(msg);
-      setData(null);
-    } finally {
-      setLoading(false);
+      if (!cached) {
+        setData(null);
+      }
     }
   }, []);
 
@@ -130,7 +133,7 @@ const AdminInventoryPanel = () => {
                 {summary.needRestocking === 1 ? "product needs" : "products need"} restocking
               </>
             ) : (
-              "Loading counts…"
+              ""
             )}
           </p>
         </div>
@@ -184,7 +187,7 @@ const AdminInventoryPanel = () => {
         </div>
       ) : null}
 
-      {loading && !data ? <p className="analytics-loading">Loading inventory…</p> : null}
+
 
       {data ? (
         <div className="inv-table-card">

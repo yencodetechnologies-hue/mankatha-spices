@@ -13,6 +13,9 @@ import {
   Home,
   LogOut,
   Truck,
+  Layers,
+  Image,
+  Sliders,
 } from "lucide-react";
 import { SIDEBAR_GROUPS } from "../constants";
 import { useAuth } from "../contexts/AuthContext";
@@ -29,7 +32,11 @@ const ICON_MAP = {
   coupons: Ticket,
   distributors: Truck,
   settings: Settings,
+  category: Layers,
+  banners: Image,
+  sliders: Sliders,
 };
+
 
 const AdminLayout = ({ children }) => {
   const { user, logout } = useAuth();

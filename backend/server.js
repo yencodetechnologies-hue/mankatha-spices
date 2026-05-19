@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
+dotenv.config()
 const path = require("path");
 const connectDB = require("./config/db");
 const productRoutes = require("./routes/productRoutes");
@@ -15,8 +16,7 @@ const { getSettings, putSettings, patchSettings } = require("./controllers/setti
 const authRoutes = require("./routes/authRoutes");
 const { requireAuth, requireRoles } = require("./middleware/auth");
 const distributorRoutes = require("./routes/distributorRoutes");
-
-dotenv.config();
+const categoryRoutes = require("./routes/categoryRoutes");
 
 const app = express();
 
@@ -95,6 +95,7 @@ app.use("/api/analytics", analyticsRoutes);
 app.get("/api/customers/stats", ...adminOnly, getStats);
 app.get("/api/customers", ...adminOnly, getCustomers);
 app.use("/api/distributors", distributorRoutes);
+app.use("/api/categories", categoryRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: "Not found", path: req.path, method: req.method });

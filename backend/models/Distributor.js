@@ -16,8 +16,8 @@ const distributorSchema = new mongoose.Schema(
     officePhoneNumber: { type: String, required: true, trim: true },
     email: { type: String, required: true, lowercase: true, trim: true },
 
-    gstRegistrationNo: { type: String, required: true, trim: true },
-    drugLicenseNo: { type: String, required: true, trim: true },
+    gstRegistrationNo: { type: String, default: "", trim: true },
+    drugLicenseNo: { type: String, default: "", trim: true },
     panNumber: { type: String, default: "", trim: true },
     fssaiLicenseNo: { type: String, default: "", trim: true },
 

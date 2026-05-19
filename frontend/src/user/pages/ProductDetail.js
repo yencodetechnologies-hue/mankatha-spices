@@ -13,6 +13,7 @@ const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
   const [relatedProducts, setRelatedProducts] = useState([]);
+  const [selectedWeight, setSelectedWeight] = useState("");
   const { addToCart } = useCart();
 
   useEffect(() => {
@@ -37,6 +38,15 @@ const ProductDetail = () => {
       setProduct(foundProduct);
       setSelectedImage(0);
       
+      // Default to first weight if available
+      const weights = foundProduct.pricing?.[0]?.weights || [];
+      if (weights.length > 0) {
+        setSelectedWeight(weights[0].weight);
+      } else {
+        const wLabel = foundProduct.weight ? `${foundProduct.weight}${foundProduct.unit || "g"}` : "100g";
+        setSelectedWeight(wLabel);
+      }
+
       // Get related products from same category
       const related = allProducts
         .filter(p => p.category === foundProduct.category && p.id !== foundProduct.id)
@@ -58,10 +68,33 @@ const ProductDetail = () => {
     );
   }
 
-  const discount = Math.round(((product.original_price - product.price) / product.original_price) * 100);
+  // Resolve active pricing details
+  const activeCountryPricing = product.pricing?.[0] || { country: "India", currency: "INR", weights: [] };
+  const weightsList = activeCountryPricing.weights || [];
+  
+  const fallbackWeightLabel = product.weight ? `${product.weight}${product.unit || "g"}` : "100g";
+  const activeWeightObj = weightsList.find(w => w.weight === selectedWeight) || {
+    weight: fallbackWeightLabel,
+    price: product.price || 0
+  };
+
+  const currentPrice = activeWeightObj.price || product.price || 0;
+  const originalPrice = Math.max(currentPrice, Math.round(currentPrice * 1.15));
+  const activeCurrency = activeCountryPricing.currency || "INR";
+  const discount = Math.round(((originalPrice - currentPrice) / originalPrice) * 100);
 
   const handleAddToCart = () => {
-    addToCart(product, quantity);
+    const numWeight = parseFloat(selectedWeight) || product.weight || 100;
+    const unitStr = selectedWeight.toLowerCase().includes("kg") ? "kg" : "g";
+    const cartItem = {
+      ...product,
+      cartItemId: `${product.id}-${selectedWeight}`,
+      weight: numWeight,
+      unit: unitStr,
+      price: currentPrice,
+      original_price: originalPrice,
+    };
+    addToCart(cartItem, quantity);
   };
 
   const incrementQuantity = () => {
@@ -189,13 +222,18 @@ const ProductDetail = () => {
             </div>
 
             <div className="mb-6">
-              <div className="flex items-center mb-4">
-                <span className="text-3xl font-bold text-primary-600">{formatMoney(product.price)}</span>
-                {product.original_price > product.price && (
-                  <span className="text-xl text-gray-500 line-through ml-3">
-                    {formatMoney(product.original_price)}
+              <div className="flex flex-col mb-4">
+                <div className="flex items-center">
+                  <span className="text-3xl font-bold text-primary-600">
+                    {formatMoney(currentPrice, { currency: activeCurrency })}
                   </span>
-                )}
+                  {originalPrice > currentPrice && (
+                    <span className="text-xl text-gray-500 line-through ml-3">
+                      {formatMoney(originalPrice, { currency: activeCurrency })}
+                    </span>
+                  )}
+                </div>
+                <span className="text-xs text-gray-400 italic mt-1">(Inclusive of all taxes)</span>
               </div>
               <p className="text-gray-600 mb-4">{product.description}</p>
               
@@ -251,9 +289,63 @@ const ProductDetail = () => {
                     <Plus size={20} />
                   </button>
                 </div>
-                <span className="text-sm text-gray-600">
-                  {product.weight} {product.unit}
-                </span>
+                <div className="flex-1 max-w-[280px]">
+                  <select
+                    value={selectedWeight}
+                    onChange={(e) => setSelectedWeight(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white cursor-pointer font-medium text-gray-700"
+                  >
+                    {weightsList.length > 0 ? (
+                      weightsList.map((w) => {
+                        const num = parseFloat(w.weight) || 1;
+                        const rawUnit = w.weight.replace(/[0-9.\s]/g, "").toLowerCase();
+                        
+                        let baseValue = num;
+                        let baseUnit = "g";
+                        
+                        if (rawUnit === "kg" || rawUnit === "kilogram") {
+                          baseValue = num * 1000;
+                          baseUnit = "g";
+                        } else if (rawUnit === "mg" || rawUnit === "milligram") {
+                          baseValue = num / 1000;
+                          baseUnit = "g";
+                        } else if (rawUnit === "l" || rawUnit === "liter" || rawUnit === "litre") {
+                          baseValue = num * 1000;
+                          baseUnit = "ml";
+                        } else if (rawUnit === "ml" || rawUnit === "milliliter") {
+                          baseValue = num;
+                          baseUnit = "ml";
+                        } else {
+                          baseValue = num;
+                          baseUnit = "g";
+                        }
+                        
+                        const unitPrice = w.price / baseValue;
+                        
+                        const currencySymbols = { INR: "₹", LKR: "Rs.", AED: "AED", USD: "$" };
+                        const curSymbol = currencySymbols[activeCurrency] || activeCurrency;
+                        
+                        let displayUnit = rawUnit;
+                        if (rawUnit === "kilogram") displayUnit = "kg";
+                        else if (rawUnit === "milligram") displayUnit = "mg";
+                        else if (rawUnit === "liter" || rawUnit === "litre") displayUnit = "l";
+                        else if (rawUnit === "milliliter") displayUnit = "ml";
+                        else if (rawUnit === "gram") displayUnit = "g";
+                        
+                        const formattedWeight = `${num} ${displayUnit}`;
+                        return (
+                          <option key={w.weight} value={w.weight}>
+                            {formattedWeight} ({curSymbol} {unitPrice.toFixed(2)} / 1 {baseUnit})
+                          </option>
+                        );
+                      })
+                    ) : (
+                      <option value={fallbackWeightLabel}>
+                        {product.weight} {product.unit || "g"}
+                      </option>
+                    )}
+                  </select>
+                </div>
               </div>
 
               <div className="flex gap-4">

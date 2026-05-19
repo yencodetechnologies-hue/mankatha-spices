@@ -28,6 +28,7 @@ import AdminReviewsPanel from './pages/AdminReviewsPanel';
 import AdminCouponsPanel from './pages/AdminCouponsPanel';
 import AdminSettingsPanel from './pages/AdminSettingsPanel';
 import AdminDistributorsPanel from './pages/AdminDistributorsPanel';
+import AdminCategoryPanel from './pages/AdminCategoryPanel';
 import { SIDEBAR_GROUPS } from './constants';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
 import VendorPanelPage from './vendor/pages/VendorPanelPage';
@@ -47,7 +48,8 @@ const adminPlaceholderRoutes = SIDEBAR_GROUPS.flatMap((g) => g.items)
       item.path !== 'reviews' &&
       item.path !== 'coupons' &&
       item.path !== 'distributors' &&
-      item.path !== 'settings'
+      item.path !== 'settings' &&
+      item.path !== 'category'
   )
   .map((item) => (
     <Route
@@ -112,6 +114,7 @@ function AppContent() {
               <Route path="coupons" element={<AdminCouponsPanel />} />
               <Route path="distributors" element={<AdminDistributorsPanel />} />
               <Route path="settings" element={<AdminSettingsPanel />} />
+              <Route path="category" element={<AdminCategoryPanel />} />
               {adminPlaceholderRoutes}
             </Route>
             <Route

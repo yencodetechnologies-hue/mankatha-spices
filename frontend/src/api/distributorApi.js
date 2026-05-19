@@ -18,4 +18,14 @@ export const distributorApi = {
     const { data } = await axios.post(`${root()}/distributors`, payload, withAuthHeaders());
     return data;
   },
+
+  update: async (id, payload) => {
+    const { data } = await axios.put(`${root()}/distributors/${id}`, payload, withAuthHeaders());
+    return data;
+  },
+
+  delete: async (id) => {
+    const { data } = await axios.delete(`${root()}/distributors/${id}`, withAuthHeaders());
+    return data;
+  },
 };

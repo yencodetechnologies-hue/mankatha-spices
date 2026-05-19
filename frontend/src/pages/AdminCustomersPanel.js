@@ -39,7 +39,7 @@ const AdminCustomersPanel = () => {
   const [stats, setStats] = useState(null);
   const [customers, setCustomers] = useState([]);
   const [pagination, setPagination] = useState({ total: 0, page: 1, pages: 1 });
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [search, setSearch] = useState("");
   const [tierFilter, setTierFilter] = useState("All");
@@ -47,13 +47,22 @@ const AdminCustomersPanel = () => {
   const [page, setPage] = useState(1);
 
   const loadStats = useCallback(async () => {
+    const cachedStats = customerApi.getCachedStats();
+    if (cachedStats) {
+      setStats(cachedStats);
+    }
     const data = await customerApi.getStats();
     setStats(data);
   }, []);
 
   const loadCustomers = useCallback(async () => {
+    const cachedCusts = customerApi.getCachedCustomers();
+    if (cachedCusts) {
+      setCustomers(cachedCusts.customers || []);
+      setPagination(cachedCusts.pagination || { total: 0, page: 1, pages: 1 });
+    }
+
     try {
-      setLoading(true);
       setErrorMessage("");
       const data = await customerApi.getCustomers({
         search,
@@ -72,9 +81,9 @@ const AdminCustomersPanel = () => {
           "Customer list API returned 404. Stop any process using port 5000, then start the backend from the project root with npm run api (or cd backend && npm start), then refresh this page.";
       }
       setErrorMessage(msg);
-      setCustomers([]);
-    } finally {
-      setLoading(false);
+      if (!cachedCusts) {
+        setCustomers([]);
+      }
     }
   }, [search, tierFilter, cityFilter, page]);
 
@@ -194,10 +203,7 @@ const AdminCustomersPanel = () => {
           </div>
         </div>
 
-        {loading ? (
-          <div className="status-info customers-loading">Loading customers…</div>
-        ) : (
-          <div className="customers-table-inner">
+        <div className="customers-table-inner">
             <table className="customers-table">
               <thead>
                 <tr>
@@ -278,7 +284,6 @@ const AdminCustomersPanel = () => {
               </div>
             )}
           </div>
-        )}
       </div>
     </>
   );
