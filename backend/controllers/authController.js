@@ -51,15 +51,18 @@ async function register(req, res) {
 async function login(req, res) {
   try {
     const { email, password } = req.body;
+    console.log("BODY:", req.body);
     if (!email || !password) {
       return res.status(400).json({ message: "Email and password are required." });
     }
     const normalizedEmail = String(email).toLowerCase().trim();
     const user = await User.findOne({ email: normalizedEmail }).select("+password");
+    console.log("USER:", user);
     if (!user || !user.isActive) {
       return res.status(401).json({ message: "Invalid email or password." });
     }
     const ok = await bcrypt.compare(String(password), user.password);
+    console.log("MATCH:", ok);
     if (!ok) {
       return res.status(401).json({ message: "Invalid email or password." });
     }

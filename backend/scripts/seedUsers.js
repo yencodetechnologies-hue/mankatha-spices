@@ -13,8 +13,8 @@ const connectDB = require("../config/db");
 
 const DEMO_USERS = [
   {
-    email: "admin@gmail.com",
-    password: "Admin123",
+    email: "admin@mankathaspices.com",
+    password: "AdminDemo123!",
     name: "Mankatha Admin",
     phone: "+1-555-0100",
     role: "admin",
@@ -87,6 +87,6 @@ async function seed() {
 
 seed().catch((err) => {
   console.error(err);
-  mongoose.disconnect().catch(() => {});
+  mongoose.disconnect().catch(() => { });
   process.exit(1);
 });
