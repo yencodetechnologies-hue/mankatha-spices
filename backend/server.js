@@ -120,24 +120,35 @@ app.use((err, _, res, __) => {
 
 const PORT = process.env.PORT || 5000;
 
-connectDB()
-  .then(() => {
-    const server = app.listen(PORT, () => {
-      console.log(`Server listening on port ${PORT}`);
-      console.log("Admin API: /api/overview, /api/settings, /api/coupons, /api/reviews, /api/products/inventory, /api/customers, …");
-    });
+// Connect to DB always (needed for Vercel serverless cold starts too)
+connectDB().catch((error) => {
+  console.error("DB connection failed", error);
+});
 
-    server.on("error", (error) => {
-      if (error.code === "EADDRINUSE") {
-        console.error(
-          `Port ${PORT} is already in use. Another backend instance is already running. Stop it first, then restart.`
-        );
-        return;
-      }
-      console.error("Server startup error", error);
+// Only start HTTP server when running locally (not on Vercel serverless)
+if (process.env.VERCEL !== "1") {
+  connectDB()
+    .then(() => {
+      const server = app.listen(PORT, () => {
+        console.log(`Server listening on port ${PORT}`);
+        console.log("Admin API: /api/overview, /api/settings, /api/coupons, /api/reviews, /api/products/inventory, /api/customers, …");
+      });
+
+      server.on("error", (error) => {
+        if (error.code === "EADDRINUSE") {
+          console.error(
+            `Port ${PORT} is already in use. Another backend instance is already running. Stop it first, then restart.`
+          );
+          return;
+        }
+        console.error("Server startup error", error);
+      });
+    })
+    .catch((error) => {
+      console.error("DB connection failed", error);
+      process.exit(1);
     });
-  })
-  .catch((error) => {
-    console.error("DB connection failed", error);
-    process.exit(1);
-  });
+}
+
+// Export app for Vercel serverless
+module.exports = app;
