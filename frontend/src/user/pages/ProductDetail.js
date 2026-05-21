@@ -319,28 +319,6 @@ const ProductDetail = () => {
                         const num = parseFloat(w.weight) || 1;
                         const rawUnit = w.weight.replace(/[0-9.\s]/g, "").toLowerCase();
                         
-                        let baseValue = num;
-                        let baseUnit = "g";
-                        
-                        if (rawUnit === "kg" || rawUnit === "kilogram") {
-                          baseValue = num * 1000;
-                          baseUnit = "g";
-                        } else if (rawUnit === "mg" || rawUnit === "milligram") {
-                          baseValue = num / 1000;
-                          baseUnit = "g";
-                        } else if (rawUnit === "l" || rawUnit === "liter" || rawUnit === "litre") {
-                          baseValue = num * 1000;
-                          baseUnit = "ml";
-                        } else if (rawUnit === "ml" || rawUnit === "milliliter") {
-                          baseValue = num;
-                          baseUnit = "ml";
-                        } else {
-                          baseValue = num;
-                          baseUnit = "g";
-                        }
-                        
-                        const unitPrice = w.price / baseValue;
-                        
                         let displayUnit = rawUnit;
                         if (rawUnit === "kilogram") displayUnit = "kg";
                         else if (rawUnit === "milligram") displayUnit = "mg";

@@ -178,16 +178,11 @@ const ProductCard = ({ product, index }) => {
             onChange={(e) => setSelectedVariantIndex(Number(e.target.value))}
             className="w-full border border-gray-200 rounded p-2 text-sm appearance-none bg-white cursor-pointer hover:border-primary-500 transition-colors focus:outline-none"
           >
-            {variants.map((v, i) => {
-              const num = parseFloat(v.weight) || 1;
-              const unit = v.weight.replace(/[0-9.]/g, '').trim() || '';
-              const perUnitPrice = (v.price / num).toFixed(2);
-              return (
-                <option key={i} value={i}>
-                  {v.weight} - {formatMoney(v.price)}
-                </option>
-              );
-            })}
+            {variants.map((v, i) => (
+              <option key={i} value={i}>
+                {v.weight} - {formatMoney(v.price)}
+              </option>
+            ))}
           </select>
           <div className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
             <ChevronDown size={16} className="text-gray-400"/>
@@ -373,7 +368,6 @@ const Home = () => {
   const [allProducts, setAllProducts] = useState(products);
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [scrollY, setScrollY] = useState(0);
-  const { addToCart, removeFromCart, updateQuantity, items: cartItems } = useCart();
   const [categoriesList, setCategoriesList] = useState([]);
 
   useEffect(() => {
