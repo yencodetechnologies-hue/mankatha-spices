@@ -225,30 +225,22 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Submit triggered, validating form...");
     const newErrors = validateForm();
     
     if (Object.keys(newErrors).length > 0) {
-      console.log("Validation errors:", newErrors);
       setErrors(newErrors);
       return;
     }
 
     setIsLoading(true);
-    console.log("Form valid. Attempting login...");
 
     try {
       const email = formData.email.trim().toLowerCase();
       const password = formData.password;
-      console.log("Credentials being sent:", { email });
       const { token, user: nextUser } = await authApi.login(email, password);
-      console.log("Login successful, received:", { token: token ? 'Token exists' : 'No token', user: nextUser });
       loginWithSession(token, nextUser);
-      console.log("Session updated, redirecting...");
       redirectByRole(navigate, nextUser, fromPath);
     } catch (error) {
-      console.error("Login API error:", error);
-      console.error("Error response details:", error.response?.data);
       const msg =
         error.response?.data?.message || 'Invalid email or password. Check your details or sign up.';
       setErrors({ general: msg });
@@ -267,8 +259,13 @@ const Login = () => {
 
   if (isForgotPassword) {
     return (
-      <div className="min-h-screen bg-primary-50 flex flex-col items-center justify-center py-10 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full space-y-8 bg-white/90 rounded-2xl border border-primary-100 shadow-sm p-8 sm:p-10">
+      <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-primary-100 flex flex-col items-center justify-center py-10 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+        {/* Subtle background decoration */}
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
+          <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-primary-200/30 blur-3xl"></div>
+          <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-primary-200/30 blur-3xl"></div>
+        </div>
+        <div className="z-10 max-w-md w-full space-y-8 backdrop-blur-xl bg-white/80 rounded-3xl border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-8 sm:p-10 transition-all duration-300 hover:shadow-[0_8px_40px_rgb(0,0,0,0.08)]">
           <div>
             <div className="flex justify-center mb-4">
               <MankathaBanner variant="strip" className="w-full max-w-[280px] shadow-sm border border-primary-100" />
@@ -446,9 +443,13 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-screen bg-primary-50 flex flex-col items-center justify-center py-10 px-4 sm:px-6 lg:px-8">
-
-      <div className="max-w-md w-full space-y-8 bg-white/90 rounded-2xl border border-primary-100 shadow-sm p-8 sm:p-10">
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-primary-100 flex flex-col items-center justify-center py-10 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Subtle background decoration */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-primary-200/30 blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-primary-200/30 blur-3xl"></div>
+      </div>
+      <div className="z-10 max-w-md w-full space-y-8 backdrop-blur-xl bg-white/80 rounded-3xl border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-8 sm:p-10 transition-all duration-300 hover:shadow-[0_8px_40px_rgb(0,0,0,0.08)]">
         <div>
           <div className="flex justify-center mb-4">
             <MankathaBanner variant="strip" className="w-full max-w-[280px] shadow-sm border border-primary-100" />
@@ -574,7 +575,7 @@ const Login = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-xl text-white bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
               {isLoading ? (
                 <div className="flex items-center">
