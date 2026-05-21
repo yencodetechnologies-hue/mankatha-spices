@@ -243,7 +243,6 @@ async function registerSendOtp(req, res) {
 
     res.json({
       message: "OTP sent to your email address successfully.",
-      debugOtp: otp,
       previewUrl: mailResult.previewUrl || ""
     });
   } catch (err) {
@@ -344,7 +343,6 @@ async function forgotSendOtp(req, res) {
 
     res.json({
       message: "Reset code sent to your registered email/phone successfully.",
-      debugOtp: otp,
       previewUrl: mailResult.previewUrl || ""
     });
   } catch (err) {
