@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Star, ShoppingCart, Truck, Shield, RefreshCw, Heart, ArrowRight, Trash2, Minus, Plus, ChevronDown, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Star, ShoppingCart, Truck, Shield, RefreshCw, Heart, ArrowRight, Minus, Plus, ChevronDown, X } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
 import products from '../../data/products.json';
 import categories from '../../data/categories.json';

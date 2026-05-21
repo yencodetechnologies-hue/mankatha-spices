@@ -103,7 +103,7 @@ const Register = () => {
 
     try {
       const name = `${formData.firstName} ${formData.lastName}`.trim();
-      const res = await authApi.registerSendOtp({
+      await authApi.registerSendOtp({
         name,
         email: formData.email,
         password: formData.password,
@@ -145,7 +145,7 @@ const Register = () => {
     setOtpError('');
     try {
       const name = `${formData.firstName} ${formData.lastName}`.trim();
-      const res = await authApi.registerSendOtp({
+      await authApi.registerSendOtp({
         name,
         email: formData.email,
         password: formData.password,

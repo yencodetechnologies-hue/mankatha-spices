@@ -34,14 +34,14 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+
 
   // Forgot Password States
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [forgotStep, setForgotStep] = useState(1); // 1: Email/Phone, 2: OTP, 3: New Password
   const [forgotEmailOrPhone, setForgotEmailOrPhone] = useState('');
   const [forgotOtp, setForgotOtp] = useState('');
-  const [forgotGeneratedOtp, setForgotGeneratedOtp] = useState('');
+
   const [forgotCountdown, setForgotCountdown] = useState(60);
   const [forgotNewPassword, setForgotNewPassword] = useState('');
   const [forgotConfirmPassword, setForgotConfirmPassword] = useState('');
@@ -73,9 +73,6 @@ const Login = () => {
 
     try {
       const res = await authApi.forgotSendOtp({ emailOrPhone: forgotEmailOrPhone });
-      if (res.debugOtp) {
-        setForgotGeneratedOtp(res.debugOtp);
-      }
       setForgotStep(2);
       setForgotCountdown(60);
     } catch (error) {
@@ -146,9 +143,6 @@ const Login = () => {
     setForgotError('');
     try {
       const res = await authApi.forgotSendOtp({ emailOrPhone: forgotEmailOrPhone });
-      if (res.debugOtp) {
-        setForgotGeneratedOtp(res.debugOtp);
-      }
       setForgotCountdown(60);
     } catch (error) {
       const msg = error.response?.data?.message || 'Failed to resend reset code. Please try again.';
@@ -174,7 +168,6 @@ const Login = () => {
         client_id: clientId,
         callback: async (response) => {
           if (!response?.credential) return;
-          setIsGoogleLoading(true);
           try {
             const { token, user: nextUser } = await authApi.googleLogin(response.credential);
             loginWithSession(token, nextUser);
@@ -183,8 +176,6 @@ const Login = () => {
             setErrors({
               general: error.response?.data?.message || 'Google sign-in failed. Try email/password login.',
             });
-          } finally {
-            setIsGoogleLoading(false);
           }
         },
       });

@@ -29,11 +29,6 @@ const emptyProduct = {
   pricing: [],
 };
 
-const UNIT_OPTIONS_MAP = {
-  g_kg: ["100g", "250g", "500g", "1kg"],
-  ml_l: ["100ml", "250ml", "500ml", "1l"],
-  mg_g: ["100mg", "250mg", "500mg", "1g"],
-};
 
 const getUnitSystemFromWeights = (weights = []) => {
   if (!weights.length) return "g_kg";
@@ -89,7 +84,7 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
   const [addingCategory, setAddingCategory] = useState(false);
   const [newCatName, setNewCatName] = useState("");
   const [catError, setCatError] = useState("");
-  const [customWeightName, setCustomWeightName] = useState("");
+
   const inputRef = React.useRef(null);
 
   React.useEffect(() => {
