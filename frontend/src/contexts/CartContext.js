@@ -1,18 +1,20 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 
 const CartContext = createContext();
+const CART_VERSION = 'v3'; // bumped: now using slug-based cart keys
 
 const cartReducer = (state, action) => {
   switch (action.type) {
     case 'ADD_TO_CART': {
-      const getUniqueKey = (item) => item.cartItemId || item.id;
       const payloadKey = action.payload.cartItemId || action.payload.id;
-      const existingItem = state.items.find(item => getUniqueKey(item) === payloadKey);
+      const existingItem = state.items.find(item =>
+        (item.cartItemId || item.id) === payloadKey
+      );
       if (existingItem) {
         return {
           ...state,
           items: state.items.map(item =>
-            getUniqueKey(item) === payloadKey
+            (item.cartItemId || item.id) === payloadKey
               ? { ...item, quantity: item.quantity + action.payload.quantity }
               : item
           )
@@ -20,24 +22,24 @@ const cartReducer = (state, action) => {
       }
       return {
         ...state,
-        items: [...state.items, { ...action.payload, id: payloadKey }]
+        items: [...state.items, { ...action.payload, id: payloadKey, cartItemId: payloadKey }]
       };
     }
 
     case 'REMOVE_FROM_CART': {
-      const getUniqueKey = (item) => item.cartItemId || item.id;
       return {
         ...state,
-        items: state.items.filter(item => getUniqueKey(item) !== action.payload)
+        items: state.items.filter(item =>
+          (item.cartItemId || item.id) !== action.payload
+        )
       };
     }
 
     case 'UPDATE_QUANTITY': {
-      const getUniqueKey = (item) => item.cartItemId || item.id;
       return {
         ...state,
         items: state.items.map(item =>
-          getUniqueKey(item) === action.payload.id
+          (item.cartItemId || item.id) === action.payload.id
             ? { ...item, quantity: action.payload.quantity }
             : item
         )
@@ -45,16 +47,10 @@ const cartReducer = (state, action) => {
     }
 
     case 'CLEAR_CART':
-      return {
-        ...state,
-        items: []
-      };
+      return { ...state, items: [] };
 
     case 'LOAD_CART':
-      return {
-        ...state,
-        items: action.payload
-      };
+      return { ...state, items: action.payload };
 
     default:
       return state;
@@ -64,6 +60,13 @@ const cartReducer = (state, action) => {
 export const CartProvider = ({ children }) => {
   const [state, dispatch] = useReducer(cartReducer, { items: [] }, () => {
     try {
+      // Version check: clear old cart if key format changed
+      const savedVersion = localStorage.getItem('mankatha_cart_version');
+      if (savedVersion !== CART_VERSION) {
+        localStorage.removeItem('cart');
+        localStorage.setItem('mankatha_cart_version', CART_VERSION);
+        return { items: [] };
+      }
       const saved = localStorage.getItem('cart');
       return { items: saved ? JSON.parse(saved) : [] };
     } catch (e) {

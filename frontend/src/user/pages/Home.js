@@ -13,26 +13,16 @@ import heroWholeSpices from '../../assets/hero_whole_spices.png';
 
 import { useWishlist } from '../../contexts/WishlistContext';
 
-// ── Weight & Cart Item unique key helpers ──
-const getNormalizedWeight = (item) => {
-  if (!item.weight) return '';
-  const wStr = String(item.weight).trim().toLowerCase();
-  if (/^\d+(\.\d+)?$/.test(wStr)) {
-    const unitStr = item.unit ? String(item.unit).trim().toLowerCase() : 'g';
-    return `${wStr}${unitStr}`;
-  }
-  return wStr;
+// ── Stable cart item key — uses slug so key is same for both JSON & API products ──
+const makeVariantKey = (product, variantWeight) => {
+  // slug is consistent across static JSON and MongoDB API data
+  const baseId = product.slug || product._id || product.id || product.name || 'item';
+  return `${baseId}||${String(variantWeight).trim()}`;
 };
 
-const getCartItemKey = (item) => {
-  if (item.cartItemId) return item.cartItemId;
-  const baseId = item._id || item.id || '';
-  const normalizedWeight = getNormalizedWeight(item);
-  if (normalizedWeight && String(baseId).endsWith(`-${normalizedWeight}`)) return baseId;
-  return normalizedWeight ? `${baseId}-${normalizedWeight}` : baseId;
-};
-
-const ProductCard = ({ product, index, addToCart, removeFromCart, updateQuantity, cartItems }) => {
+// ProductCard uses useCart() directly — no stale prop issues
+const ProductCard = ({ product, index }) => {
+  const { items: cartItems, addToCart, updateQuantity } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
   const hasVariants = product.pricing && product.pricing.length > 0 && product.pricing[0].weights && product.pricing[0].weights.length > 0;
   
@@ -51,26 +41,36 @@ const ProductCard = ({ product, index, addToCart, removeFromCart, updateQuantity
   const currentPrice = currentVariant.price;
   const currentOriginalPrice = currentVariant.original_price;
 
-  const productId = product._id || product.id;
-  const variantCartItemId = `${productId}-${currentVariant.weight}`;
+  const variantCartItemId = makeVariantKey(product, currentVariant.weight);
 
   const discount = currentOriginalPrice > currentPrice
     ? Math.round(((currentOriginalPrice - currentPrice) / currentOriginalPrice) * 100)
     : 0;
 
-  const cartItem = cartItems?.find(i => getCartItemKey(i) === variantCartItemId);
-  const qty = cartItem?.quantity || 0;
+  // Always-fresh lookup directly from context
+  const cartItem = cartItems.find(i => (i.cartItemId || i.id) === variantCartItemId);
+  const qty = cartItem ? cartItem.quantity : 0;
 
   const [bulkOpen, setBulkOpen] = useState(false);
-  const [bulkQty, setBulkQty] = useState(qty || 5);
+  const [bulkQty, setBulkQty] = useState(5);
+  const [showDietTip, setShowDietTip] = useState(false);
 
-  const handleAdd = () => addToCart({ ...product, quantity: 1, weight: currentVariant.weight, price: currentPrice, original_price: currentOriginalPrice, cartItemId: variantCartItemId });
+  const handleAdd = () => addToCart({
+    ...product,
+    quantity: 1,
+    weight: currentVariant.weight,
+    price: currentPrice,
+    original_price: currentOriginalPrice,
+    cartItemId: variantCartItemId
+  });
   const handleIncrease = () => {
-    if (qty + 1 >= 5) {
-      setBulkQty(qty + 1);
+    if (qty === 0) { handleAdd(); return; }
+    const nextQty = qty + 1;
+    if (nextQty >= 5) {
+      setBulkQty(nextQty);
       setBulkOpen(true);
     } else {
-      updateQuantity(variantCartItemId, qty + 1);
+      updateQuantity(variantCartItemId, nextQty);
     }
   };
   const handleDecrease = () => updateQuantity(variantCartItemId, qty - 1);
@@ -86,22 +86,33 @@ const ProductCard = ({ product, index, addToCart, removeFromCart, updateQuantity
     >
 
 
-      {/* Dietary Preference Badge */}
-      {product.dietaryPreference === 'non-vegetarian' ? (
-        <div className="absolute top-4 right-4 z-20 w-5 h-5 border-2 border-[#792C23] flex items-center justify-center bg-white rounded-sm group shadow-sm">
-          <div className="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-b-[6px] border-b-[#792C23] mt-[1px]"></div>
-          <div className="absolute hidden group-hover:block top-full mt-1 right-0 bg-gray-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap shadow-lg">
-            Non Vegetarian
+      {/* Dietary Preference Badge — state-based tooltip to avoid nested group conflict */}
+      <div
+        className="absolute top-4 right-4 z-20"
+        onMouseEnter={() => setShowDietTip(true)}
+        onMouseLeave={() => setShowDietTip(false)}
+        style={{ cursor: 'default' }}
+      >
+        {product.dietaryPreference === 'non-vegetarian' ? (
+          <div className="w-5 h-5 border-2 border-[#792C23] flex items-center justify-center bg-white rounded-sm shadow-sm">
+            <div className="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-b-[6px] border-b-[#792C23] mt-[1px]"></div>
           </div>
-        </div>
-      ) : (
-        <div className="absolute top-4 right-4 z-20 w-5 h-5 border-2 border-primary-500 flex items-center justify-center bg-white rounded-sm group shadow-sm">
-          <div className="w-2.5 h-2.5 bg-primary-500 rounded-full"></div>
-          <div className="absolute hidden group-hover:block top-full mt-1 right-0 bg-gray-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap shadow-lg">
-            Vegetarian
+        ) : (
+          <div className="w-5 h-5 border-2 border-primary-500 flex items-center justify-center bg-white rounded-sm shadow-sm">
+            <div className="w-2.5 h-2.5 bg-primary-500 rounded-full"></div>
           </div>
-        </div>
-      )}
+        )}
+        {showDietTip && (
+          <div style={{
+            position: 'absolute', top: '100%', right: 0, marginTop: '4px',
+            background: '#1f2937', color: '#fff', fontSize: '11px',
+            padding: '3px 8px', borderRadius: '5px', whiteSpace: 'nowrap',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.2)', pointerEvents: 'none', zIndex: 50
+          }}>
+            {product.dietaryPreference === 'non-vegetarian' ? 'Non Vegetarian' : 'Vegetarian'}
+          </div>
+        )}
+      </div>
 
 
       {/* Product Image */}
@@ -680,9 +691,7 @@ const Home = () => {
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {featuredProducts.map((product, index) => (
-              <ProductCard key={product._id || product.id} product={product} index={index}
-                addToCart={addToCart} removeFromCart={removeFromCart}
-                updateQuantity={updateQuantity} cartItems={cartItems} />
+              <ProductCard key={product._id || product.id} product={product} index={index} />
             ))}
           </div>
         </div>

@@ -171,10 +171,10 @@ const Register = () => {
               <MankathaBanner variant="strip" className="w-full max-w-[280px] shadow-sm border border-primary-100" />
             </div>
             <h2 className="text-center text-3xl font-extrabold text-gray-900">
-              Verify Your Phone
+              Verify Your Email
             </h2>
             <p className="mt-2 text-center text-sm text-gray-600">
-              We have sent a 6-digit OTP verification code to <span className="font-semibold text-gray-900">{formData.phone}</span>.
+              We have sent a 6-digit OTP verification code to <span className="font-semibold text-gray-900">{formData.email}</span>. Please check your inbox.
             </p>
           </div>
 
