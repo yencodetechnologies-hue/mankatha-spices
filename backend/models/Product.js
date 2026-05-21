@@ -4,6 +4,7 @@ const weightSchema = new mongoose.Schema(
   {
     weight: { type: String, required: true },
     price: { type: Number, required: true, min: 0 },
+    original_price: { type: Number, min: 0 },
   },
   { _id: false }
 );
@@ -33,6 +34,9 @@ const productSchema = new mongoose.Schema({
   sales: { type: Number, default: 0, min: 0 },
   pricing: { type: [pricingSchema], default: [] },
   vatPercent: { type: Number, default: 0, min: 0, max: 100 },
+  dietaryPreference: { type: String, default: "" },
+  rating: { type: Number, default: 4.5, min: 0, max: 5 },
+  reviews_count: { type: Number, default: 0, min: 0 },
   createdAt: { type: Date, default: Date.now },
 });
 

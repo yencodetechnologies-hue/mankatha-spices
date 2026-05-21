@@ -1,14 +1,28 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Mail, Phone, MapPin, Heart, Package, Settings, LogOut, Edit2, Save, X } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { User, Mail, Phone, MapPin, Heart, Package, Settings, LogOut, Edit2, Save, X, Trash2 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useWishlist } from '../../contexts/WishlistContext';
 import { formatMoney } from '../../utils/formatMoney';
+
 
 const Profile = () => {
   const { user, logout, updateUser } = useAuth();
+  const { wishlistItems, removeFromWishlist } = useWishlist();
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState('profile');
+  const [orders, setOrders] = useState([]);
+
+  React.useEffect(() => {
+    try {
+      const saved = localStorage.getItem('user_orders');
+      setOrders(saved ? JSON.parse(saved) : []);
+    } catch (e) {
+      setOrders([]);
+    }
+  }, [activeTab]);
   const [editForm, setEditForm] = useState({
     name: user?.name || '',
     email: user?.email || '',
@@ -135,11 +149,17 @@ const Profile = () => {
 
         <div className="space-y-4">
           <div className="flex items-center space-x-4">
-            <img
-              src={user?.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop'}
-              alt="Profile"
-              className="w-20 h-20 rounded-full"
-            />
+            {user?.avatar ? (
+              <img
+                src={user.avatar}
+                alt="Profile"
+                className="w-20 h-20 rounded-full"
+              />
+            ) : (
+              <div className="w-20 h-20 rounded-full bg-primary-100 flex items-center justify-center text-primary-600 font-bold text-3xl">
+                {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+              </div>
+            )}
             <div>
               <h4 className="font-medium text-lg">{user?.name}</h4>
               <p className="text-gray-600">Member since January 2024</p>
@@ -222,55 +242,122 @@ const Profile = () => {
   );
 
   const renderOrdersTab = () => (
-    <div className="space-y-4">
-      {mockOrders.map((order) => (
-        <div key={order.id} className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex justify-between items-center mb-4">
-            <div>
-              <h4 className="font-medium">Order {order.id}</h4>
-              <p className="text-sm text-gray-600">Placed on {order.date}</p>
-            </div>
-            {getStatusBadge(order.status)}
-          </div>
-          <div className="flex justify-between items-center">
-            <div>
-              <p className="text-sm text-gray-600">{order.items} items</p>
-              <p className="font-semibold">{formatMoney(order.total)}</p>
-            </div>
-            <button className="text-primary-600 hover:text-primary-700 font-medium">
-              View Details
-            </button>
-          </div>
+    <div className="space-y-6">
+      {orders.length === 0 ? (
+        <div className="bg-white rounded-lg shadow-md p-8 text-center">
+          <Package className="mx-auto text-gray-300 mb-4" size={48} />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">No Orders Yet</h3>
+          <p className="text-gray-500">You haven't placed any orders with us yet.</p>
+          <Link to="/products" className="inline-block mt-4 px-6 py-2 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-colors">
+            Start Shopping
+          </Link>
         </div>
-      ))}
+      ) : (
+        <div className="space-y-4">
+          {orders.map((order) => (
+            <div key={order.id} className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-100">
+              {/* Order summary header */}
+              <div className="bg-gray-50 px-6 py-4 border-b border-gray-100 flex flex-wrap justify-between items-center gap-4">
+                <div className="flex items-center gap-4">
+                  <div>
+                    <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">Order ID</p>
+                    <p className="font-bold text-gray-800 text-sm">{order.id}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">Date Placed</p>
+                    <p className="font-semibold text-gray-700 text-sm">{order.date}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">Total Amount</p>
+                    <p className="font-bold text-primary-600 text-sm">{formatMoney(order.total)}</p>
+                  </div>
+                </div>
+                <div>
+                  {getStatusBadge(order.status)}
+                </div>
+              </div>
+
+              {/* Order items list */}
+              <div className="divide-y divide-gray-100 px-6">
+                {order.items && order.items.map((item, idx) => (
+                  <div key={idx} className="py-4 flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      {item.featured_image ? (
+                        <img
+                          src={item.featured_image}
+                          alt={item.name}
+                          className="w-12 h-12 object-cover rounded border"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 bg-gray-100 rounded flex items-center justify-center text-gray-400 text-xs">
+                          📦
+                        </div>
+                      )}
+                      <div>
+                        <h4 className="font-semibold text-gray-800 text-sm">{item.name}</h4>
+                        <p className="text-xs text-gray-500">Qty: {item.quantity} × {formatMoney(item.price)}</p>
+                      </div>
+                    </div>
+                    <span className="font-bold text-gray-800 text-sm">
+                      {formatMoney(item.price * item.quantity)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 
   const renderWishlistTab = () => (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {mockWishlist.map((item) => (
-        <div key={item.id} className="bg-white rounded-lg shadow-md p-4">
-          <div className="flex gap-4">
-            <img
-              src={item.image}
-              alt={item.name}
-              className="w-20 h-20 object-cover rounded-lg"
-            />
-            <div className="flex-1">
-              <h4 className="font-medium line-clamp-2">{item.name}</h4>
-              <p className="text-primary-600 font-semibold">{formatMoney(item.price)}</p>
-              <div className="flex gap-2 mt-2">
-                <button className="text-sm bg-primary-500 hover:bg-primary-600 text-white px-3 py-1 rounded transition-colors">
-                  Add to Cart
-                </button>
-                <button className="text-sm text-red-500 hover:text-red-600 px-3 py-1 rounded transition-colors">
-                  Remove
+    <div>
+      {wishlistItems.length === 0 ? (
+        <div className="bg-white rounded-lg shadow-md p-8 text-center">
+          <Heart className="mx-auto text-gray-300 mb-4" size={48} />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">Your Wishlist is Empty</h3>
+          <p className="text-gray-500">Save items you love to your wishlist to easily find them later.</p>
+          <Link to="/products" className="inline-block mt-4 px-6 py-2 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-colors">
+            Browse Products
+          </Link>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {wishlistItems.map((item) => (
+            <div key={item._id || item.id} className="bg-white rounded-lg shadow-md overflow-hidden group">
+              <div className="relative">
+                <Link to={`/product/${item.slug}`}>
+                  <img
+                    src={item.featured_image}
+                    alt={item.name}
+                    className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                </Link>
+                <button
+                  onClick={() => removeFromWishlist(item._id || item.id)}
+                  className="absolute top-2 right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow hover:text-red-500 transition-colors"
+                >
+                  <Trash2 size={14} />
                 </button>
               </div>
+              <div className="p-3">
+                <Link to={`/product/${item.slug}`}>
+                  <h4 className="font-semibold text-gray-800 text-sm line-clamp-2 hover:text-primary-600 transition-colors mb-1">
+                    {item.name}
+                  </h4>
+                </Link>
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-primary-600">{formatMoney(item.price)}</span>
+                  {item.original_price > item.price && (
+                    <span className="text-xs text-gray-400 line-through">{formatMoney(item.original_price)}</span>
+                  )}
+                </div>
+              </div>
             </div>
-          </div>
+          ))}
         </div>
-      ))}
+      )}
     </div>
   );
 
@@ -308,9 +395,7 @@ const Profile = () => {
           <button className="w-full text-left px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
             Change Password
           </button>
-          <button className="w-full text-left px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-            Two-Factor Authentication
-          </button>
+        
         </div>
       </div>
 

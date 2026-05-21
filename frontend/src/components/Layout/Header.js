@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, ShoppingCart, Menu, X, ChevronDown, Minus, Plus, Trash2 } from 'lucide-react';
+import { Search, ShoppingCart, Menu, X, ChevronDown, Minus, Plus, Trash2, Bell, MapPin, Clock } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
 import categories from '../../data/categories.json';
@@ -40,7 +40,7 @@ const getCategoryImg = (name, staticImg) => {
     snacks: "https://images.unsplash.com/photo-1511690743698-d9d85f2fbf38?w=400&h=300&fit=crop",
     "ground-spices": "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400&h=300&fit=crop",
     "whole-spices": "https://images.unsplash.com/photo-1509358271058-acd22cc93898?w=400&h=300&fit=crop",
-    herbs: "https://images.unsplash.com/photo-1515002246390-7bf7e8f87b54?w=400&h=300&fit=crop",
+    herbs: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400&h=300&fit=crop",
     "blended-masalas": "https://images.unsplash.com/photo-1532336414038-cf19250c5757?w=400&h=300&fit=crop"
   };
   return images[slug] || "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400&h=300&fit=crop";
@@ -51,6 +51,8 @@ const Header = () => {
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [cartOpen, setCartOpen] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
+  const accountRef = React.useRef(null);
   const navigate = useNavigate();
   const { items, getCartCount, getCartTotal, updateQuantity, removeFromCart } = useCart();
   const { user, isAuthenticated, logout } = useAuth();
@@ -96,6 +98,17 @@ const Header = () => {
     };
   }, []);
 
+  // Close account dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (accountRef.current && !accountRef.current.contains(e.target)) {
+        setAccountOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
@@ -123,86 +136,154 @@ const Header = () => {
     <>
       <header className="bg-white shadow-sm sticky top-0 z-50">
         {/* Top Bar */}
-        <div className="hidden md:block bg-primary-600 text-white py-2 text-sm">
-          <div className="container mx-auto px-4 flex justify-between items-center">
-            <div className="hidden md:flex items-center space-x-4">
-              <span>📞 +1-555-0123</span>
-              <span>✉️ info@yencodestore.com</span>
-            </div>
-            <div className="flex items-center flex-wrap gap-x-4 gap-y-1">
-              {isAuthenticated && user?.role === 'admin' && (
-                <Link to="/adminpanel/overview" className="hover:text-primary-200 transition-colors">
-                  Admin panel
-                </Link>
-              )}
-              {isAuthenticated && user?.role === 'vendor' && (
-                <Link to="/vendor/dashboard" className="hover:text-primary-200 transition-colors">
-                  Vendor portal
-                </Link>
-              )}
-              <Link to="/profile" className="hover:text-primary-200 transition-colors">
-                {isAuthenticated ? `Welcome, ${user?.name}` : 'My Account'}
-              </Link>
-              {isAuthenticated ? (
-                <button onClick={handleLogout} className="hover:text-primary-200 transition-colors">
-                  Logout
-                </button>
-              ) : (
-                <Link to="/login" className="hover:text-primary-200 transition-colors">Login</Link>
-              )}
-            </div>
-          </div>
-        </div>
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between py-2 md:py-3 gap-2 md:gap-4">
 
-        {/* Main Header */}
-        <div className="container mx-auto px-4 py-3 md:py-4">
-          <div className="flex items-center justify-between">
             {/* Logo */}
-            <Link to="/" className="flex items-center">
+            <Link to="/" className="flex-shrink-0 flex items-center">
               <img
                 src="/brand/mankatha-spices.png"
                 alt="Mankatha Spices"
-                className="h-12 md:h-20 w-auto object-contain transition-transform duration-300 hover:scale-105"
+                className="h-10 md:h-12 w-auto object-contain transition-transform duration-300 hover:scale-105"
               />
             </Link>
 
+            {/* Location */}
+            <div className="hidden lg:flex flex-col bg-gray-50 px-3 py-1 rounded border border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors min-w-[120px]">
+              <div className="flex items-center text-sm font-semibold text-gray-800 gap-1">
+                <MapPin size={13} className="text-primary-600" />
+                <span>JP Nagar</span>
+                <ChevronDown size={13} className="text-gray-500" />
+              </div>
+              <div className="text-xs text-gray-500 pl-4">Karnataka, IN</div>
+            </div>
+
+            {/* Delivery Time */}
+            <div className="hidden xl:flex flex-col">
+              <div className="text-xs text-gray-500">Earliest <span className="text-primary-600 font-semibold">Home Delivery</span></div>
+              <div className="text-sm font-bold text-gray-800 flex items-center mt-0.5 gap-1">
+                <Clock size={13} className="text-orange-500" />
+                Today 03:00 PM – 06:00 PM
+              </div>
+            </div>
+
             {/* Search Bar */}
-            <form onSubmit={handleSearch} className="hidden lg:flex flex-1 max-w-2xl mx-8">
-              <div className="relative w-full">
+            <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-2xl">
+              <div className="flex w-full shadow-sm rounded overflow-hidden border border-gray-300">
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search for products..."
-                  className="w-full pl-4 pr-12 py-3 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  className="w-full px-4 py-2.5 bg-gray-50 focus:outline-none focus:bg-white text-sm"
                 />
                 <button
                   type="submit"
-                  className="absolute right-0 top-0 h-full px-4 bg-primary-500 text-white rounded-r-lg hover:bg-primary-600 transition-colors"
+                  className="px-6 bg-primary-600 hover:bg-primary-700 text-white font-bold text-sm tracking-wide transition-colors flex items-center gap-1.5"
                 >
-                  <Search size={20} />
+                  <Search size={16} />
+                  SEARCH
                 </button>
               </div>
             </form>
 
-            {/* Actions */}
-            <div className="flex items-center space-x-4">
-              {/* Cart icon — opens drawer */}
+            {/* Right Icons */}
+            <div className="flex items-center space-x-3 md:space-x-5 shrink-0">
+
+              {/* Account */}
+              <div
+                ref={accountRef}
+                className="hidden md:flex items-center text-gray-700 font-medium cursor-pointer hover:text-primary-600 transition-colors relative gap-1.5"
+                onClick={() => setAccountOpen(prev => !prev)}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b9312" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                {isAuthenticated ? (
+                  <>
+                    <span className="text-sm select-none">{user?.name?.split(' ')[0]}</span>
+                    <ChevronDown size={14} className={`text-gray-500 transition-transform duration-200 ${accountOpen ? 'rotate-180' : ''}`} />
+                    {accountOpen && (
+                      <div className="absolute right-0 top-full mt-2 w-52 bg-white border border-gray-200 shadow-xl z-50 rounded-lg overflow-hidden">
+                        <div className="px-4 py-3 bg-gray-50 border-b border-gray-100">
+                          <p className="text-xs text-gray-500">Signed in as</p>
+                          <p className="text-sm font-semibold text-gray-800 truncate">{user?.name}</p>
+                        </div>
+                        <Link
+                          to="/adminpanel/overview"
+                          className="flex items-center gap-2.5 px-4 py-2.5 hover:bg-green-50 text-sm text-gray-700 hover:text-primary-600 transition-colors"
+                          onClick={() => setAccountOpen(false)}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                          Admin Panel
+                        </Link>
+                        {user?.role === 'vendor' && (
+                          <Link
+                            to="/vendor/dashboard"
+                            className="flex items-center gap-2.5 px-4 py-2.5 hover:bg-green-50 text-sm text-gray-700 hover:text-primary-600 transition-colors"
+                            onClick={() => setAccountOpen(false)}
+                          >
+                            🏪 Vendor Portal
+                          </Link>
+                        )}
+                        <Link
+                          to="/profile"
+                          className="flex items-center gap-2.5 px-4 py-2.5 hover:bg-green-50 text-sm text-gray-700 hover:text-primary-600 transition-colors"
+                          onClick={() => setAccountOpen(false)}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                          My Profile
+                        </Link>
+                        <div className="border-t border-gray-100">
+                          <button
+                            onClick={() => { handleLogout(); setAccountOpen(false); }}
+                            className="flex items-center gap-2.5 w-full px-4 py-2.5 hover:bg-red-50 text-sm text-red-600 transition-colors"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                            Logout
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="flex items-center gap-1.5 text-sm" onClick={(e) => e.stopPropagation()}>
+                    <Link to="/login" className="hover:text-primary-600 transition-colors font-semibold">Sign In</Link>
+                    <span className="text-gray-300 select-none">/</span>
+                    <Link to="/register" className="hover:text-primary-600 transition-colors font-semibold">Register</Link>
+                  </div>
+                )}
+              </div>
+
+              {/* Notification Bell — static, DMart style */}
+              <div className="hidden md:block relative cursor-pointer" title="Notifications">
+                <Bell size={22} className="text-gray-600 hover:text-primary-600 transition-colors" />
+                <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                  3
+                </span>
+              </div>
+
+              {/* Cart */}
               <button
                 onClick={() => setCartOpen(true)}
-                className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                aria-label="Open cart"
+                className="flex items-center cursor-pointer hover:opacity-80 transition-opacity gap-1.5"
               >
-                <ShoppingCart size={24} />
-                {cartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
-                    {cartCount > 99 ? '99+' : cartCount}
-                  </span>
-                )}
+                <div className="relative">
+                  <ShoppingCart size={24} className="text-primary-600" />
+                  {cartCount > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-yellow-400 text-gray-900 text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center border border-white">
+                      {cartCount > 9 ? '9+' : cartCount}
+                    </span>
+                  )}
+                </div>
+                <div className="hidden md:flex flex-col items-start">
+                  <span className="text-[10px] text-gray-500 leading-none">My Cart</span>
+                  <span className="font-bold text-gray-800 text-sm leading-tight">{formatMoney(cartTotal)}</span>
+                </div>
               </button>
+
+              {/* Mobile Menu Toggle */}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="md:hidden p-2 text-gray-600 hover:bg-gray-100 rounded"
               >
                 {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
               </button>
@@ -210,106 +291,114 @@ const Header = () => {
           </div>
 
           {/* Mobile Search */}
-          <form onSubmit={handleSearch} className="lg:hidden mt-3">
-            <div className="relative">
+          <form onSubmit={handleSearch} className="md:hidden pb-3">
+            <div className="flex w-full shadow-sm rounded overflow-hidden border border-gray-300">
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search for products..."
-                className="w-full pl-4 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 bg-gray-50 focus:outline-none focus:bg-white text-sm"
               />
               <button
                 type="submit"
-                className="absolute right-0 top-0 h-full px-4 bg-primary-500 text-white rounded-r-lg hover:bg-primary-600 transition-colors"
+                className="px-5 bg-primary-600 text-white flex items-center justify-center"
               >
-                <Search size={20} />
+                <Search size={18} />
               </button>
             </div>
           </form>
         </div>
 
-        {/* Navigation */}
-        <nav className="hidden lg:block border-t border-gray-200">
-          <div className="container mx-auto px-4">
-            <div className="flex items-center justify-between py-3">
-              {/* Categories Dropdown */}
-              <div className="relative">
-                <button
-                  onMouseEnter={() => setIsCategoriesOpen(true)}
-                  onMouseLeave={() => setIsCategoriesOpen(false)}
-                  className="flex items-center space-x-2 px-4 py-2 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  <Menu size={20} />
-                  <span className="font-medium">All Categories</span>
-                  <ChevronDown size={16} />
-                </button>
+        {/* Categories Bar (Bottom Row) */}
+        <div className="hidden md:block border-t border-b border-gray-200 bg-white">
+          <div className="container mx-auto">
+            <div className="flex items-stretch text-[13px]">
+              {/* All Categories Dropdown Trigger */}
+              <div 
+                className="relative flex items-center gap-2 px-5 py-2.5 font-semibold text-gray-800 border-r border-gray-200 cursor-pointer hover:bg-gray-50"
+                onMouseEnter={() => setIsCategoriesOpen(true)}
+                onMouseLeave={() => setIsCategoriesOpen(false)}
+              >
+                <Menu size={16} />
+                <span>All Categories</span>
+                
+                {/* Mega Menu / Dropdown */}
                 {isCategoriesOpen && (
                   <div
-                    onMouseEnter={() => setIsCategoriesOpen(true)}
-                    onMouseLeave={() => setIsCategoriesOpen(false)}
-                    className="absolute top-full left-0 mt-2 w-64 bg-white shadow-lg rounded-lg border border-gray-200 py-2 z-50"
+                    className="absolute top-full left-0 w-64 bg-white shadow-xl border border-gray-200 py-2 z-50 rounded-b-md"
                   >
                     {categoriesList.map((category) => (
                       <Link
                         key={category.id}
                         to={`/products?category=${encodeURIComponent(category.slug)}`}
-                        className="flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 transition-colors"
+                        className="flex items-center space-x-3 px-4 py-2 hover:bg-gray-50 transition-colors"
                         onClick={() => setIsCategoriesOpen(false)}
                       >
-                        <span className="text-xl">{category.icon}</span>
-                        <div>
-                          <div className="font-medium">{category.name}</div>
-                          <div className="text-sm text-gray-500">{category.description}</div>
-                        </div>
+                        <span className="text-lg">{category.icon}</span>
+                        <span className="font-medium text-gray-700 text-sm">{category.name}</span>
                       </Link>
                     ))}
                   </div>
                 )}
               </div>
 
-              {/* Main Navigation */}
-              <div className="hidden lg:flex items-center space-x-6">
-                <Link to="/" className="text-gray-700 hover:text-primary-600 transition-colors">Home</Link>
-                <Link to="/products" className="text-gray-700 hover:text-primary-600 transition-colors">All Products</Link>
-                <Link to="/deals" className="text-gray-700 hover:text-primary-600 transition-colors">Deals</Link>
-                <Link to="/about" className="text-gray-700 hover:text-primary-600 transition-colors">About</Link>
-                <Link to="/contact" className="text-gray-700 hover:text-primary-600 transition-colors">Contact</Link>
+              {/* Horizontal Category Links */}
+              <div className="flex items-center overflow-x-auto hide-scrollbar font-medium">
+                {categoriesList.slice(0, 7).map((cat) => (
+                  <Link
+                    key={cat.id}
+                    to={`/products?category=${encodeURIComponent(cat.slug)}`}
+                    className="px-5 py-2.5 text-gray-700 hover:text-primary-600 hover:bg-gray-50 whitespace-nowrap transition-colors"
+                  >
+                    {cat.name}
+                  </Link>
+                ))}
               </div>
             </div>
           </div>
-        </nav>
+        </div>
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden border-t border-gray-200 bg-white shadow-lg max-h-[80vh] overflow-y-auto">
+          <div className="md:hidden border-t border-gray-200 bg-white shadow-lg max-h-[80vh] overflow-y-auto">
             <div className="container mx-auto px-4 py-4 space-y-5">
-              {/* Navigation Links */}
-              <div>
-                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">Navigation</span>
-                <div className="space-y-1">
-                  {['/', '/products', '/deals', '/about', '/contact'].map((path, i) => (
-                    <Link
-                      key={path}
-                      to={path}
-                      className="block text-gray-700 hover:text-primary-600 transition-colors py-1.5 font-medium"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      {['Home', 'All Products', 'Deals', 'About', 'Contact'][i]}
+              {/* Account Links */}
+              <div className="mb-4">
+                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">My Account</span>
+                {isAuthenticated ? (
+                  <div className="space-y-1 bg-gray-50 p-3 rounded-lg border border-gray-100">
+                    <div className="text-sm font-bold text-primary-600 mb-2 border-b border-gray-200 pb-2">
+                      {user?.name}
+                    </div>
+                    <Link to="/adminpanel/overview" className="block text-gray-700 hover:text-primary-600 py-1.5 font-medium text-sm" onClick={() => setIsMobileMenuOpen(false)}>Admin Panel</Link>
+                    {user?.role === 'vendor' && (
+                      <Link to="/vendor/dashboard" className="block text-gray-700 hover:text-primary-600 py-1.5 font-medium text-sm" onClick={() => setIsMobileMenuOpen(false)}>Vendor Portal</Link>
+                    )}
+                    <Link to="/profile" className="block text-gray-700 hover:text-primary-600 py-1.5 font-medium text-sm" onClick={() => setIsMobileMenuOpen(false)}>My Profile</Link>
+                    <button onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }} className="block text-red-600 hover:underline py-1.5 font-medium text-left w-full text-sm">Logout</button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <Link to="/login" className="flex-1 bg-white border-2 border-primary-600 text-primary-600 text-center py-2.5 rounded font-bold hover:bg-green-50 transition-colors" onClick={() => setIsMobileMenuOpen(false)}>
+                      Sign In
                     </Link>
-                  ))}
-                </div>
+                    <Link to="/register" className="flex-1 bg-primary-600 text-white text-center py-2.5 rounded font-bold hover:bg-primary-700 transition-colors border-2 border-primary-600" onClick={() => setIsMobileMenuOpen(false)}>
+                      Register
+                    </Link>
+                  </div>
+                )}
               </div>
 
               {/* Categories */}
-              <div className="border-t border-gray-100 pt-3">
+              <div>
                 <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">Categories</span>
                 <div className="grid grid-cols-2 gap-2">
                   {categoriesList.map((category) => (
                     <Link
                       key={category.id}
                       to={`/products?category=${encodeURIComponent(category.slug)}`}
-                      className="flex items-center space-x-2 text-sm text-gray-600 hover:text-primary-600 p-2.5 rounded-lg bg-gray-50 font-medium"
+                      className="flex items-center space-x-2 text-sm text-gray-700 hover:text-primary-600 p-2.5 rounded border border-gray-100 bg-gray-50 font-medium"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <span className="text-lg">{category.icon}</span>
@@ -317,60 +406,6 @@ const Header = () => {
                     </Link>
                   ))}
                 </div>
-              </div>
-
-              {/* Account Links */}
-              <div className="border-t border-gray-100 pt-3">
-                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">My Account</span>
-                {isAuthenticated ? (
-                  <div className="space-y-2">
-                    <div className="text-xs font-bold text-primary-700 bg-primary-50 px-2.5 py-1 rounded inline-block">
-                      {user?.name}
-                    </div>
-                    {user?.role === 'admin' && (
-                      <Link
-                        to="/adminpanel/overview"
-                        className="block text-gray-700 hover:text-primary-600 py-1 font-medium"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        Admin Panel
-                      </Link>
-                    )}
-                    {user?.role === 'vendor' && (
-                      <Link
-                        to="/vendor/dashboard"
-                        className="block text-gray-700 hover:text-primary-600 py-1 font-medium"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        Vendor Portal
-                      </Link>
-                    )}
-                    <Link
-                      to="/profile"
-                      className="block text-gray-700 hover:text-primary-600 py-1 font-medium"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      My Profile
-                    </Link>
-                    <button
-                      onClick={() => {
-                        handleLogout();
-                        setIsMobileMenuOpen(false);
-                      }}
-                      className="block text-red-600 hover:underline py-1 font-medium text-left w-full"
-                    >
-                      Logout
-                    </button>
-                  </div>
-                ) : (
-                  <Link
-                    to="/login"
-                    className="block bg-primary-600 text-white text-center py-2.5 rounded-lg font-bold hover:bg-primary-700 transition-colors"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    Login / Register
-                  </Link>
-                )}
               </div>
             </div>
           </div>

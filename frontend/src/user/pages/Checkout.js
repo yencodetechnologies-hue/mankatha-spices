@@ -7,7 +7,7 @@ import { formatMoney } from '../../utils/formatMoney';
 
 const Checkout = () => {
   const navigate = useNavigate();
-  const { items, getCartTotal } = useCart();
+  const { items, getCartTotal, clearCart } = useCart();
   const { user } = useAuth();
   
   const [shippingInfo, setShippingInfo] = useState({
@@ -29,6 +29,13 @@ const Checkout = () => {
     cvv: ''
   });
 
+  const [paymentMethod, setPaymentMethod] = useState('card');
+  const [bankInfo, setBankInfo] = useState({
+    userBankName: '',
+    transactionRef: '',
+    slipFileName: ''
+  });
+
   const [orderPlaced, setOrderPlaced] = useState(false);
 
   const shipping = getCartTotal() > 50 ? 0 : 5.99;
@@ -46,9 +53,35 @@ const Checkout = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // Construct the new order object
+    const newOrder = {
+      id: `ORD-${Math.floor(100000 + Math.random() * 900000)}`,
+      date: new Date().toISOString().split('T')[0],
+      status: 'processing',
+      total: total,
+      itemsCount: items.reduce((acc, curr) => acc + curr.quantity, 0),
+      items: items.map(item => ({
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        featured_image: item.featured_image
+      }))
+    };
+
+    // Save order in localStorage
+    try {
+      const existingOrdersJson = localStorage.getItem('user_orders');
+      const existingOrders = existingOrdersJson ? JSON.parse(existingOrdersJson) : [];
+      localStorage.setItem('user_orders', JSON.stringify([newOrder, ...existingOrders]));
+    } catch (err) {
+      console.error("Error saving order to localStorage:", err);
+    }
+
     // Simulate order processing
     setTimeout(() => {
       setOrderPlaced(true);
+      clearCart();
       // Clear cart after successful order
       setTimeout(() => {
         navigate('/');
@@ -237,66 +270,186 @@ const Checkout = () => {
                   <h2 className="text-xl font-semibold">Payment Information</h2>
                 </div>
 
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Card Number
-                    </label>
-                    <input
-                      type="text"
-                      name="cardNumber"
-                      value={paymentInfo.cardNumber}
-                      onChange={(e) => handleInputChange(e, 'payment')}
-                      placeholder="1234 5678 9012 3456"
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Cardholder Name
-                    </label>
-                    <input
-                      type="text"
-                      name="cardName"
-                      value={paymentInfo.cardName}
-                      onChange={(e) => handleInputChange(e, 'payment')}
-                      placeholder="John Doe"
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Expiry Date
-                      </label>
-                      <input
-                        type="text"
-                        name="expiryDate"
-                        value={paymentInfo.expiryDate}
-                        onChange={(e) => handleInputChange(e, 'payment')}
-                        placeholder="MM/YY"
-                        required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        CVV
-                      </label>
-                      <input
-                        type="text"
-                        name="cvv"
-                        value={paymentInfo.cvv}
-                        onChange={(e) => handleInputChange(e, 'payment')}
-                        placeholder="123"
-                        required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                      />
-                    </div>
-                  </div>
+                {/* Switcher Buttons */}
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod('card')}
+                    className={`py-3 px-4 rounded-lg border font-semibold flex items-center justify-center gap-2 transition-all ${
+                      paymentMethod === 'card'
+                        ? 'border-primary-500 bg-primary-50 text-primary-700 shadow-sm'
+                        : 'border-gray-300 hover:bg-gray-50 text-gray-600'
+                    }`}
+                  >
+                    💳 Card Payment
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod('bank')}
+                    className={`py-3 px-4 rounded-lg border font-semibold flex items-center justify-center gap-2 transition-all ${
+                      paymentMethod === 'bank'
+                        ? 'border-primary-500 bg-primary-50 text-primary-700 shadow-sm'
+                        : 'border-gray-300 hover:bg-gray-50 text-gray-600'
+                    }`}
+                  >
+                    🏦 Bank Transfer
+                  </button>
                 </div>
+
+                {paymentMethod === 'card' ? (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Card Number
+                      </label>
+                      <input
+                        type="text"
+                        name="cardNumber"
+                        value={paymentInfo.cardNumber}
+                        onChange={(e) => handleInputChange(e, 'payment')}
+                        placeholder="1234 5678 9012 3456"
+                        required={paymentMethod === 'card'}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Cardholder Name
+                      </label>
+                      <input
+                        type="text"
+                        name="cardName"
+                        value={paymentInfo.cardName}
+                        onChange={(e) => handleInputChange(e, 'payment')}
+                        placeholder="John Doe"
+                        required={paymentMethod === 'card'}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Expiry Date
+                        </label>
+                        <input
+                          type="text"
+                          name="expiryDate"
+                          value={paymentInfo.expiryDate}
+                          onChange={(e) => handleInputChange(e, 'payment')}
+                          placeholder="MM/YY"
+                          required={paymentMethod === 'card'}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          CVV
+                        </label>
+                        <input
+                          type="text"
+                          name="cvv"
+                          value={paymentInfo.cvv}
+                          onChange={(e) => handleInputChange(e, 'payment')}
+                          placeholder="123"
+                          required={paymentMethod === 'card'}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {/* Bank Transfer Details Display */}
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-2.5">
+                      <h3 className="font-bold text-gray-800 text-sm border-b pb-1.5 flex items-center gap-1.5 text-primary-700">
+                        <span>Our Bank Details</span>
+                      </h3>
+                      <div className="grid grid-cols-2 gap-y-2 text-xs">
+                        <span className="text-gray-500 font-medium">Bank Name:</span>
+                        <span className="font-semibold text-gray-800">Mankatha Commercial Bank</span>
+
+                        <span className="text-gray-500 font-medium">Account Name:</span>
+                        <span className="font-semibold text-gray-800">Mankatha Spices Pvt Ltd</span>
+
+                        <span className="text-gray-500 font-medium">Account Number:</span>
+                        <span className="font-bold text-primary-600">1002 4589 1256</span>
+
+                        <span className="text-gray-500 font-medium">Branch:</span>
+                        <span className="font-semibold text-gray-800">Colombo Main (Sri Lanka)</span>
+
+                        <span className="text-gray-500 font-medium">SWIFT / BIC:</span>
+                        <span className="font-semibold text-gray-800">MANKLK2X</span>
+                      </div>
+                      <div className="text-[11px] text-amber-700 bg-amber-50 border border-amber-100 rounded p-2 font-medium mt-2">
+                        ⚠️ Please transfer the exact order amount to the bank account above, then fill in your payment details below.
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Your Bank Name
+                        </label>
+                        <input
+                          type="text"
+                          value={bankInfo.userBankName}
+                          onChange={(e) => setBankInfo(prev => ({ ...prev, userBankName: e.target.value }))}
+                          placeholder="e.g. Bank of Ceylon / Hatton National Bank"
+                          required={paymentMethod === 'bank'}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Transaction Reference / Slip ID
+                        </label>
+                        <input
+                          type="text"
+                          value={bankInfo.transactionRef}
+                          onChange={(e) => setBankInfo(prev => ({ ...prev, transactionRef: e.target.value }))}
+                          placeholder="e.g. TXN987654321"
+                          required={paymentMethod === 'bank'}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Upload Deposit Slip / Passbook Photo
+                        </label>
+                        <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-primary-500 hover:bg-gray-50/50 transition-all cursor-pointer relative">
+                          <input
+                            type="file"
+                            accept="image/*,.pdf"
+                            onChange={(e) => {
+                              if (e.target.files && e.target.files[0]) {
+                                setBankInfo(prev => ({ ...prev, slipFileName: e.target.files[0].name }));
+                              }
+                            }}
+                            required={paymentMethod === 'bank'}
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                          />
+                          <div className="space-y-1 text-center">
+                            <span className="text-3xl inline-block mb-1">📂</span>
+                            <div className="flex text-sm text-gray-600 justify-center">
+                              <span className="font-semibold text-primary-600 hover:text-primary-500">
+                                Click to upload passbook copy
+                              </span>
+                              <p className="pl-1 text-gray-500">or drag and drop</p>
+                            </div>
+                            <p className="text-xs text-gray-500">PNG, JPG, PDF up to 10MB</p>
+                            {bankInfo.slipFileName ? (
+                              <div className="text-sm font-bold text-green-600 mt-2 bg-green-50 px-3 py-1 rounded-full border border-green-200 inline-flex items-center gap-1.5 animate-fadeIn">
+                                <span>📎 {bankInfo.slipFileName}</span>
+                              </div>
+                            ) : (
+                              <p className="text-[11px] text-red-500 font-medium mt-1">* This file copy is required for bank verification</p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <button

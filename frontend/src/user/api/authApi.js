@@ -30,6 +30,31 @@ export const authApi = {
     return data;
   },
 
+  async registerSendOtp(payload) {
+    const { data } = await client.post("auth/register-send-otp", payload);
+    return data;
+  },
+
+  async registerVerifyOtp(payload) {
+    const { data } = await client.post("auth/register-verify-otp", payload);
+    return data;
+  },
+
+  async forgotSendOtp(payload) {
+    const { data } = await client.post("auth/forgot-send-otp", payload);
+    return data;
+  },
+
+  async forgotVerifyOtp(payload) {
+    const { data } = await client.post("auth/forgot-verify-otp", payload);
+    return data;
+  },
+
+  async resetPassword(payload) {
+    const { data } = await client.post("auth/reset-password", payload);
+    return data;
+  },
+
   async me() {
     const { data } = await client.get("auth/me");
     return data;

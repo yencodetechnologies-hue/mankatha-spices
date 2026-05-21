@@ -20,6 +20,10 @@ const userSchema = new mongoose.Schema(
       index: true,
     },
     isActive: { type: Boolean, default: true },
+    registerOtp: { type: String, default: "" },
+    registerOtpExpires: { type: Date },
+    forgotOtp: { type: String, default: "" },
+    forgotOtpExpires: { type: Date },
   },
   { timestamps: true }
 );

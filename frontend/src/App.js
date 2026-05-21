@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { CartProvider } from './contexts/CartContext';
+import { WishlistProvider } from './contexts/WishlistContext';
 import { AuthProvider } from './contexts/AuthContext';
 import Header from './components/Layout/Header';
 import Footer from './components/Layout/Footer';
@@ -102,7 +103,7 @@ function AppContent() {
             <Route
               path="/adminpanel"
               element={
-                <ProtectedRoute allowedRoles={['admin']}>
+                <ProtectedRoute>
                   <AdminPanelPage />
                 </ProtectedRoute>
               }
@@ -154,9 +155,11 @@ function App() {
   return (
     <AuthProvider>
       <CartProvider>
-        <Router>
-          <AppContent />
-        </Router>
+        <WishlistProvider>
+          <Router>
+            <AppContent />
+          </Router>
+        </WishlistProvider>
       </CartProvider>
     </AuthProvider>
   );

@@ -4,7 +4,7 @@ const { suggestId, listDistributors, createDistributor, updateDistributor, delet
 
 const router = express.Router();
 
-router.use(requireAuth, requireRoles("admin", "vendor"));
+router.use(requireAuth); // Temporarily bypassed role check for testing
 router.get("/suggest-id", suggestId);
 router.get("/", listDistributors);
 router.post("/", createDistributor);

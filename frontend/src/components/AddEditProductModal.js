@@ -1,6 +1,14 @@
 import React, { useMemo, useState } from "react";
-import { Camera, X, Check } from "lucide-react";
+import { Camera, X, Check, Plus, Trash2 } from "lucide-react";
 import { categoryApi } from "../api/categoryApi";
+import { getBackendOrigin } from "../api/adminApiBase";
+
+const absoluteImage = (path) => {
+  if (!path) return "";
+  if (/^https?:\/\//i.test(path)) return path;
+  const origin = getBackendOrigin();
+  return `${origin}${path.startsWith("/") ? path : `/${path}`}`;
+};
 
 const emptyProduct = {
   name: "",
@@ -16,6 +24,7 @@ const emptyProduct = {
   supplier: "",
   barcode: "",
   vatPercent: 0,
+  dietaryPreference: "",
   image: null,
   pricing: [],
 };
@@ -50,7 +59,7 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
     const weightsMap = {};
     if (firstCountryPricing?.weights) {
       firstCountryPricing.weights.forEach(w => {
-        weightsMap[w.weight] = { enabled: true, price: w.price };
+        weightsMap[w.weight] = { enabled: true, price: w.price, original_price: w.original_price || "" };
       });
     }
 
@@ -64,6 +73,7 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
       supplier: initialData.supplier ?? "",
       barcode: initialData.barcode ?? "",
       vatPercent: initialData.vatPercent ?? 0,
+      dietaryPreference: initialData.dietaryPreference ?? "",
       weightsMap,
     };
   }, [initialData]);
@@ -75,9 +85,11 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
 
   const [form, setForm] = useState(seedData);
   const [categories, setCategories] = useState([]);
+  const [customWeights, setCustomWeights] = useState([]);
   const [addingCategory, setAddingCategory] = useState(false);
   const [newCatName, setNewCatName] = useState("");
   const [catError, setCatError] = useState("");
+  const [customWeightName, setCustomWeightName] = useState("");
   const inputRef = React.useRef(null);
 
   React.useEffect(() => {
@@ -123,6 +135,26 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
     setForm(seedData);
     const firstCountryPricing = seedData.pricing?.[0];
     setUnitSystem(getUnitSystemFromWeights(firstCountryPricing?.weights || []));
+    
+    if (isOpen) {
+      if (firstCountryPricing?.weights && firstCountryPricing.weights.length > 0) {
+        setCustomWeights(
+          firstCountryPricing.weights.map((w, idx) => ({
+            id: idx,
+            weight: w.weight || "",
+            price: w.price || "",
+            original_price: w.original_price || ""
+          }))
+        );
+      } else {
+        setCustomWeights([
+          { id: 1, weight: "100g", price: "", original_price: "" },
+          { id: 2, weight: "250g", price: "", original_price: "" },
+          { id: 3, weight: "500g", price: "", original_price: "" },
+          { id: 4, weight: "1kg", price: "", original_price: "" }
+        ]);
+      }
+    }
   }, [seedData, isOpen]);
 
   if (!isOpen) return null;
@@ -131,16 +163,21 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
 
   const submit = (e) => {
     e.preventDefault();
-    const currentOptions = UNIT_OPTIONS_MAP[unitSystem] || UNIT_OPTIONS_MAP.g_kg;
-    const activeWeights = Object.entries(form.weightsMap || {})
-      .filter(([weightName, item]) => currentOptions.includes(weightName) && item.enabled && item.price !== "")
-      .map(([weightName, item]) => ({
-        weight: weightName,
-        price: Number(item.price),
-      }));
+    const activeWeights = customWeights
+      .filter((w) => w.weight.trim() !== "" && w.price !== "")
+      .map((w) => {
+        const item = {
+          weight: w.weight.trim(),
+          price: Number(w.price),
+        };
+        if (w.original_price && Number(w.original_price) > Number(w.price)) {
+          item.original_price = Number(w.original_price);
+        }
+        return item;
+      });
 
     if (activeWeights.length === 0) {
-      alert("Please select and price at least one weight option.");
+      alert("Please add and price at least one weight option.");
       return;
     }
 
@@ -287,44 +324,99 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
               <input type="number" placeholder="0" value={form.stock} onChange={(e) => setField("stock", Number(e.target.value))} required />
             </div>
 
+            <div className="form-group">
+              <label>VAT (%)</label>
+              <input
+                type="number"
+                placeholder="e.g. 5"
+                value={form.vatPercent ?? 0}
+                min="0"
+                max="100"
+                step="0.01"
+                onChange={(e) => setField("vatPercent", e.target.value === "" ? 0 : Number(e.target.value))}
+              />
+              {Number(form.vatPercent) > 0 && (
+                <small style={{ color: "#6b7280", marginTop: "0.25rem", display: "block" }}>
+                  VAT amount will be shown per weight option below.
+                </small>
+              )}
+            </div>
+
+            <div className="form-group">
+              <label>Dietary Preference</label>
+              <select
+                value={form.dietaryPreference || ""}
+                onChange={(e) => setField("dietaryPreference", e.target.value)}
+                required
+              >
+                <option value="" disabled hidden>Select...</option>
+                <option value="vegetarian">Vegetarian</option>
+                <option value="non-vegetarian">Non-Vegetarian</option>
+              </select>
+            </div>
+
             <div className="form-group" style={{ gridColumn: "span 2" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
-                <label style={{ margin: 0 }}>Weight Options & Prices</label>
-                <select
-                  value={unitSystem}
-                  onChange={(e) => setUnitSystem(e.target.value)}
-                  style={{
-                    width: "auto",
-                    padding: "0.25rem 0.5rem",
-                    fontSize: "0.85rem",
-                    borderRadius: "6px",
-                    border: "1px solid #f2c9a6",
-                    background: "#fff",
-                    cursor: "pointer"
-                  }}
-                >
-                  <option value="g_kg">Solid (g, kg)</option>
-                  <option value="ml_l">Liquid (ml, l)</option>
-                  <option value="mg_g">Milligram (mg, g)</option>
-                </select>
+                <label style={{ margin: 0, fontWeight: "600" }}>Weight Options & Prices</label>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                  <select
+                    value={unitSystem}
+                    onChange={(e) => {
+                      const newSys = e.target.value;
+                      setUnitSystem(newSys);
+                      const defaults = {
+                        g_kg: ["100g", "250g", "500g", "1kg"],
+                        ml_l: ["100ml", "250ml", "500ml", "1l"],
+                        mg_g: ["100mg", "250mg", "500mg", "1g"]
+                      };
+                      const items = defaults[newSys] || defaults.g_kg;
+                      setCustomWeights(items.map((w, idx) => ({ id: idx, weight: w, price: "", original_price: "" })));
+                    }}
+                    style={{
+                      width: "auto",
+                      padding: "0.25rem 0.5rem",
+                      fontSize: "0.85rem",
+                      borderRadius: "6px",
+                      border: "1px solid #f2c9a6",
+                      background: "#fff",
+                      cursor: "pointer"
+                    }}
+                  >
+                    <option value="g_kg">Solid (g, kg)</option>
+                    <option value="ml_l">Liquid (ml, l)</option>
+                    <option value="mg_g">Milligram (mg, g)</option>
+                  </select>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCustomWeights([
+                        ...customWeights,
+                        { id: Date.now() + Math.random(), weight: "", price: "", original_price: "" }
+                      ]);
+                    }}
+                    className="flex items-center gap-1 px-3 py-1.5 bg-primary-100 text-primary-700 rounded-lg hover:bg-primary-200 transition-colors text-xs font-semibold"
+                    style={{ border: "none", cursor: "pointer", outline: "none" }}
+                  >
+                    <Plus size={14} /> Add Weight Option
+                  </button>
+                </div>
               </div>
               <div style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
+                display: "flex",
+                flexDirection: "column",
                 gap: "0.75rem",
                 background: "#faf7f2",
                 border: "1px solid #ede6dc",
                 padding: "1rem",
                 borderRadius: "10px"
               }}>
-                {(UNIT_OPTIONS_MAP[unitSystem] || UNIT_OPTIONS_MAP.g_kg).map((wt) => {
-                  const item = form.weightsMap?.[wt] || { enabled: false, price: "" };
-                  const basePrice = Number(item.price) || 0;
-                  const vatAmt = item.enabled && basePrice > 0 && Number(form.vatPercent) > 0
+                {customWeights.map((w, index) => {
+                  const basePrice = Number(w.price) || 0;
+                  const vatAmt = basePrice > 0 && Number(form.vatPercent) > 0
                     ? ((basePrice * Number(form.vatPercent)) / 100).toFixed(2)
                     : null;
                   return (
-                    <div key={wt} style={{
+                    <div key={w.id || index} style={{
                       display: "flex",
                       flexDirection: "column",
                       gap: "0.3rem",
@@ -334,48 +426,105 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
                       borderRadius: "8px"
                     }}>
                       <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+                        {/* Weight (Grams/kg/etc) */}
                         <input
-                          type="checkbox"
-                          checked={item.enabled}
+                          type="text"
+                          placeholder="Weight (e.g. 100g)"
+                          value={w.weight}
                           onChange={(e) => {
-                            const updated = {
-                              ...form.weightsMap,
-                              [wt]: { ...item, enabled: e.target.checked }
-                            };
-                            setField("weightsMap", updated);
-                          }}
-                          style={{ cursor: "pointer", width: "auto", margin: 0 }}
-                        />
-                        <span style={{ fontSize: "0.85rem", fontWeight: "600", width: "50px", color: "#3d2f26" }}>{wt}</span>
-                        <input
-                          type="number"
-                          placeholder="Price"
-                          value={item.price}
-                          disabled={!item.enabled}
-                          onChange={(e) => {
-                            const updated = {
-                              ...form.weightsMap,
-                              [wt]: { ...item, price: e.target.value === "" ? "" : Number(e.target.value) }
-                            };
-                            setField("weightsMap", updated);
+                            const updated = [...customWeights];
+                            updated[index].weight = e.target.value;
+                            setCustomWeights(updated);
                           }}
                           style={{
-                            flex: 1,
+                            flex: "1 1 120px",
                             fontSize: "0.85rem",
                             padding: "0.25rem 0.5rem",
                             border: "1px solid #d7dce8",
                             borderRadius: "4px",
                             margin: 0
                           }}
-                          required={item.enabled}
+                          required
+                        />
+
+                        {/* Price */}
+                        <input
+                          type="number"
+                          placeholder="Price"
+                          title="Selling Price"
+                          value={w.price}
+                          onChange={(e) => {
+                            const updated = [...customWeights];
+                            updated[index].price = e.target.value === "" ? "" : Number(e.target.value);
+                            setCustomWeights(updated);
+                          }}
+                          style={{
+                            flex: "1 1 100px",
+                            fontSize: "0.85rem",
+                            padding: "0.25rem 0.5rem",
+                            border: "1px solid #d7dce8",
+                            borderRadius: "4px",
+                            margin: 0
+                          }}
+                          required
                           min="0"
                         />
+
+                        {/* MRP Strike Price */}
+                        <input
+                          type="number"
+                          placeholder="MRP"
+                          title="Maximum Retail Price (Strike Price)"
+                          value={w.original_price || ""}
+                          onChange={(e) => {
+                            const val = e.target.value === "" ? "" : Number(e.target.value);
+                            const updated = [...customWeights];
+                            updated[index].original_price = val;
+                            setCustomWeights(updated);
+                          }}
+                          style={{
+                            flex: "0 0 90px",
+                            fontSize: "0.85rem",
+                            padding: "0.25rem 0.5rem",
+                            border: w.original_price && Number(w.original_price) > Number(w.price)
+                              ? "1.5px solid #8dbe20"
+                              : "1px solid #d7dce8",
+                            borderRadius: "4px",
+                            margin: 0
+                          }}
+                          min="0"
+                        />
+
+                        {/* Delete Row Button */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (customWeights.length > 1) {
+                              setCustomWeights(customWeights.filter((_, idx) => idx !== index));
+                            } else {
+                              alert("Must have at least one weight option.");
+                            }
+                          }}
+                          className="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
+                          style={{ border: "none", background: "transparent", cursor: "pointer", display: "flex", alignItems: "center" }}
+                          title="Delete weight option"
+                        >
+                          <Trash2 size={16} />
+                        </button>
                       </div>
+
+                      {/* Show derived discount % */}
+                      {Number(w.original_price) > Number(w.price) && Number(w.price) > 0 && (
+                        <div style={{ fontSize: "0.75rem", color: "#8dbe20", fontWeight: "600", paddingLeft: "0.25rem" }}>
+                          Discount: {Math.round(((Number(w.original_price) - Number(w.price)) / Number(w.original_price)) * 100)}% OFF
+                        </div>
+                      )}
+
                       {vatAmt && (
                         <div style={{
                           fontSize: "0.75rem",
                           color: "#6b7280",
-                          paddingLeft: "1.6rem",
+                          paddingLeft: "0.25rem",
                           display: "flex",
                           gap: "0.5rem"
                         }}>
@@ -387,7 +536,7 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
                   );
                 })}
               </div>
-            </div>
+            </div>  
 
             <div className="form-group">
               <label>Min. Stock Alert</label>
@@ -416,24 +565,7 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
               <input placeholder="e.g. 88010972..." value={form.barcode || ""} onChange={(e) => setField("barcode", e.target.value)} />
             </div>
 
-            <div className="form-group">
-              <label>VAT (%)</label>
-              <input
-                type="number"
-                placeholder="e.g. 5"
-                value={form.vatPercent ?? 0}
-                min="0"
-                max="100"
-                step="0.01"
-                onChange={(e) => setField("vatPercent", e.target.value === "" ? 0 : Number(e.target.value))}
-              />
-              {Number(form.vatPercent) > 0 && (
-                <small style={{ color: "#6b7280", marginTop: "0.25rem", display: "block" }}>
-                  VAT amount will be shown per weight option above.
-                </small>
-              )}
             </div>
-          </div>
 
           <div className="form-group">
             <label>Description</label>
@@ -447,14 +579,53 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
           </div>
 
           <div className="form-group">
-            <label>Product Image</label>
-            <label className="upload-dropzone">
-              <input type="file" accept="image/*" onChange={(e) => setField("image", e.target.files?.[0] || null)} />
-              <Camera size={28} />
-              <span>Click to upload or drag and drop</span>
-              <small>PNG, JPG up to 5MB</small>
-              {form.image && <em>{form.image.name}</em>}
-            </label>
+            <label style={{ fontWeight: "600" }}>Product Image</label>
+            <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+              {(form.image || (initialData && initialData.image)) && (
+                <div style={{ position: "relative", width: "90px", height: "90px", borderRadius: "10px", overflow: "hidden", border: "1px solid #ede6dc", flexShrink: 0 }}>
+                  <img
+                    src={form.image ? URL.createObjectURL(form.image) : absoluteImage(initialData.image)}
+                    alt="Product preview"
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setField("image", null);
+                    }}
+                    style={{
+                      position: "absolute",
+                      top: "4px",
+                      right: "4px",
+                      background: "rgba(220, 38, 38, 0.85)",
+                      color: "#white",
+                      border: "none",
+                      borderRadius: "50%",
+                      width: "20px",
+                      height: "20px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      cursor: "pointer",
+                      padding: 0
+                    }}
+                    title="Remove selected file"
+                  >
+                    <X size={12} color="#fff" />
+                  </button>
+                </div>
+              )}
+
+              <label className="upload-dropzone" style={{ flex: 1, margin: 0, height: "90px", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", border: "2px dashed #ede6dc", borderRadius: "10px", cursor: "pointer", background: "#fcfcf9" }}>
+                <input type="file" accept="image/*" onChange={(e) => setField("image", e.target.files?.[0] || null)} style={{ display: "none" }} />
+                <Camera size={20} style={{ color: "#8dbe20", marginBottom: "0.25rem" }} />
+                <span style={{ fontSize: "0.85rem", fontWeight: "600" }}>
+                  {form.image ? "Change selected image" : (initialData && initialData.image ? "Change existing image" : "Click to upload image")}
+                </span>
+                <small style={{ fontSize: "0.75rem", color: "#9ca3af" }}>PNG, JPG up to 5MB</small>
+                {form.image && <em style={{ fontSize: "0.7rem", color: "#8dbe20", marginTop: "0.25rem" }}>{form.image.name}</em>}
+              </label>
+            </div>
           </div>
 
           <div className="actions-row modal-actions">

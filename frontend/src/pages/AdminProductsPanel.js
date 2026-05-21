@@ -96,6 +96,7 @@ const AdminProductsPanel = () => {
     formData.append("supplier", product.supplier ?? "");
     formData.append("pricing", JSON.stringify(product.pricing));
     formData.append("vatPercent", String(product.vatPercent ?? 0));
+    formData.append("dietaryPreference", product.dietaryPreference ?? "");
     if (product.image) formData.append("image", product.image);
     return formData;
   };

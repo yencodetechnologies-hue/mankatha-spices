@@ -1,5 +1,4 @@
 import { AUTH_TOKEN_KEY } from "../constants/authStorage";
-
 /** Merge Authorization header for admin API calls when a JWT is stored. */
 export function withAuthHeaders(config = {}) {
   const next = { ...config };
@@ -10,7 +9,6 @@ export function withAuthHeaders(config = {}) {
   }
   return next;
 }
-
 /** Backend host in dev when not using REACT_APP_API_BASE_URL (must match backend PORT, default 5000). */
 function devBackendOrigin() {
   const port = process.env.REACT_APP_BACKEND_PORT || "5000";
@@ -19,7 +17,6 @@ function devBackendOrigin() {
   }
   return `http://127.0.0.1:${port}`;
 }
-
 function runtimeApiBase() {
   if (typeof window === "undefined") return null;
   const cfg = window.__APP_CONFIG__ || {};
@@ -31,7 +28,6 @@ function runtimeApiBase() {
   const trimmed = String(raw).trim();
   return trimmed ? trimmed : null;
 }
-
 /**
  * Resolves the admin API base for axios/fetch (absolute URL or path ending with `/api`).
  * In development without REACT_APP_API_BASE_URL, uses same-origin `/api` so CRA setupProxy.js
@@ -42,9 +38,9 @@ export function getAdminApiBase() {
   let base = runtimeApiBase() || process.env.REACT_APP_API_BASE_URL;
   if (!base) {
     if (process.env.NODE_ENV === "development") {
-      base = "/api";
+      base = "http://localhost:9876";
     } else {
-      base = "https://mankathaspi.octosofttechnologies.in";
+      base = "http://localhost:9876";
     }
   }
   base = base.replace(/\/$/, "");

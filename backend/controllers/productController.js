@@ -48,6 +48,7 @@ const createProduct = async (req, res) => {
 };
 
 const updateProduct = async (req, res) => {
+  console.log("UPDATE PRODUCT RECEIVED BODY:", req.body);
   const payload = parsePayload(req.body);
   if (req.file) {
     payload.image = `/uploads/${req.file.filename}`;

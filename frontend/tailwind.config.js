@@ -8,16 +8,16 @@ module.exports = {
       colors: {
         /** Corporate blue (Material Blue) — storefront + admin accents */
         primary: {
-          50: '#f2f7e8',
-          100: '#e1eccb',
-          200: '#cbe19e',
-          300: '#b3d56d',
-          400: '#9dc537',
-          500: '#91c322',
-          600: '#6b9312',
-          700: '#4e6b0d',
-          800: '#3d540a',
-          900: '#2c3b07',
+          50: '#f6fbf0',
+          100: '#ebf6dd',
+          200: '#d3ecb2',
+          300: '#b3dc7e',
+          400: '#90c549',
+          500: '#8dbe20',
+          600: '#6b9514',
+          700: '#4f7112',
+          800: '#334b0b',
+          900: '#1c2b05',
         },
         /** Complementary slate for secondary UI */
         secondary: {

@@ -4,10 +4,9 @@ const { listCategories, createCategory, renameCategory, deleteCategory } = requi
 
 const router = express.Router();
 
-router.use(requireAuth, requireRoles("admin"));
 router.get("/", listCategories);
-router.post("/", createCategory);
-router.put("/:id", renameCategory);
-router.delete("/:id", deleteCategory);
+router.post("/", requireAuth, requireRoles("admin"), createCategory);
+router.put("/:id", requireAuth, requireRoles("admin"), renameCategory);
+router.delete("/:id", requireAuth, requireRoles("admin"), deleteCategory);
 
 module.exports = router;

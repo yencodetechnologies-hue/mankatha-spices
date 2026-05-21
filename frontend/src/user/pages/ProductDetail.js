@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ShoppingCart, Star, Heart, Share2, Truck, Shield, RefreshCw, Plus, Minus } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
+import { useWishlist } from '../../contexts/WishlistContext';
 import products from '../../data/products.json';
 import { formatMoney } from '../../utils/formatMoney';
 import { catalogApi } from '../api/catalogApi';
@@ -15,6 +16,7 @@ const ProductDetail = () => {
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [selectedWeight, setSelectedWeight] = useState("");
   const { addToCart } = useCart();
+  const { toggleWishlist, isInWishlist } = useWishlist();
 
   useEffect(() => {
     let cancelled = false;
@@ -79,7 +81,7 @@ const ProductDetail = () => {
   };
 
   const currentPrice = activeWeightObj.price || product.price || 0;
-  const originalPrice = Math.max(currentPrice, Math.round(currentPrice * 1.15));
+  const originalPrice = activeWeightObj.original_price || product.original_price || currentPrice;
   const activeCurrency = activeCountryPricing.currency || "INR";
   const discount = Math.round(((originalPrice - currentPrice) / originalPrice) * 100);
 
@@ -122,11 +124,7 @@ const ProductDetail = () => {
               className="w-full h-32 object-cover hover:scale-105 transition-transform duration-300"
             />
           </Link>
-          {relatedDiscount > 0 && (
-            <span className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded-md text-xs font-semibold">
-              -{relatedDiscount}%
-            </span>
-          )}
+
         </div>
         <div className="p-3">
           <Link to={`/product/${relatedProduct.slug}`}>
@@ -199,11 +197,27 @@ const ProductDetail = () => {
           {/* Product Info */}
           <div>
             <div className="mb-4">
-              {discount > 0 && (
-                <span className="inline-block bg-red-500 text-white px-2 py-1 rounded-md text-sm font-semibold mb-2">
-                  -{discount}% OFF
-                </span>
-              )}
+
+
+              {/* Dietary Badge */}
+              <div className="flex items-center gap-2 mb-3">
+                {product.dietaryPreference === 'non-vegetarian' ? (
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-5 h-5 border-2 border-[#792C23] flex items-center justify-center bg-white rounded-sm flex-shrink-0">
+                      <div className="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-b-[6px] border-b-[#792C23] mt-[1px]"></div>
+                    </div>
+                    <span className="text-sm font-semibold text-[#792C23]">Non Vegetarian</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-5 h-5 border-2 border-primary-500 flex items-center justify-center bg-white rounded-sm flex-shrink-0">
+                      <div className="w-2.5 h-2.5 bg-primary-500 rounded-full"></div>
+                    </div>
+                    <span className="text-sm font-semibold text-primary-700">Vegetarian</span>
+                  </div>
+                )}
+              </div>
+
               <h1 className="text-3xl font-bold text-gray-800 mb-2">{product.name}</h1>
               <div className="flex items-center mb-4">
                 <div className="flex items-center">
@@ -356,8 +370,15 @@ const ProductDetail = () => {
                   <ShoppingCart size={20} />
                   <span>Add to Cart</span>
                 </button>
-                <button className="p-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                  <Heart size={20} />
+                <button
+                  onClick={() => toggleWishlist(product)}
+                  className={`p-3 border rounded-lg transition-colors ${
+                    isInWishlist(product._id || product.id)
+                      ? 'border-primary-400 bg-primary-50 text-primary-600 shadow-sm scale-105'
+                      : 'border-gray-300 hover:bg-gray-50 text-gray-600 hover:text-primary-600 hover:border-primary-300'
+                  }`}
+                >
+                  <Heart size={20} className={isInWishlist(product._id || product.id) ? 'fill-primary-500 text-primary-500 animate-heartBeat' : ''} />
                 </button>
                 <button className="p-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                   <Share2 size={20} />

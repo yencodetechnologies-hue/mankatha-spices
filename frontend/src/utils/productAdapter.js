@@ -34,9 +34,9 @@ export function adaptBackendProduct(raw = {}, index = 0) {
     featured_image: featuredImage,
     images: [featuredImage],
     price,
-    original_price: Math.max(price, Math.round(price * 1.15)),
-    rating: 4.5,
-    reviews_count: 0,
+    original_price: firstWeight.original_price > price ? firstWeight.original_price : null,
+    rating: raw.rating ?? 4.5,
+    reviews_count: raw.reviews_count ?? 0,
     vendor_id: "default-vendor",
     weight,
     unit,
@@ -47,6 +47,7 @@ export function adaptBackendProduct(raw = {}, index = 0) {
     sales: Number(raw.sales || 0),
     createdAt: raw.createdAt,
     pricing: raw.pricing || [],
+    dietaryPreference: raw.dietaryPreference || "",
   };
 }
 

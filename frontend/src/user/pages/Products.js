@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search, Filter, ShoppingCart, Star, Heart, Trash2, Minus, Plus } from 'lucide-react';
+import { Search, Filter, ShoppingCart, Star, Heart, Trash2, Minus, Plus, ChevronDown, X } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
 import products from '../../data/products.json';
 import { formatMoney } from '../../utils/formatMoney';
 import categories from '../../data/categories.json';
 import { catalogApi } from '../api/catalogApi';
 import { categoryApi } from '../../api/categoryApi';
-
+import { useWishlist } from '../../contexts/WishlistContext';
+import heroBlendedMasala from '../../assets/hero_blended_masala.png';
+import heroOrganicSpices from '../../assets/hero_organic_spices.png';
+import heroWholeSpices from '../../assets/hero_whole_spices.png';
 const slugify = (input) => {
   return String(input || "")
     .toLowerCase()
@@ -39,12 +42,242 @@ const getCategoryImg = (name, staticImg) => {
     pantry: "https://images.unsplash.com/photo-1525373612132-b3e820b87cea?w=400&h=300&fit=crop",
     beverages: "https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400&h=300&fit=crop",
     snacks: "https://images.unsplash.com/photo-1511690743698-d9d85f2fbf38?w=400&h=300&fit=crop",
-    "ground-spices": "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400&h=300&fit=crop",
-    "whole-spices": "https://images.unsplash.com/photo-1509358271058-acd22cc93898?w=400&h=300&fit=crop",
+    "ground-spices": heroOrganicSpices,
+    "whole-spices": heroWholeSpices,
     herbs: "https://images.unsplash.com/photo-1515002246390-7bf7e8f87b54?w=400&h=300&fit=crop",
-    "blended-masalas": "https://images.unsplash.com/photo-1532336414038-cf19250c5757?w=400&h=300&fit=crop"
+    "blended-masalas": heroBlendedMasala,
+    "blended-masala": heroBlendedMasala
   };
-  return images[slug] || "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400&h=300&fit=crop";
+  return images[slug] || heroOrganicSpices;
+};
+
+
+// ── Weight & Cart Item unique key helpers ──
+const getNormalizedWeight = (item) => {
+  if (!item.weight) return '';
+  const wStr = String(item.weight).trim().toLowerCase();
+  if (/^\d+(\.\d+)?$/.test(wStr)) {
+    const unitStr = item.unit ? String(item.unit).trim().toLowerCase() : 'g';
+    return `${wStr}${unitStr}`;
+  }
+  return wStr;
+};
+
+const getCartItemKey = (item) => {
+  const baseId = item._id || item.id || '';
+  const normalizedWeight = getNormalizedWeight(item);
+  return normalizedWeight ? `${baseId}-${normalizedWeight}` : baseId;
+};
+
+// ── ProductCard defined OUTSIDE Products so React never remounts it on cart changes ──
+
+const ProductCard = ({ product, cartItems, addToCart, updateQuantity }) => {
+  const { toggleWishlist, isInWishlist } = useWishlist();
+  const hasVariants = product.pricing && product.pricing.length > 0 && product.pricing[0].weights && product.pricing[0].weights.length > 0;
+
+  const variants = hasVariants ? product.pricing[0].weights.map(w => ({
+    weight: w.weight,
+    price: w.price,
+    original_price: w.original_price || w.price
+  })) : [{
+    weight: `${product.weight || ''} ${product.unit || ''}`.trim() || '1 pc',
+    price: product.price,
+    original_price: product.original_price || product.price
+  }];
+
+  const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
+  const currentVariant = variants[selectedVariantIndex] || variants[0];
+  const currentPrice = currentVariant.price;
+  const currentOriginalPrice = currentVariant.original_price;
+
+  const productId = product._id || product.id;
+  const variantCartItemId = `${productId}-${currentVariant.weight}`;
+
+  const discount = currentOriginalPrice > currentPrice
+    ? Math.round(((currentOriginalPrice - currentPrice) / currentOriginalPrice) * 100)
+    : 0;
+
+  const cartItem = cartItems?.find(i => getCartItemKey(i) === variantCartItemId);
+  const qty = cartItem?.quantity || 0;
+
+  const [bulkOpen, setBulkOpen] = useState(false);
+  const [bulkQty, setBulkQty] = useState(5);
+
+  const handleAdd = () => addToCart({
+    ...product,
+    cartItemId: variantCartItemId,
+    price: currentPrice,
+    original_price: currentOriginalPrice,
+    weight: currentVariant.weight
+  }, 1);
+
+  const handleIncrease = () => {
+    if (qty >= 5) { setBulkQty(qty + 1); setBulkOpen(true); }
+    else updateQuantity(variantCartItemId, qty + 1);
+  };
+  const handleDecrease = () => updateQuantity(variantCartItemId, qty - 1);
+  const handleBulkConfirm = () => {
+    const n = Math.min(99, Math.max(1, Number(bulkQty) || 1));
+    updateQuantity(variantCartItemId, n);
+    setBulkOpen(false);
+  };
+
+  return (
+    <div className="product-card bg-white rounded-xl shadow-lg hover:shadow-2xl overflow-hidden group relative">
+      {/* Dietary Badge */}
+      {product.dietaryPreference === 'non-vegetarian' ? (
+        <div className="absolute top-4 right-4 z-20 w-5 h-5 border-2 border-[#792C23] flex items-center justify-center bg-white rounded-sm group shadow-sm">
+          <div className="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-b-[6px] border-b-[#792C23] mt-[1px]"></div>
+          <div className="absolute hidden group-hover:block top-full mt-1 right-0 bg-gray-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap shadow-lg">Non Vegetarian</div>
+        </div>
+      ) : (
+        <div className="absolute top-4 right-4 z-20 w-5 h-5 border-2 border-primary-500 flex items-center justify-center bg-white rounded-sm group shadow-sm">
+          <div className="w-2.5 h-2.5 bg-primary-500 rounded-full"></div>
+          <div className="absolute hidden group-hover:block top-full mt-1 right-0 bg-gray-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap shadow-lg">Vegetarian</div>
+        </div>
+      )}
+
+      {/* Image */}
+      <div className="relative image-zoom h-48 cursor-pointer" onClick={() => window.location.href = `/product/${product.slug}`}>
+        <img src={product.featured_image} alt={product.name} className="w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      </div>
+
+      {/* Info */}
+      <div className="p-4">
+        <h3
+          className="font-semibold text-gray-800 mb-2 hover:text-primary-600 transition-colors line-clamp-2 cursor-pointer"
+          onClick={() => window.location.href = `/product/${product.slug}`}
+        >
+          {product.name}
+        </h3>
+
+        {/* Rating */}
+        <div className="flex items-center mb-3">
+          <div className="flex items-center">
+            {[...Array(5)].map((_, i) => (
+              <Star key={i} size={14} className={i < Math.floor(product.rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'} />
+            ))}
+          </div>
+          <span className="text-sm text-gray-500 ml-2">({product.reviews_count})</span>
+        </div>
+
+        {/* Price - DMart Style */}
+        <div className="flex items-start justify-between mt-2 mb-3">
+          <div className="flex flex-col">
+            <div className="flex items-end gap-3">
+              <div className="flex flex-col text-center">
+                <span className="text-[11px] text-gray-500 mb-0.5">MRP</span>
+                {currentOriginalPrice > currentPrice ? (
+                  <span className="text-sm text-gray-500 line-through leading-none">{formatMoney(currentOriginalPrice)}</span>
+                ) : (
+                  <span className="text-sm text-transparent leading-none">-</span>
+                )}
+              </div>
+              <div className="flex flex-col text-center">
+                <span className="text-[11px] text-gray-800 mb-0.5">DMart</span>
+                <span className="font-bold text-[17px] text-gray-900 leading-none">{formatMoney(currentPrice)}</span>
+              </div>
+            </div>
+            <div className="text-[10px] text-gray-500 mt-1 italic">(Inclusive of all taxes)</div>
+          </div>
+          {discount > 0 && (
+            <div className="bg-green-50 text-green-700 px-3 py-1.5 rounded-md text-center flex flex-col justify-center border border-green-100">
+              <span className="font-bold text-sm leading-tight">{formatMoney(currentOriginalPrice - currentPrice)}</span>
+              <span className="text-xs font-semibold uppercase leading-tight">OFF</span>
+            </div>
+          )}
+        </div>
+
+        {/* Variant Dropdown */}
+        <div className="relative w-full mb-4">
+          <select
+            value={selectedVariantIndex}
+            onChange={(e) => setSelectedVariantIndex(Number(e.target.value))}
+            className="w-full border border-gray-200 rounded p-2 text-sm appearance-none bg-white cursor-pointer hover:border-primary-500 transition-colors focus:outline-none"
+          >
+            {variants.map((v, i) => {
+              const num = parseFloat(v.weight) || 1;
+              const unit = v.weight.replace(/[0-9.]/g, '').trim() || '';
+              const perUnitPrice = (v.price / num).toFixed(2);
+              return <option key={i} value={i}>{v.weight} (₹ {perUnitPrice} / 1 {unit})</option>;
+            })}
+          </select>
+          <div className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
+            <ChevronDown size={16} className="text-gray-400" />
+          </div>
+        </div>
+
+        {/* Cart Control */}
+        <div className="flex items-center gap-2 w-full mt-2">
+          <button
+            onClick={() => toggleWishlist(product)}
+            className={`border rounded w-[42px] h-[42px] flex items-center justify-center transition-colors bg-white flex-shrink-0 ${
+              isInWishlist(product._id || product.id)
+                ? "border-primary-400 text-primary-600 bg-primary-50/50"
+                : "border-gray-300 text-gray-500 hover:text-primary-600 hover:border-primary-300"
+            }`}
+          >
+            <Heart size={20} className={isInWishlist(product._id || product.id) ? "fill-primary-500 text-primary-500" : ""} />
+          </button>
+          {qty === 0 ? (
+            <button
+              onClick={handleAdd}
+              className="w-full h-[42px] flex items-center justify-center gap-2 bg-primary-500 hover:bg-primary-600 text-white rounded font-bold uppercase tracking-wide transition-colors"
+            >
+              <ShoppingCart size={18} />
+              <span>Add to Cart</span>
+            </button>
+          ) : (
+            <div className="flex items-center gap-2 w-full">
+              <div className="flex items-center border border-gray-300 rounded flex-1 h-[42px] overflow-hidden">
+                <button onClick={handleDecrease} className="bg-gray-100 text-gray-600 w-12 h-full flex items-center justify-center hover:bg-gray-200 transition-colors">
+                  <Minus size={16} />
+                </button>
+                <div className="flex-1 flex items-center justify-center font-bold text-gray-800">{qty}</div>
+                <button onClick={handleIncrease} className="bg-primary-500 text-white w-12 h-full flex items-center justify-center hover:bg-primary-600 transition-colors">
+                  <Plus size={16} />
+                </button>
+              </div>
+              <button
+                onClick={() => updateQuantity(variantCartItemId, 0)}
+                className="border border-gray-300 rounded w-[42px] h-[42px] flex items-center justify-center text-gray-500 hover:text-primary-600 hover:border-primary-300 transition-colors bg-white flex-shrink-0"
+              >
+                <X size={20} />
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Shimmer */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+      </div>
+
+      {/* Bulk Popup */}
+      {bulkOpen && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setBulkOpen(false)}>
+          <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: '16px', padding: '2rem', width: '340px', maxWidth: '92vw', boxShadow: '0 20px 60px rgba(0,0,0,0.18)', position: 'relative' }}>
+            <button onClick={() => setBulkOpen(false)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', color: '#374151' }}>✕</button>
+            <h3 style={{ margin: '0 0 0.5rem', fontWeight: 700, fontSize: '1.1rem' }}>Available in Bulk Quantity</h3>
+            <p style={{ color: '#6b7280', fontSize: '0.9rem', marginBottom: '1.5rem' }}>{product.name}</p>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
+              <div>
+                <div style={{ fontWeight: 600 }}>Enter Quantity</div>
+                <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>Max: 99</div>
+              </div>
+              <input type="number" min={1} max={99} value={bulkQty} onChange={e => setBulkQty(e.target.value)}
+                style={{ width: '80px', padding: '0.5rem 0.75rem', border: '1.5px solid #d1b97a', borderRadius: '8px', fontSize: '1rem', fontWeight: 700, textAlign: 'center', background: '#fffbef', outline: 'none' }} />
+            </div>
+            <button onClick={handleBulkConfirm} style={{ width: '100%', padding: '0.85rem', background: '#6b9312', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 700, fontSize: '1rem', cursor: 'pointer' }}>
+              ADD TO CART
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 };
 
 const Products = () => {
@@ -163,231 +396,6 @@ const Products = () => {
     setFilteredProducts(filtered);
   }, [allProducts, searchParams, sortBy, priceRange]);
 
-  const ProductCard = ({ product }) => {
-    const discount = product.original_price > product.price
-      ? Math.round(((product.original_price - product.price) / product.original_price) * 100)
-      : 0;
-
-    const cartItem = cartItems?.find(i => (i.cartItemId || i.id) === product.id);
-    const qty = cartItem?.quantity || 0;
-
-    const [bulkOpen, setBulkOpen] = useState(false);
-    const [bulkQty, setBulkQty] = useState(qty || 5);
-
-    const handleAdd = () => addToCart({ ...product, quantity: 1 });
-    const handleIncrease = () => {
-      if (qty >= 5) {
-        setBulkQty(qty + 1);
-        setBulkOpen(true);
-      } else {
-        updateQuantity(product.id, qty + 1);
-      }
-    };
-    const handleDecrease = () => updateQuantity(product.id, qty - 1);
-    const handleBulkConfirm = () => {
-      const n = Math.min(99, Math.max(1, Number(bulkQty) || 1));
-      updateQuantity(product.id, n);
-      setBulkOpen(false);
-    };
-
-    return (
-      <div className="product-card bg-white rounded-xl shadow-lg hover:shadow-2xl overflow-hidden group relative">
-        {/* Discount Badge */}
-        {discount > 0 && (
-          <div className="absolute top-3 left-3 z-10">
-            <div className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold animate-bounce shadow-lg">
-              -{discount}%
-            </div>
-          </div>
-        )}
-
-        {/* Quick Actions */}
-        <div className="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 transition-all duration-300 space-y-2">
-          <button className="w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-primary-50 transition-colors transform hover:scale-110">
-            <Heart size={18} className="text-gray-600 hover:text-red-500" />
-          </button>
-        </div>
-
-        {/* Product Image */}
-        <div className="relative image-zoom h-48 cursor-pointer" onClick={() => window.location.href = `/product/${product.slug}`}>
-          <img
-            src={product.featured_image}
-            alt={product.name}
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        </div>
-
-        {/* Product Info */}
-        <div className="p-4">
-          <h3
-            className="font-semibold text-gray-800 mb-2 hover:text-primary-600 transition-colors line-clamp-2 cursor-pointer group-hover:text-primary-600"
-            onClick={() => window.location.href = `/product/${product.slug}`}
-          >
-            {product.name}
-          </h3>
-
-          {/* Rating */}
-          <div className="flex items-center mb-3">
-            <div className="flex items-center">
-              {[...Array(5)].map((_, i) => (
-                <Star
-                  key={i}
-                  size={14}
-                  className={i < Math.floor(product.rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}
-                />
-              ))}
-            </div>
-            <span className="text-sm text-gray-500 ml-2">({product.reviews_count})</span>
-          </div>
-
-          {/* Price and Weight */}
-          <div className="flex items-center justify-between mb-4" style={{minWidth:0}}>
-            <div style={{minWidth:0, overflow:'hidden'}}>
-              <span className="text-xl font-bold text-primary-600" style={{overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',maxWidth:'100%',display:'block'}}>{formatMoney(product.price)}</span>
-              {product.original_price > product.price && (
-                <span className="text-sm text-gray-500 line-through ml-2" style={{whiteSpace:'nowrap'}}>
-                  {formatMoney(product.original_price)}
-                </span>
-              )}
-            </div>
-            <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full" style={{whiteSpace:'nowrap',flexShrink:0,marginLeft:'0.5rem'}}>
-              {product.weight} {product.unit}
-            </span>
-          </div>
-
-          {/* D-Mart style cart control */}
-          {qty === 0 ? (
-            <button
-              onClick={handleAdd}
-              className="w-full py-3 px-4 rounded-lg flex items-center justify-center space-x-2 transition-all duration-300 bg-primary-500 hover:bg-primary-600 text-white hover:shadow-lg"
-            >
-              <ShoppingCart size={18} />
-              <span>Add to Cart</span>
-            </button>
-          ) : (
-            <div className="flex items-center gap-2 w-full">
-              <button
-                onClick={handleDecrease}
-                style={{
-                  width: '40px', height: '40px', borderRadius: '8px',
-                  background: qty === 1 ? '#fee2e2' : '#f3f4f6',
-                  border: 'none', cursor: 'pointer', display: 'flex',
-                  alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                  transition: 'background 0.2s'
-                }}
-                aria-label="Decrease"
-              >
-                {qty === 1
-                  ? <Trash2 size={16} color="#ef4444" />
-                  : <Minus size={16} color="#374151" />}
-              </button>
-
-              <div style={{
-                flex: 1, height: '40px', background: '#6b9312', borderRadius: '8px',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                color: '#fff', fontWeight: 700, fontSize: '1rem'
-              }}>
-                {qty}
-              </div>
-
-              <button
-                onClick={handleIncrease}
-                style={{
-                  width: '40px', height: '40px', borderRadius: '8px',
-                  background: '#6b9312', border: 'none', cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  flexShrink: 0
-                }}
-                aria-label="Increase"
-              >
-                <Plus size={16} color="#fff" />
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Shimmer Effect */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-        </div>
-
-        {/* Bulk Quantity Popup */}
-        {bulkOpen && (
-          <div
-            style={{
-              position: 'fixed', inset: 0, zIndex: 9999,
-              background: 'rgba(0,0,0,0.45)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center'
-            }}
-            onClick={() => setBulkOpen(false)}
-          >
-            <div
-              onClick={e => e.stopPropagation()}
-              style={{
-                background: '#fff', borderRadius: '16px',
-                padding: '2rem', width: '340px', maxWidth: '92vw',
-                boxShadow: '0 20px 60px rgba(0,0,0,0.18)', position: 'relative'
-              }}
-            >
-              <button
-                onClick={() => setBulkOpen(false)}
-                style={{
-                  position: 'absolute', top: '1rem', right: '1rem',
-                  background: 'none', border: 'none', cursor: 'pointer',
-                  fontSize: '1.2rem', color: '#374151', lineHeight: 1
-                }}
-              >✕</button>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
-                <div style={{
-                  width: '40px', height: '40px', borderRadius: '50%',
-                  background: '#e8f5e9', display: 'flex', alignItems: 'center', justifyContent: 'center'
-                }}>
-                  <ShoppingCart size={18} color="#6b9312" />
-                </div>
-                <h3 style={{ margin: 0, fontWeight: 700, fontSize: '1.1rem', color: '#111827' }}>
-                  Available in Bulk Quantity
-                </h3>
-              </div>
-              <p style={{ color: '#6b7280', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-                {product.name}{product.weight ? ` : ${product.weight}${product.unit ? ' ' + product.unit : ''}` : ''}
-              </p>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
-                <div>
-                  <div style={{ fontWeight: 600, color: '#111827', marginBottom: '2px' }}>Enter Quantities</div>
-                  <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>Max allowed quantity: 99</div>
-                </div>
-                <input
-                  type="number"
-                  min={1} max={99}
-                  value={bulkQty}
-                  onChange={e => setBulkQty(e.target.value)}
-                  style={{
-                    width: '80px', padding: '0.5rem 0.75rem',
-                    border: '1.5px solid #d1b97a', borderRadius: '8px',
-                    fontSize: '1rem', fontWeight: 700, textAlign: 'center',
-                    background: '#fffbef', color: '#111827', outline: 'none'
-                  }}
-                />
-              </div>
-              <button
-                onClick={handleBulkConfirm}
-                style={{
-                  width: '100%', padding: '0.85rem',
-                  background: '#6b9312', color: '#fff',
-                  border: 'none', borderRadius: '10px',
-                  fontWeight: 700, fontSize: '1rem',
-                  cursor: 'pointer', letterSpacing: '0.04em'
-                }}
-              >
-                ADD TO CART
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  };
 
   const handleCategoryChange = (categorySlug) => {
     const newParams = new URLSearchParams(searchParams);
@@ -553,7 +561,7 @@ const Products = () => {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {filteredProducts.map((product) => (
-                  <ProductCard key={product.id} product={product} />
+                  <ProductCard key={product._id || product.id} product={product} cartItems={cartItems} addToCart={addToCart} updateQuantity={updateQuantity} />
                 ))}
               </div>
             )}

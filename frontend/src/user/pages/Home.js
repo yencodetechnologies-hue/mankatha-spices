@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Star, ShoppingCart, Truck, Shield, RefreshCw, Heart, ArrowRight, Trash2, Minus, Plus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Star, ShoppingCart, Truck, Shield, RefreshCw, Heart, ArrowRight, Trash2, Minus, Plus, ChevronDown, X } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
 import products from '../../data/products.json';
 import categories from '../../data/categories.json';
@@ -11,30 +11,70 @@ import heroBlendedMasala from '../../assets/hero_blended_masala.png';
 import heroOrganicSpices from '../../assets/hero_organic_spices.png';
 import heroWholeSpices from '../../assets/hero_whole_spices.png';
 
+import { useWishlist } from '../../contexts/WishlistContext';
+
+// ── Weight & Cart Item unique key helpers ──
+const getNormalizedWeight = (item) => {
+  if (!item.weight) return '';
+  const wStr = String(item.weight).trim().toLowerCase();
+  if (/^\d+(\.\d+)?$/.test(wStr)) {
+    const unitStr = item.unit ? String(item.unit).trim().toLowerCase() : 'g';
+    return `${wStr}${unitStr}`;
+  }
+  return wStr;
+};
+
+const getCartItemKey = (item) => {
+  const baseId = item._id || item.id || '';
+  const normalizedWeight = getNormalizedWeight(item);
+  return normalizedWeight ? `${baseId}-${normalizedWeight}` : baseId;
+};
+
 const ProductCard = ({ product, index, addToCart, removeFromCart, updateQuantity, cartItems }) => {
-  const discount = product.original_price > product.price
-    ? Math.round(((product.original_price - product.price) / product.original_price) * 100)
+  const { toggleWishlist, isInWishlist } = useWishlist();
+  const hasVariants = product.pricing && product.pricing.length > 0 && product.pricing[0].weights && product.pricing[0].weights.length > 0;
+  
+  const variants = hasVariants ? product.pricing[0].weights.map(w => ({
+    weight: w.weight,
+    price: w.price,
+    original_price: w.original_price || Math.round(w.price * 1.2)
+  })) : [{
+    weight: `${product.weight || ''} ${product.unit || ''}`.trim() || '1 pc',
+    price: product.price,
+    original_price: product.original_price || (product.price ? Math.round(product.price * 1.2) : 0)
+  }];
+
+  const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
+  const currentVariant = variants[selectedVariantIndex] || variants[0];
+  const currentPrice = currentVariant.price;
+  const currentOriginalPrice = currentVariant.original_price;
+
+  const productId = product._id || product.id;
+  const variantCartItemId = `${productId}-${currentVariant.weight}`;
+
+  const discount = currentOriginalPrice > currentPrice
+    ? Math.round(((currentOriginalPrice - currentPrice) / currentOriginalPrice) * 100)
     : 0;
 
-  const cartItem = cartItems?.find(i => (i.cartItemId || i.id) === product.id);
+  const cartItem = cartItems?.find(i => getCartItemKey(i) === variantCartItemId);
   const qty = cartItem?.quantity || 0;
 
   const [bulkOpen, setBulkOpen] = useState(false);
   const [bulkQty, setBulkQty] = useState(qty || 5);
 
-  const handleAdd = () => addToCart({ ...product, quantity: 1 });
+  const handleAdd = () => addToCart({ ...product, quantity: 1, weight: currentVariant.weight, price: currentPrice, original_price: currentOriginalPrice, cartItemId: variantCartItemId });
   const handleIncrease = () => {
     if (qty >= 5) {
       setBulkQty(qty + 1);
       setBulkOpen(true);
     } else {
-      updateQuantity(product.id, qty + 1);
+      updateQuantity(variantCartItemId, qty + 1);
     }
   };
-  const handleDecrease = () => updateQuantity(product.id, qty - 1);
+  const handleDecrease = () => updateQuantity(variantCartItemId, qty - 1);
   const handleBulkConfirm = () => {
     const n = Math.min(99, Math.max(1, Number(bulkQty) || 1));
-    updateQuantity(product.id, n);
+    updateQuantity(variantCartItemId, n);
     setBulkOpen(false);
   };
 
@@ -42,21 +82,25 @@ const ProductCard = ({ product, index, addToCart, removeFromCart, updateQuantity
     <div
       className={`product-card group relative shine-effect reveal reveal-up stagger-${(index % 4) + 1}`}
     >
-      {/* Discount Badge */}
-      {discount > 0 && (
-        <div className="absolute top-4 left-4 z-20">
-          <div className="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg animate-pulse">
-            -{discount}%
+
+
+      {/* Dietary Preference Badge */}
+      {product.dietaryPreference === 'non-vegetarian' ? (
+        <div className="absolute top-4 right-4 z-20 w-5 h-5 border-2 border-[#792C23] flex items-center justify-center bg-white rounded-sm group shadow-sm">
+          <div className="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-b-[6px] border-b-[#792C23] mt-[1px]"></div>
+          <div className="absolute hidden group-hover:block top-full mt-1 right-0 bg-gray-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap shadow-lg">
+            Non Vegetarian
+          </div>
+        </div>
+      ) : (
+        <div className="absolute top-4 right-4 z-20 w-5 h-5 border-2 border-primary-500 flex items-center justify-center bg-white rounded-sm group shadow-sm">
+          <div className="w-2.5 h-2.5 bg-primary-500 rounded-full"></div>
+          <div className="absolute hidden group-hover:block top-full mt-1 right-0 bg-gray-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap shadow-lg">
+            Vegetarian
           </div>
         </div>
       )}
 
-      {/* Quick Wishlist */}
-      <div className="absolute top-4 right-4 z-20 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-4 group-hover:translate-x-0">
-        <button className="w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full shadow-lg flex items-center justify-center hover:bg-red-50 transition-colors">
-          <Heart size={18} className="text-gray-600 hover:text-red-500 transition-colors" />
-        </button>
-      </div>
 
       {/* Product Image */}
       <div className="relative image-zoom h-56 cursor-pointer overflow-hidden rounded-t-2xl" onClick={() => window.location.href = `/product/${product.slug}`}>
@@ -85,72 +129,105 @@ const ProductCard = ({ product, index, addToCart, removeFromCart, updateQuantity
           </h3>
         </Link>
 
-        <div className="flex items-center justify-between mb-5" style={{minWidth:0}}>
-          <div style={{minWidth:0, overflow:'hidden'}}>
-            <div className="flex items-baseline gap-2" style={{flexWrap:'nowrap', overflow:'hidden'}}>
-              <span className="text-2xl font-extrabold text-gray-900" style={{overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',maxWidth:'100%',display:'block'}}>{formatMoney(product.price)}</span>
-              {product.original_price > product.price && (
-                <span className="text-sm text-gray-400 line-through" style={{whiteSpace:'nowrap'}}>
-                  {formatMoney(product.original_price)}
-                </span>
-              )}
+        <div className="flex items-start justify-between mt-2 mb-3">
+          <div className="flex flex-col">
+            <div className="flex items-end gap-3">
+              <div className="flex flex-col text-center">
+                <span className="text-[11px] text-gray-500 mb-0.5">MRP</span>
+                {currentOriginalPrice > currentPrice ? (
+                  <span className="text-sm text-gray-500 line-through leading-none">{formatMoney(currentOriginalPrice)}</span>
+                ) : (
+                  <span className="text-sm text-transparent leading-none">-</span>
+                )}
+              </div>
+              <div className="flex flex-col text-center">
+                <span className="text-[11px] text-gray-800 mb-0.5">DMart</span>
+                <span className="font-bold text-[17px] text-gray-900 leading-none">{formatMoney(currentPrice)}</span>
+              </div>
             </div>
-            <p className="text-xs text-gray-400 mt-1">{product.weight} {product.unit}</p>
+            <div className="text-[10px] text-gray-500 mt-1 italic tracking-tight">(Inclusive of all taxes)</div>
+          </div>
+          
+          {/* OFF Box */}
+          {discount > 0 && (
+            <div className="bg-green-50 text-green-700 px-3 py-1.5 rounded-md text-center flex flex-col justify-center border border-green-100">
+              <span className="font-bold text-sm leading-tight text-green-700">{formatMoney(currentOriginalPrice - currentPrice)}</span>
+              <span className="text-xs font-semibold uppercase text-green-600 leading-tight">OFF</span>
+            </div>
+          )}
+        </div>
+
+        {/* Dropdown for weight variants */}
+        <div className="relative w-full mb-4">
+          <select
+            value={selectedVariantIndex}
+            onChange={(e) => setSelectedVariantIndex(Number(e.target.value))}
+            className="w-full border border-gray-200 rounded p-2 text-sm appearance-none bg-white cursor-pointer hover:border-primary-500 transition-colors focus:outline-none"
+          >
+            {variants.map((v, i) => {
+              const num = parseFloat(v.weight) || 1;
+              const unit = v.weight.replace(/[0-9.]/g, '').trim() || '';
+              const perUnitPrice = (v.price / num).toFixed(2);
+              return (
+                <option key={i} value={i}>
+                  {v.weight} (₹ {perUnitPrice} / 1 {unit})
+                </option>
+              );
+            })}
+          </select>
+          <div className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
+            <ChevronDown size={16} className="text-gray-400"/>
           </div>
         </div>
 
-        {/* D-Mart style cart control */}
-        {qty === 0 ? (
+        {/* DMart style cart control */}
+        <div className="flex items-center gap-2 mt-2 w-full">
           <button
-            onClick={handleAdd}
-            className="w-full btn-premium py-3 flex items-center justify-center gap-2 group/btn"
+            onClick={() => toggleWishlist(product)}
+            className={`border rounded w-[42px] h-[42px] flex items-center justify-center transition-colors bg-white flex-shrink-0 ${
+              isInWishlist(product._id || product.id)
+                ? "border-primary-400 text-primary-600 bg-primary-50/50"
+                : "border-gray-300 text-gray-500 hover:text-primary-600 hover:border-primary-300"
+            }`}
           >
-            <ShoppingCart size={18} className="transition-transform group-hover/btn:-translate-y-1" />
-            <span>Add to Cart</span>
+            <Heart size={20} className={isInWishlist(product._id || product.id) ? "fill-primary-500 text-primary-500" : ""} />
           </button>
-        ) : (
+          {qty === 0 ? (
+            <button
+              onClick={handleAdd}
+              className="w-full h-[42px] flex items-center justify-center gap-2 bg-primary-500 hover:bg-primary-600 text-white rounded font-bold uppercase tracking-wide transition-colors"
+            >
+              <ShoppingCart size={18} />
+              <span>Add to Cart</span>
+            </button>
+          ) : (
           <div className="flex items-center gap-2 w-full">
-            {/* Trash / decrease to 0 */}
-            <button
-              onClick={handleDecrease}
-              style={{
-                width: '40px', height: '40px', borderRadius: '8px',
-                background: qty === 1 ? '#fee2e2' : '#f3f4f6',
-                border: 'none', cursor: 'pointer', display: 'flex',
-                alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                transition: 'background 0.2s'
-              }}
-              aria-label="Decrease"
-            >
-              {qty === 1
-                ? <Trash2 size={16} color="#ef4444" />
-                : <Minus size={16} color="#374151" />}
-            </button>
-
-            {/* Quantity display */}
-            <div style={{
-              flex: 1, height: '40px', background: '#6b9312', borderRadius: '8px',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: '#fff', fontWeight: 700, fontSize: '1rem'
-            }}>
-              {qty}
+            <div className="flex items-center border border-gray-300 rounded flex-1 h-[42px] overflow-hidden">
+              <button
+                onClick={handleDecrease}
+                className="bg-gray-100 text-gray-600 w-12 h-full flex items-center justify-center hover:bg-gray-200 transition-colors"
+              >
+                <Minus size={16} />
+              </button>
+              <div className="flex-1 flex items-center justify-center font-bold text-gray-800">
+                {qty}
+              </div>
+              <button
+                onClick={handleIncrease}
+                className="bg-primary-500 text-white w-12 h-full flex items-center justify-center hover:bg-primary-600 transition-colors"
+              >
+                <Plus size={16} />
+              </button>
             </div>
-
-            {/* Increase */}
             <button
-              onClick={handleIncrease}
-              style={{
-                width: '40px', height: '40px', borderRadius: '8px',
-                background: '#6b9312', border: 'none', cursor: 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                flexShrink: 0, transition: 'background 0.2s'
-              }}
-              aria-label="Increase"
+              onClick={() => updateQuantity(variantCartItemId, 0)}
+              className="border border-gray-300 rounded w-[42px] h-[42px] flex items-center justify-center text-gray-500 hover:text-primary-600 hover:border-primary-300 transition-colors bg-white"
             >
-              <Plus size={16} color="#fff" />
+              <X size={20} />
             </button>
-          </div>
-        )}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Bulk Quantity Popup */}
@@ -268,12 +345,13 @@ const getCategoryImg = (name, staticImg) => {
     pantry: "https://images.unsplash.com/photo-1525373612132-b3e820b87cea?w=400&h=300&fit=crop",
     beverages: "https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400&h=300&fit=crop",
     snacks: "https://images.unsplash.com/photo-1511690743698-d9d85f2fbf38?w=400&h=300&fit=crop",
-    "ground-spices": "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400&h=300&fit=crop",
-    "whole-spices": "https://images.unsplash.com/photo-1509358271058-acd22cc93898?w=400&h=300&fit=crop",
-    herbs: "https://images.unsplash.com/photo-1515002246390-7bf7e8f87b54?w=400&h=300&fit=crop",
-    "blended-masalas": "https://images.unsplash.com/photo-1532336414038-cf19250c5757?w=400&h=300&fit=crop"
+    "ground-spices": heroOrganicSpices,
+    "whole-spices": heroWholeSpices,
+    herbs: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400&h=300&fit=crop",
+    "blended-masalas": heroBlendedMasala,
+    "blended-masala": heroBlendedMasala
   };
-  return images[slug] || "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400&h=300&fit=crop";
+  return images[slug] || heroOrganicSpices;
 };
 
 const Home = () => {
@@ -569,7 +647,7 @@ const Home = () => {
                     <img
                       src={category.image}
                       alt={category.name}
-                      className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
+                      className="w-full h-full object-cover transition-transform duration-500"
                       onError={(e) => {
                         e.target.src = "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400&h=300&fit=crop";
                       }}
@@ -600,7 +678,7 @@ const Home = () => {
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {featuredProducts.map((product, index) => (
-              <ProductCard key={product.id} product={product} index={index}
+              <ProductCard key={product._id || product.id} product={product} index={index}
                 addToCart={addToCart} removeFromCart={removeFromCart}
                 updateQuantity={updateQuantity} cartItems={cartItems} />
             ))}
