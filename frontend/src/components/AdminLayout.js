@@ -54,11 +54,9 @@ const AdminLayout = ({ children }) => {
       <div 
         className={`admin-sidebar-overlay ${isSidebarOpen ? "open" : ""}`} 
         onClick={() => setIsSidebarOpen(false)}
-        onMouseEnter={() => setIsSidebarOpen(false)}
       />
       <aside 
-        className={`admin-sidebar ${isSidebarOpen ? "open" : ""}`}
-        onMouseLeave={() => setIsSidebarOpen(false)}
+        className={`admin-sidebar sticky-sidebar ${isSidebarOpen ? "open" : ""}`}
       >
         <div className="admin-brand">
           <div className="mb-3 overflow-hidden rounded-xl border border-white/10 bg-black/20">

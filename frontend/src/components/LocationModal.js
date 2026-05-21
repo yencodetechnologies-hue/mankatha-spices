@@ -1,0 +1,264 @@
+import React, { useState } from 'react';
+import axios from 'axios';
+import { MapPin, X, CheckCircle, AlertCircle, Search, Globe } from 'lucide-react';
+import { getAdminApiBase } from '../api/adminApiBase';
+
+const LocationModal = ({ isOpen, onClose, onLocationSet }) => {
+  const [pincode, setPincode] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [step, setStep] = useState(1);
+  const [selectedCity, setSelectedCity] = useState('');
+  const [selectedDesc, setSelectedDesc] = useState('');
+  const [tempCurrency, setTempCurrency] = useState(localStorage.getItem("appCurrency") || "INR");
+
+  // Mock search function to simulate DMart autocomplete for pincodes
+  const fetchSearchResults = (query) => {
+    if (!query || query.length < 2) {
+      setSearchResults([]);
+      return;
+    }
+    
+    // If they typed exactly '2332' to match the screenshot demonstration
+    if (query === '2332') {
+      setSearchResults([
+        { pin: '233227', desc: 'Chandany, Uttar Pradesh, India' },
+        { pin: '233230', desc: 'Kasimabad, Uttar Pradesh, India' },
+        { pin: '233226', desc: 'Mardah, Uttar Pradesh, India' },
+        { pin: '233221', desc: 'Darbepur, Uttar Pradesh, India' },
+        { pin: '233222', desc: 'Dahendu, Uttar Pradesh, India' }
+      ]);
+      return;
+    }
+
+    // Generic fallback for any other number (just auto-complete it with some random Indian areas for the demo)
+    if (/^\d+$/.test(query)) {
+      setSearchResults([
+        { pin: query + '01', desc: 'Central Area, Chennai, Tamil Nadu' },
+        { pin: query + '02', desc: 'North Region, Tamil Nadu, India' },
+        { pin: query + '05', desc: 'East District, Tamil Nadu, India' },
+      ]);
+      return;
+    }
+
+    // Text search fallback
+    setSearchResults([
+      { pin: '600042', desc: `${query}, Velachery, Chennai, India` },
+      { pin: '600001', desc: `${query}, George Town, Chennai, India` },
+    ]);
+  };
+
+  const handleInputChange = (e) => {
+    const val = e.target.value;
+    setPincode(val);
+    setResult(null);
+    fetchSearchResults(val);
+  };
+
+  const clearSearch = () => {
+    setPincode('');
+    setSearchResults([]);
+    setResult(null);
+  };
+
+  const handleEdit = () => {
+    setStep(1);
+    setResult(null);
+  };
+
+  const handleConfirm = () => {
+    if (onLocationSet) onLocationSet(pincode.trim(), selectedCity, selectedDesc);
+    onClose();
+    setTimeout(() => {
+      setStep(1);
+      setResult(null);
+    }, 300);
+  };
+
+  if (!isOpen) return null;
+
+  const checkLocation = async (selectedPin, selectedDescription = '') => {
+    const pinToCheck = selectedPin || pincode;
+    if (!pinToCheck) return;
+    
+    setPincode(pinToCheck);
+    setSearchResults([]);
+    setLoading(true);
+    try {
+      const base = getAdminApiBase();
+      const res = await axios.post(`${base}/service-areas/check-location`, { pincode: pinToCheck.trim() });
+      
+      setResult({
+        success: res.data.success,
+        available: res.data.available,
+        message: res.data.message,
+        city: res.data.city || ''
+      });
+
+      if (res.data.available) {
+        setSelectedCity(res.data.city || '');
+        setSelectedDesc(selectedDescription || pinToCheck);
+        setStep(2);
+      }
+    } catch (error) {
+      setResult({
+        success: false,
+        available: false,
+        message: "Failed to check service availability. Please try again."
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4 animate-fadeIn">
+      {/* Click outside to close */}
+      <div className="absolute inset-0" onClick={onClose}></div>
+      
+      <div className={`bg-white w-full overflow-hidden relative shadow-2xl animate-scaleIn rounded-lg z-10 flex flex-col ${step === 2 ? 'max-w-2xl' : 'max-w-lg'}`}>
+        
+        {step === 1 ? (
+          /* Step 1: Choose Delivery Location */
+          <div className="p-8 pb-4 text-center">
+            <h2 className="text-[22px] font-semibold text-[#333] mb-6">Choose delivery location</h2>
+            
+            {/* Input field exactly like DMart */}
+            <div className="relative mb-6 z-20">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+              <input
+                type="text"
+                placeholder="Search for area, street name or pincode.."
+                value={pincode}
+                onChange={handleInputChange}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') checkLocation();
+                }}
+                className="w-full pl-12 pr-12 py-3.5 border border-[#2e8b57] rounded outline-none focus:ring-1 focus:ring-[#2e8b57] text-[15px] text-[#333] placeholder-gray-400 font-semibold"
+              />
+              {/* Clear button (X) */}
+              {pincode && (
+                <button 
+                  onClick={clearSearch}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 bg-gray-100 rounded-full p-0.5"
+                >
+                  <X size={16} strokeWidth={3} />
+                </button>
+              )}
+
+              {/* Live Autocomplete Dropdown */}
+              {searchResults.length > 0 && !result && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-100 shadow-xl rounded-b-lg overflow-hidden text-left z-50">
+                  <div className="px-4 py-3 text-[11px] font-bold text-gray-400 tracking-wider">
+                    SEARCH RESULT
+                  </div>
+                  <div className="max-h-[300px] overflow-y-auto">
+                    {searchResults.map((item, idx) => (
+                      <div 
+                        key={idx}
+                        className="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-50 last:border-b-0"
+                        onClick={() => checkLocation(item.pin, item.desc)}
+                      >
+                        <MapPin size={18} className="text-gray-300 mt-0.5 shrink-0" fill="#f3f4f6" />
+                        <div>
+                          <div className="font-bold text-[#333] text-[15px]">{item.pin}</div>
+                          <div className="text-gray-500 text-[13px]">{item.desc}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Result Alert (Only for errors in step 1 now) */}
+            {result && !result.available && (
+              <div className="mb-6 text-[15px] text-left px-4 py-4 rounded font-medium bg-[#fff5f5] text-[#9b2c2c] border border-[#fed7d7]">
+                <div className="flex items-center gap-2.5">
+                  <AlertCircle size={18} className="text-[#c53030]" />
+                  Currently not available
+                </div>
+              </div>
+            )}
+
+            {/* The Map Pin Graphic exactly like screenshot */}
+            {!result && (
+              <div className="flex justify-center my-12 relative">
+                {/* Fake Map Graphic Background */}
+                <div className="w-[120px] h-[120px] bg-[#f0f0f0] rounded-full overflow-hidden relative border-4 border-white shadow-sm">
+                  {/* White roads */}
+                  <div className="absolute top-0 bottom-0 left-1/2 w-3 bg-white transform -translate-x-1/2 -rotate-45"></div>
+                  <div className="absolute top-1/2 left-0 right-0 h-3 bg-white transform -translate-y-1/2 rotate-12"></div>
+                  <div className="absolute top-1/4 left-0 right-0 h-3 bg-white transform -translate-y-1/2 -rotate-12"></div>
+                </div>
+                {/* Big Red Pin */}
+                <MapPin size={56} className="absolute top-1 left-1/2 transform -translate-x-1/2 text-[#ff5b5b] fill-[#ff5b5b] filter drop-shadow-md" strokeWidth={1} />
+              </div>
+            )}
+          </div>
+        ) : (
+          /* Step 2: Confirm Location */
+          <div className="flex flex-col w-full bg-white">
+            <div className="bg-[#f0f0f0] py-4 text-center border-b border-gray-200">
+              <h2 className="text-[20px] font-semibold text-[#333]">Confirm Location</h2>
+            </div>
+            
+            <div className="p-6 pb-8">
+              <div className="flex items-start justify-between mb-6 px-2">
+                <div className="flex items-start gap-3">
+                  <MapPin className="text-gray-400 mt-1 shrink-0" size={24} fill="#e5e7eb" />
+                  <div>
+                    <div className="text-[16px] font-bold text-[#333] mb-1">{pincode} {selectedDesc ? `, ${selectedDesc.split(',')[0]}` : ''}</div>
+                    <div className="text-[14px] text-gray-500">{selectedDesc || selectedCity}</div>
+                  </div>
+                </div>
+                <button 
+                  onClick={handleEdit}
+                  className="text-[#2e8b57] hover:bg-green-50 p-2 rounded-full transition-colors"
+                >
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                  </svg>
+                </button>
+              </div>
+
+              <div className="border border-gray-200 rounded-lg p-8 text-center mb-6">
+                <div className="flex justify-center mb-4">
+                  {/* Grocery Basket Illustration */}
+                  <div className="relative w-32 h-24">
+                    <div className="absolute bottom-0 w-full h-16 bg-[#2eb886] rounded-b-xl border-t-4 border-[#22956b] z-10 flex items-center justify-center">
+                       <span className="text-white font-bold text-xs">Mankatha</span>
+                    </div>
+                    {/* Items in basket */}
+                    <div className="absolute bottom-12 left-4 w-4 h-12 bg-orange-400 rounded-t-sm rotate-[-15deg] z-0"></div>
+                    <div className="absolute bottom-12 left-10 w-6 h-10 bg-blue-500 rounded-t-sm z-0"></div>
+                    <div className="absolute bottom-12 right-10 w-5 h-14 bg-red-400 rounded-t-sm rotate-[10deg] z-0"></div>
+                    <div className="absolute bottom-12 right-4 w-3 h-16 bg-[#8b5a2b] rounded-t-sm rotate-[25deg] z-0"></div>
+                    {/* Leaf */}
+                    <div className="absolute bottom-16 left-8 text-green-500 z-20">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17 8C17 8 13 4 8 4C8 4 6 13 11 17C11 17 15 21 20 21C20 21 22 12 17 8Z"/></svg>
+                    </div>
+                  </div>
+                </div>
+                <h3 className="text-[18px] font-bold text-[#333] mb-2">Great, We are available here!</h3>
+                <p className="text-[15px] text-gray-500">Explore our wide range of products delivered straight to your home!</p>
+              </div>
+
+              <button 
+                onClick={handleConfirm}
+                className="w-full bg-[#28a745] hover:bg-[#218838] text-white font-bold py-4 rounded text-[16px] transition-colors"
+              >
+                CONFIRM LOCATION
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default LocationModal;

@@ -53,11 +53,10 @@ const getCategoryImg = (name, staticImg) => {
 
 
 // ── Stable cart item key — uses slug so key is same for both JSON & API products ──
-const makeVariantKey = (product, variantWeight) => {
+const makeVariantKey = (product, variantIndex) => {
   const baseId = product.slug || product._id || product.id || product.name || 'item';
-  return `${baseId}||${String(variantWeight).trim()}`;
+  return `${baseId}||variant-${variantIndex}`;
 };
-
 
 // ProductCard uses useCart() directly — always-fresh cart state
 const ProductCard = ({ product }) => {
@@ -80,7 +79,7 @@ const ProductCard = ({ product }) => {
   const currentPrice = currentVariant.price;
   const currentOriginalPrice = currentVariant.original_price;
 
-  const variantCartItemId = makeVariantKey(product, currentVariant.weight);
+  const variantCartItemId = makeVariantKey(product, selectedVariantIndex);
 
   const discount = currentOriginalPrice > currentPrice
     ? Math.round(((currentOriginalPrice - currentPrice) / currentOriginalPrice) * 100)
@@ -99,7 +98,8 @@ const ProductCard = ({ product }) => {
     cartItemId: variantCartItemId,
     price: currentPrice,
     original_price: currentOriginalPrice,
-    weight: currentVariant.weight
+    weight: currentVariant.weight,
+    variantIndex: selectedVariantIndex
   }, 1);
 
   const handleIncrease = () => {
@@ -207,8 +207,7 @@ const ProductCard = ({ product }) => {
             {variants.map((v, i) => {
               const num = parseFloat(v.weight) || 1;
               const unit = v.weight.replace(/[0-9.]/g, '').trim() || '';
-              const perUnitPrice = (v.price / num).toFixed(2);
-              return <option key={i} value={i}>{v.weight} ({formatMoney(perUnitPrice)} / 1 {unit})</option>;
+              return <option key={i} value={i}>{v.weight} - {formatMoney(v.price)}</option>;
             })}
           </select>
           <div className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none">

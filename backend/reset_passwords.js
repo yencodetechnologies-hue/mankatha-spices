@@ -39,7 +39,7 @@ const DEFAULT_USERS = [
   },
   {
     email: "biller@mankathaspices.com",
-    password: "BillerDemo123!",
+    password: "",
     name: "Mankatha Biller",
     phone: "+1-555-0200",
     role: "biller",

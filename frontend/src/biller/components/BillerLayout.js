@@ -16,14 +16,14 @@ const BillerLayout = ({ children }) => {
   };
 
   return (
-    <div className="admin-shell">
+    <div className="admin-shell biller-shell">
       <div 
-        className={`admin-sidebar-overlay ${isSidebarOpen ? "open" : ""}`} 
+        className={`admin-sidebar-overlay biller-sidebar-overlay ${isSidebarOpen ? "open" : ""}`} 
         onClick={() => setIsSidebarOpen(false)}
         onMouseEnter={() => setIsSidebarOpen(false)}
       />
       <aside 
-        className={`admin-sidebar ${isSidebarOpen ? "open" : ""}`}
+        className={`admin-sidebar biller-sidebar sticky-sidebar ${isSidebarOpen ? "open" : ""}`}
         onMouseLeave={() => setIsSidebarOpen(false)}
       >
         <div className="admin-brand">
@@ -82,7 +82,7 @@ const BillerLayout = ({ children }) => {
         <header className="admin-topbar">
           <div className="topbar-left">
             <button 
-              className="mobile-menu-btn" 
+              className="mobile-menu-btn biller-menu-btn" 
               onClick={() => setIsSidebarOpen(true)}
               aria-label="Open sidebar"
             >

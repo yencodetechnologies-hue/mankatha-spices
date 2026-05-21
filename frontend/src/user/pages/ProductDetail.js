@@ -84,12 +84,17 @@ const ProductDetail = () => {
   const originalPrice = activeWeightObj.original_price || product.original_price || currentPrice;
   const activeCurrency = activeCountryPricing.currency || "INR";
 
+  const makeVariantKey = (prod, variantWeight) => {
+    const baseId = prod.slug || prod._id || prod.id || prod.name || 'item';
+    return `${baseId}||${String(variantWeight).trim()}`;
+  };
+
   const handleAddToCart = () => {
     const numWeight = parseFloat(selectedWeight) || product.weight || 100;
     const unitStr = selectedWeight.toLowerCase().includes("kg") ? "kg" : "g";
     const cartItem = {
       ...product,
-      cartItemId: `${product.id}-${selectedWeight}`,
+      cartItemId: makeVariantKey(product, selectedWeight),
       weight: numWeight,
       unit: unitStr,
       price: currentPrice,
@@ -99,13 +104,15 @@ const ProductDetail = () => {
   };
 
   const incrementQuantity = () => {
-    if (quantity < product.max_quantity) {
+    const maxQty = product.max_quantity || 99;
+    if (quantity < maxQty) {
       setQuantity(quantity + 1);
     }
   };
 
   const decrementQuantity = () => {
-    if (quantity > product.min_quantity) {
+    const minQty = product.min_quantity || 1;
+    if (quantity > minQty) {
       setQuantity(quantity - 1);
     }
   };
@@ -344,7 +351,7 @@ const ProductDetail = () => {
                         const formattedWeight = `${num} ${displayUnit}`;
                         return (
                           <option key={w.weight} value={w.weight}>
-                            {formattedWeight} ({formatMoney(unitPrice)} / 1 {baseUnit})
+                            {formattedWeight} - {formatMoney(w.price)}
                           </option>
                         );
                       })

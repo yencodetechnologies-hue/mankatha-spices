@@ -6,6 +6,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import categories from '../../data/categories.json';
 import { formatMoney } from '../../utils/formatMoney';
 import { categoryApi } from '../../api/categoryApi';
+import LocationModal from '../LocationModal';
 
 const slugify = (input) => {
   return String(input || "")
@@ -53,7 +54,6 @@ const Header = () => {
   const [cartOpen, setCartOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
   const [locationModalOpen, setLocationModalOpen] = useState(false);
-  const [tempCurrency, setTempCurrency] = useState(localStorage.getItem("appCurrency") || "INR");
   const accountRef = React.useRef(null);
   const navigate = useNavigate();
   const { items, getCartCount, getCartTotal, updateQuantity, removeFromCart } = useCart();
@@ -665,47 +665,28 @@ const Header = () => {
           </div>
         )}
       </div>
-      {/* Location Modal */}
-      {locationModalOpen && (
-        <div className="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in fade-in duration-200">
-            <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-              <h2 className="text-lg font-bold text-gray-800">Choose Delivery Location & Currency</h2>
-              <button onClick={() => setLocationModalOpen(false)} className="text-gray-400 hover:text-gray-600">✕</button>
-            </div>
-            <div className="p-5">
-              <div className="mb-6">
-                <label className="text-sm font-semibold text-gray-700 mb-2 block">Select Country/Region</label>
-                <select 
-                  className="w-full border border-gray-300 rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-primary-500 bg-white"
-                  value={tempCurrency}
-                  onChange={(e) => setTempCurrency(e.target.value)}
-                >
-                  <option value="INR">India (₹ INR)</option>
-                  <option value="LKR">Sri Lanka (Rs LKR)</option>
-                  <option value="USD">USA ($ USD)</option>
-                  <option value="GBP">UK (£ GBP)</option>
-                  <option value="AED">UAE (د.إ AED)</option>
-                </select>
-                <p className="text-xs text-gray-500 mt-2">
-                  Selecting a region will update the product pricing to the respective currency.
-                </p>
-              </div>
-              <button 
-                className="w-full bg-primary-600 text-white font-bold py-3 rounded-lg hover:bg-primary-700 transition-colors shadow-sm"
-                onClick={() => {
-                   const cityMap = { LKR: "Colombo, LK", INR: "Chennai, IN", USD: "New York, US", GBP: "London, UK", AED: "Dubai, AE" };
-                   localStorage.setItem("appCurrency", tempCurrency);
-                   localStorage.setItem("appCity", cityMap[tempCurrency] || "Detecting...");
-                   window.location.reload();
-                }}
-              >
-                Save & Continue
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+
+      <LocationModal 
+        isOpen={locationModalOpen} 
+        onClose={() => setLocationModalOpen(false)} 
+        onLocationSet={(pincode, city, desc) => {
+          let displayCity = city;
+          let displayRegion = "Serviceable Area";
+          
+          if (pincode) {
+            displayCity = pincode;
+          }
+          if (desc) {
+            displayRegion = desc.split(',')[0];
+          } else if (city && city !== "Serviceable Area") {
+             displayRegion = city;
+          }
+          
+          setUserLocation({ city: displayCity, region: displayRegion });
+          localStorage.setItem("appCity", `${displayCity}, ${displayRegion}`);
+          localStorage.setItem("appPincode", pincode || "");
+        }} 
+      />
     </>
   );
 };

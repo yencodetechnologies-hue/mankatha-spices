@@ -138,6 +138,8 @@ app.get("/api/customers/stats", ...adminOnly, getStats);
 app.get("/api/customers", ...adminOnly, getCustomers);
 app.use("/api/distributors", distributorRoutes);
 app.use("/api/categories", categoryRoutes);
+const serviceAreaRoutes = require("./routes/serviceAreaRoutes");
+app.use("/api/service-areas", serviceAreaRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: "Not found", path: req.path, method: req.method });

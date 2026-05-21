@@ -14,10 +14,10 @@ import heroWholeSpices from '../../assets/hero_whole_spices.png';
 import { useWishlist } from '../../contexts/WishlistContext';
 
 // ── Stable cart item key — uses slug so key is same for both JSON & API products ──
-const makeVariantKey = (product, variantWeight) => {
+const makeVariantKey = (product, variantIndex) => {
   // slug is consistent across static JSON and MongoDB API data
   const baseId = product.slug || product._id || product.id || product.name || 'item';
-  return `${baseId}||${String(variantWeight).trim()}`;
+  return `${baseId}||variant-${variantIndex}`;
 };
 
 // ProductCard uses useCart() directly — no stale prop issues
@@ -41,7 +41,7 @@ const ProductCard = ({ product, index }) => {
   const currentPrice = currentVariant.price;
   const currentOriginalPrice = currentVariant.original_price;
 
-  const variantCartItemId = makeVariantKey(product, currentVariant.weight);
+  const variantCartItemId = makeVariantKey(product, selectedVariantIndex);
 
   const discount = currentOriginalPrice > currentPrice
     ? Math.round(((currentOriginalPrice - currentPrice) / currentOriginalPrice) * 100)
@@ -61,7 +61,8 @@ const ProductCard = ({ product, index }) => {
     weight: currentVariant.weight,
     price: currentPrice,
     original_price: currentOriginalPrice,
-    cartItemId: variantCartItemId
+    cartItemId: variantCartItemId,
+    variantIndex: selectedVariantIndex
   });
   const handleIncrease = () => {
     if (qty === 0) { handleAdd(); return; }
@@ -183,7 +184,7 @@ const ProductCard = ({ product, index }) => {
               const perUnitPrice = (v.price / num).toFixed(2);
               return (
                 <option key={i} value={i}>
-                  {v.weight} ({formatMoney(perUnitPrice)} / 1 {unit})
+                  {v.weight} - {formatMoney(v.price)}
                 </option>
               );
             })}
