@@ -228,7 +228,7 @@ const BillerDashboardPanel = () => {
             title="New Bill"
             desc="Create a fresh invoice for walk-in or online orders."
             color="#8dbe20"
-            onClick={() => alert("New Bill — coming soon")}
+            onClick={() => window.location.href = "/biller/new-bill"}
           />
           <ActionCard
             icon={ShoppingCart}

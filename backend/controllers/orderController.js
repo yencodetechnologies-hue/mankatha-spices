@@ -86,7 +86,31 @@ const getStats = async (req, res) => {
   }
 };
 
+const createOrder = async (req, res) => {
+  try {
+    const { customerName, total, payment, status, lineItems, itemCount } = req.body;
+    
+    // Simple order ID generator
+    const orderId = "SE" + Math.floor(1000 + Math.random() * 9000);
+    
+    const order = await Order.create({
+      orderId,
+      customerName: customerName || "Walk-in Customer",
+      itemCount: itemCount || (lineItems ? lineItems.length : 1),
+      total: total || 0,
+      payment: payment || "Paid",
+      status: status || "Delivered",
+      lineItems: lineItems || []
+    });
+
+    res.status(201).json(order);
+  } catch (err) {
+    res.status(500).json({ message: err.message || "Failed to create order" });
+  }
+};
+
 module.exports = {
   getOrders,
   getStats,
+  createOrder,
 };

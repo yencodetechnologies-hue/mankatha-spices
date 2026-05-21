@@ -37,6 +37,7 @@ import VendorDashboardPanel from './vendor/pages/VendorDashboardPanel';
 import VendorProductsPanel from './vendor/pages/VendorProductsPanel';
 import BillerPanelPage from './biller/pages/BillerPanelPage';
 import BillerDashboardPanel from './biller/pages/BillerDashboardPanel';
+import BillerNewBillPanel from './biller/pages/BillerNewBillPanel';
 import BillerPlaceholderPanel from './biller/pages/BillerPlaceholderPanel';
 import './index.css';
 
@@ -150,7 +151,7 @@ function AppContent() {
               <Route index element={<Navigate to="/biller/dashboard" replace />} />
               <Route path="dashboard" element={<BillerDashboardPanel />} />
               <Route path="orders" element={<BillerPlaceholderPanel title="Orders" />} />
-              <Route path="invoices" element={<BillerPlaceholderPanel title="Invoices" />} />
+              <Route path="new-bill" element={<BillerNewBillPanel />} />
               <Route path="print" element={<BillerPlaceholderPanel title="Print Bill" />} />
             </Route>
           </Routes>

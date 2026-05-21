@@ -48,11 +48,11 @@ const BillerLayout = ({ children }) => {
               </li>
               <li>
                 <NavLink
-                  to="/biller/invoices"
+                  to="/biller/new-bill"
                   className={({ isActive }) => `admin-nav-link${isActive ? " active" : ""}`}
                 >
                   <Receipt size={18} strokeWidth={1.75} className="admin-nav-icon" aria-hidden />
-                  <span className="admin-nav-label">Invoices</span>
+                  <span className="admin-nav-label">New Bill</span>
                 </NavLink>
               </li>
               <li>

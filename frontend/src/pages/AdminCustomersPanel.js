@@ -139,9 +139,9 @@ const AdminCustomersPanel = () => {
           </p>
         </div>
         <div className="customers-head-actions">
-          <button type="button" className="customers-btn-outline" onClick={() => window.alert("Connect your email provider to send campaigns.")}>
+          {/* <button type="button" className="customers-btn-outline" onClick={() => window.alert("Connect your email provider to send campaigns.")}>
             Email Campaign
-          </button>
+          </button> */}
           <button type="button" className="export-csv-btn" onClick={exportCsv} disabled={!customers.length}>
             Export
           </button>

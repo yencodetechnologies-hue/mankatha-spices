@@ -2616,3 +2616,24 @@ th {
   background: #ffffff;
   color: #6b9312;
 }
+
+@media print {
+  .admin-sidebar,
+  .admin-topbar {
+    display: none !important;
+  }
+  .admin-shell {
+    display: block !important;
+    min-height: auto !important;
+    background: #fff !important;
+  }
+  .admin-main {
+    display: block !important;
+  }
+  .admin-content {
+    padding: 0 !important;
+  }
+  body {
+    background: #fff !important;
+  }
+}

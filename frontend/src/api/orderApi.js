@@ -32,4 +32,11 @@ export const orderApi = {
     return response.data;
   },
   getCachedStats: () => statsCache,
+  
+  createOrder: async (data) => {
+    const response = await client.post("orders", data);
+    ordersCache = null; // Invalidate cache
+    statsCache = null;
+    return response.data;
+  }
 };
