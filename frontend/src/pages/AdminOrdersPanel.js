@@ -74,6 +74,7 @@ const AdminOrdersPanel = () => {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All Status");
   const [periodFilter, setPeriodFilter] = useState("This Month");
+  const [customerFilter, setCustomerFilter] = useState("All Customers");
 
   const loadData = useCallback(async () => {
     // 1. Populate immediately from cache if available
@@ -149,9 +150,17 @@ const AdminOrdersPanel = () => {
         (statusFilter === "Processing" && o.status === "Processing") ||
         (statusFilter === "Pending" && o.status === "Pending") ||
         (statusFilter === "Cancelled" && o.status === "Cancelled");
-      return matchesSearch && matchesStatus;
+      const matchesCustomer = 
+        customerFilter === "All Customers" ||
+        o.customer === customerFilter;
+      return matchesSearch && matchesStatus && matchesCustomer;
     });
-  }, [rows, search, statusFilter]);
+  }, [rows, search, statusFilter, customerFilter]);
+
+  const uniqueCustomers = useMemo(() => {
+    const customers = new Set(rows.map(o => o.customer));
+    return ["All Customers", ...Array.from(customers).sort()];
+  }, [rows]);
 
   const handleExport = () => {
     const header = ["Order ID", "Customer", "Items", "Total (LKR)", "Payment", "Status", "Date"];
@@ -218,6 +227,11 @@ const AdminOrdersPanel = () => {
             />
           </div>
           <div className="orders-filters">
+            <select value={customerFilter} onChange={(e) => setCustomerFilter(e.target.value)} aria-label="Customer filter">
+              {uniqueCustomers.map(c => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
             <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} aria-label="Order status">
               <option>All Status</option>
               <option>Delivered</option>

@@ -7,41 +7,12 @@ router.post('/check-location', async (req, res) => {
   try {
     const { pincode } = req.body;
     
-    if (!pincode) {
-      return res.status(400).json({ success: false, message: 'Pincode is required' });
-    }
-
-    const area = await ServiceArea.findOne({ pincode });
-
-    if (area && area.available) {
-      return res.json({
-        success: true,
-        available: true,
-        city: area.city,
-        message: "We are available here!"
-      });
-    }
-
-    // Optional: Allow some default hardcoded pincodes if DB is empty
-    const defaultPincodes = [
-      "600042", "600001", "600100", "560001", 
-      "233227", "233230", "233226", "233221", "233222"
-    ];
-    const isDbEmpty = await ServiceArea.countDocuments() === 0;
-
-    if (isDbEmpty && (defaultPincodes.includes(pincode) || pincode.startsWith("2332"))) {
-      return res.json({
-        success: true,
-        available: true,
-        city: "Serviceable Area",
-        message: "We are available here!"
-      });
-    }
-
-    res.json({
-      success: false,
-      available: false,
-      message: "Currently not available"
+    // As requested, statically making it available for EVERYTHING
+    return res.json({
+      success: true,
+      available: true,
+      city: pincode || "Serviceable Area",
+      message: "We are available here!"
     });
   } catch (error) {
     console.error('Check location error:', error);

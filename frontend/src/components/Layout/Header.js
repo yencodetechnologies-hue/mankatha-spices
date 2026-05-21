@@ -53,12 +53,71 @@ const Header = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [cartOpen, setCartOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [locationModalOpen, setLocationModalOpen] = useState(false);
   const accountRef = React.useRef(null);
+  const notificationsRef = React.useRef(null);
   const navigate = useNavigate();
   const { items, getCartCount, getCartTotal, updateQuantity, removeFromCart } = useCart();
   const { user, isAuthenticated, logout } = useAuth();
   const [categoriesList, setCategoriesList] = useState([]);
+
+  // Notifications State
+  const defaultNotifications = [
+    {
+      id: 1,
+      title: "50% Off on Spices",
+      message: "Use code SPICE50 at checkout. Valid till tonight!",
+      time: "10 mins ago",
+      icon: "🎉",
+      color: "bg-orange-100",
+      read: false
+    },
+    {
+      id: 2,
+      title: "Order Delivered",
+      message: "Your order #ORD-1234 has been delivered successfully.",
+      time: "2 hours ago",
+      icon: "📦",
+      color: "bg-green-100",
+      read: false
+    },
+    {
+      id: 3,
+      title: "Rate your recent purchase",
+      message: "How was the Turmeric Powder? Leave a review to earn points.",
+      time: "Yesterday",
+      icon: "⭐",
+      color: "bg-blue-100",
+      read: false
+    }
+  ];
+
+  const [notifications, setNotifications] = useState(() => {
+    const saved = localStorage.getItem("appNotifications");
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        return defaultNotifications;
+      }
+    }
+    return defaultNotifications;
+  });
+
+  useEffect(() => {
+    localStorage.setItem("appNotifications", JSON.stringify(notifications));
+  }, [notifications]);
+
+  const unreadCount = notifications.filter(n => !n.read).length;
+
+  const markAllAsRead = () => {
+    setNotifications(notifications.map(n => ({ ...n, read: true })));
+  };
+
+  const markAsRead = (id) => {
+    setNotifications(notifications.map(n => n.id === id ? { ...n, read: true } : n));
+  };
   
   const savedCity = localStorage.getItem("appCity");
   const [userLocation, setUserLocation] = useState({ 
@@ -132,6 +191,9 @@ const Header = () => {
       if (accountRef.current && !accountRef.current.contains(e.target)) {
         setAccountOpen(false);
       }
+      if (notificationsRef.current && !notificationsRef.current.contains(e.target)) {
+        setNotificationsOpen(false);
+      }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -176,17 +238,18 @@ const Header = () => {
               />
             </Link>
 
-            {/* Location */}
+            {/* Location - Amazon Style */}
             <div 
               onClick={() => setLocationModalOpen(true)}
-              className="hidden lg:flex flex-col bg-gray-50 px-3 py-1 rounded border border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors min-w-[120px]"
+              className="hidden lg:flex items-center gap-1 cursor-pointer hover:ring-1 hover:ring-gray-200 p-1.5 rounded transition-all"
             >
-              <div className="flex items-center text-sm font-semibold text-gray-800 gap-1">
-                <MapPin size={13} className="text-primary-600" />
-                <span className="truncate max-w-[100px]" title={userLocation.city}>{userLocation.city}</span>
-                <ChevronDown size={13} className="text-gray-500 shrink-0" />
+              <MapPin size={20} className="text-gray-800 mt-1.5" strokeWidth={1.5} />
+              <div className="flex flex-col">
+                <span className="text-[11px] text-gray-500 leading-none">Delivering to {userLocation.city}</span>
+                <div className="text-[14px] font-bold text-gray-900 leading-tight truncate max-w-[140px]">
+                  {userLocation.region}
+                </div>
               </div>
-              <div className="text-xs text-gray-500 pl-4 truncate max-w-[120px]" title={userLocation.region}>{userLocation.region}</div>
             </div>
 
             {/* Delivery Time */}
@@ -284,12 +347,55 @@ const Header = () => {
                 )}
               </div>
 
-              {/* Notification Bell — static, DMart style */}
-              <div className="hidden md:block relative cursor-pointer" title="Notifications">
+              {/* Notification Bell — dynamic */}
+              <div 
+                ref={notificationsRef}
+                className="hidden md:block relative cursor-pointer" 
+                title="Notifications"
+                onClick={() => setNotificationsOpen(!notificationsOpen)}
+              >
                 <Bell size={22} className="text-gray-600 hover:text-primary-600 transition-colors" />
-                <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
-                  3
-                </span>
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                    {unreadCount}
+                  </span>
+                )}
+                
+                {notificationsOpen && (
+                  <div className="absolute right-0 top-full mt-3 w-80 bg-white border border-gray-200 shadow-xl z-50 rounded-lg overflow-hidden cursor-default" onClick={e => e.stopPropagation()}>
+                    <div className="px-4 py-3 bg-gray-50 border-b border-gray-100 flex justify-between items-center">
+                      <span className="font-bold text-gray-800 text-sm">Notifications</span>
+                      <span 
+                        onClick={markAllAsRead}
+                        className="text-xs text-primary-600 font-semibold cursor-pointer hover:underline"
+                      >
+                        Mark all as read
+                      </span>
+                    </div>
+                    <div className="max-h-[300px] overflow-y-auto">
+                      {notifications.map(notif => (
+                        <div 
+                          key={notif.id}
+                          onClick={() => markAsRead(notif.id)}
+                          className={`p-3 border-b border-gray-50 hover:bg-gray-50 transition-colors flex gap-3 cursor-pointer ${!notif.read ? 'bg-blue-50/30' : ''}`}
+                        >
+                          <div className={`${notif.color} p-2 rounded-full h-fit mt-1 opacity-${notif.read ? '60' : '100'}`}>
+                            <span className="text-lg leading-none">{notif.icon}</span>
+                          </div>
+                          <div className={notif.read ? 'opacity-60' : ''}>
+                            <p className="text-sm font-semibold text-gray-800">{notif.title}</p>
+                            <p className="text-xs text-gray-500 mt-0.5">{notif.message}</p>
+                            <span className="text-[10px] text-gray-400 mt-1 block">{notif.time}</span>
+                          </div>
+                          {!notif.read && <div className="w-2 h-2 rounded-full bg-primary-600 self-center ml-auto shrink-0"></div>}
+                        </div>
+                      ))}
+                    </div>
+                    <div className="px-4 py-2 bg-gray-50 border-t border-gray-100 text-center">
+                      <span className="text-xs text-gray-500 hover:text-primary-600 font-semibold cursor-pointer">View all notifications</span>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Cart */}

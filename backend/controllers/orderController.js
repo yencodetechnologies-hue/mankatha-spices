@@ -101,7 +101,9 @@ const createOrder = async (req, res) => {
       payment: payment || "Paid",
       paymentMethod: paymentMethod || "Cash",
       status: status || "Delivered",
-      lineItems: lineItems || []
+      lineItems: lineItems || [],
+      billerId: req.user ? req.user._id : undefined,
+      billerName: req.user ? req.user.name : "Website",
     });
 
     res.status(201).json(order);

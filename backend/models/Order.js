@@ -39,6 +39,8 @@ const orderSchema = new mongoose.Schema({
   },
   /** Cart lines for overview “products” column & category charts */
   lineItems: { type: [lineItemSchema], default: [] },
+  billerId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  billerName: { type: String, trim: true },
   orderDate: { type: Date, default: Date.now },
   createdAt: { type: Date, default: Date.now },
 });

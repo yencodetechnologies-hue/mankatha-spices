@@ -14,40 +14,93 @@ const LocationModal = ({ isOpen, onClose, onLocationSet }) => {
   const [selectedDesc, setSelectedDesc] = useState('');
   const [tempCurrency, setTempCurrency] = useState(localStorage.getItem("appCurrency") || "INR");
 
-  // Mock search function to simulate DMart autocomplete for pincodes
+  const fetchNominatimFallback = async (query) => {
+    try {
+      const response = await axios.get(`https://nominatim.openstreetmap.org/search`, {
+        params: { q: query, format: 'json', addressdetails: 1, countrycodes: 'in', limit: 8 }
+      });
+      if (response.data && response.data.length > 0) {
+        const uniquePlaces = new Map();
+        response.data.forEach(place => {
+          const pin = place.address?.postcode || '';
+          if (!uniquePlaces.has(place.place_id)) {
+            uniquePlaces.set(place.place_id, {
+              pin: pin || query,
+              desc: place.display_name,
+              rawName: place.name || ''
+            });
+          }
+        });
+        setSearchResults(Array.from(uniquePlaces.values()));
+      } else {
+        setSearchResults([]);
+      }
+    } catch (error) {
+      console.error("Nominatim error:", error);
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  // Search function using Google Places Autocomplete API with Nominatim fallback
   const fetchSearchResults = (query) => {
-    if (!query || query.length < 2) {
+    if (!query || query.length < 3) {
       setSearchResults([]);
       return;
     }
     
-    // If they typed exactly '2332' to match the screenshot demonstration
-    if (query === '2332') {
-      setSearchResults([
-        { pin: '233227', desc: 'Chandany, Uttar Pradesh, India' },
-        { pin: '233230', desc: 'Kasimabad, Uttar Pradesh, India' },
-        { pin: '233226', desc: 'Mardah, Uttar Pradesh, India' },
-        { pin: '233221', desc: 'Darbepur, Uttar Pradesh, India' },
-        { pin: '233222', desc: 'Dahendu, Uttar Pradesh, India' }
-      ]);
-      return;
+    setIsSearching(true);
+    
+    if (window.google && window.google.maps && window.google.maps.places) {
+      const autocompleteService = new window.google.maps.places.AutocompleteService();
+      autocompleteService.getPlacePredictions({
+        input: query,
+        componentRestrictions: { country: 'in' }, // Limit to India
+      }, (predictions, status) => {
+        if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions) {
+           setIsSearching(false);
+           const formatted = predictions.map(p => ({
+              pin: null, // Will fetch pincode on click using Geocoder
+              place_id: p.place_id,
+              desc: p.description,
+              rawName: p.structured_formatting.main_text
+           }));
+           setSearchResults(formatted);
+        } else {
+           // Fallback to Nominatim if Google fails (e.g. Android API key restriction)
+           fetchNominatimFallback(query);
+        }
+      });
+    } else {
+      // Fallback
+      fetchNominatimFallback(query);
     }
+  };
 
-    // Generic fallback for any other number (just auto-complete it with some random Indian areas for the demo)
-    if (/^\d+$/.test(query)) {
-      setSearchResults([
-        { pin: query + '01', desc: 'Central Area, Chennai, Tamil Nadu' },
-        { pin: query + '02', desc: 'North Region, Tamil Nadu, India' },
-        { pin: query + '05', desc: 'East District, Tamil Nadu, India' },
-      ]);
-      return;
+  const handleLocationSelect = (item) => {
+    if (item.place_id && window.google && window.google.maps) {
+      setLoading(true);
+      const geocoder = new window.google.maps.Geocoder();
+      geocoder.geocode({ placeId: item.place_id }, (results, status) => {
+        setLoading(false);
+        if (status === 'OK' && results[0]) {
+           const postalCodeObj = results[0].address_components.find(c => c.types.includes('postal_code'));
+           const pin = postalCodeObj ? postalCodeObj.long_name : null;
+           
+           if (pin) {
+              checkLocation(pin, item.desc);
+           } else {
+              // No pincode found for this place
+              checkLocation(item.rawName, item.desc); // Fallback
+           }
+        } else {
+           checkLocation(item.rawName, item.desc);
+        }
+      });
+    } else {
+      checkLocation(item.pin || item.rawName, item.desc);
     }
-
-    // Text search fallback
-    setSearchResults([
-      { pin: '600042', desc: `${query}, Velachery, Chennai, India` },
-      { pin: '600001', desc: `${query}, George Town, Chennai, India` },
-    ]);
   };
 
   const handleInputChange = (e) => {
@@ -123,7 +176,7 @@ const LocationModal = ({ isOpen, onClose, onLocationSet }) => {
         {step === 1 ? (
           /* Step 1: Choose Delivery Location */
           <div className="p-8 pb-4 text-center">
-            <h2 className="text-[22px] font-semibold text-[#333] mb-6">Choose delivery location</h2>
+            <h2 className="text-[22px] font-semibold text-[#333] mb-6">Choose your location</h2>
             
             {/* Input field exactly like DMart */}
             <div className="relative mb-6 z-20">
@@ -159,11 +212,13 @@ const LocationModal = ({ isOpen, onClose, onLocationSet }) => {
                       <div 
                         key={idx}
                         className="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-50 last:border-b-0"
-                        onClick={() => checkLocation(item.pin, item.desc)}
+                        onClick={() => handleLocationSelect(item)}
                       >
                         <MapPin size={18} className="text-gray-300 mt-0.5 shrink-0" fill="#f3f4f6" />
                         <div>
-                          <div className="font-bold text-[#333] text-[15px]">{item.pin}</div>
+                          <div className="font-bold text-[#333] text-[15px]">
+                            {item.pin && /^\d+$/.test(item.pin) ? item.pin : item.rawName || 'Location'}
+                          </div>
                           <div className="text-gray-500 text-[13px]">{item.desc}</div>
                         </div>
                       </div>
@@ -175,11 +230,20 @@ const LocationModal = ({ isOpen, onClose, onLocationSet }) => {
 
             {/* Result Alert (Only for errors in step 1 now) */}
             {result && !result.available && (
-              <div className="mb-6 text-[15px] text-left px-4 py-4 rounded font-medium bg-[#fff5f5] text-[#9b2c2c] border border-[#fed7d7]">
-                <div className="flex items-center gap-2.5">
+              <div className="mb-6 bg-[#fff5f5] border border-[#fed7d7] rounded p-4">
+                <div className="flex items-center gap-2.5 text-[#9b2c2c] font-medium text-[15px] mb-3">
                   <AlertCircle size={18} className="text-[#c53030]" />
                   Currently not available
                 </div>
+                <button 
+                  onClick={() => {
+                     if (onLocationSet) onLocationSet(pincode || 'Guest', 'Unknown', 'Unserviceable Area');
+                     onClose();
+                  }}
+                  className="w-full py-2.5 bg-white border border-[#9b2c2c] text-[#9b2c2c] rounded font-medium text-[14px] hover:bg-[#fff0f0] transition-colors"
+                >
+                  Browse Products Anyway
+                </button>
               </div>
             )}
 
