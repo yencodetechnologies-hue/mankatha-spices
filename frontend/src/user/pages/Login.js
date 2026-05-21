@@ -11,6 +11,7 @@ function isSafeCustomerReturnPath(path) {
   const p = String(path);
   if (p.startsWith('/adminpanel')) return false;
   if (p.startsWith('/vendor')) return false;
+  if (p.startsWith('/biller')) return false;
   return true;
 }
 
@@ -21,6 +22,10 @@ function redirectByRole(navigate, nextUser, fromPath) {
   }
   if (nextUser.role === 'vendor') {
     navigate('/vendor/dashboard', { replace: true });
+    return;
+  }
+  if (nextUser.role === 'biller') {
+    navigate('/biller/dashboard', { replace: true });
     return;
   }
   navigate(isSafeCustomerReturnPath(fromPath) ? fromPath : '/', { replace: true });

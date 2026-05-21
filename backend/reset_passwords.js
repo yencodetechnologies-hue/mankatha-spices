@@ -37,6 +37,13 @@ const DEFAULT_USERS = [
     phone: "+91-9000000001",
     role: "customer",
   },
+  {
+    email: "biller@mankathaspices.com",
+    password: "BillerDemo123!",
+    name: "Mankatha Biller",
+    phone: "+1-555-0200",
+    role: "biller",
+  },
 ];
 
 async function run() {

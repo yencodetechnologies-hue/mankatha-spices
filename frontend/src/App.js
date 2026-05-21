@@ -35,6 +35,9 @@ import ProtectedRoute from './components/Auth/ProtectedRoute';
 import VendorPanelPage from './vendor/pages/VendorPanelPage';
 import VendorDashboardPanel from './vendor/pages/VendorDashboardPanel';
 import VendorProductsPanel from './vendor/pages/VendorProductsPanel';
+import BillerPanelPage from './biller/pages/BillerPanelPage';
+import BillerDashboardPanel from './biller/pages/BillerDashboardPanel';
+import BillerPlaceholderPanel from './biller/pages/BillerPlaceholderPanel';
 import './index.css';
 
 const adminPlaceholderRoutes = SIDEBAR_GROUPS.flatMap((g) => g.items)
@@ -68,7 +71,9 @@ function AppContent() {
   });
   const location = useLocation();
   const isStaffPortal =
-    location.pathname.startsWith('/adminpanel') || location.pathname.startsWith('/vendor');
+    location.pathname.startsWith('/adminpanel') ||
+    location.pathname.startsWith('/vendor') ||
+    location.pathname.startsWith('/biller');
 
   useEffect(() => {
     const handleCartNotification = (event) => {
@@ -133,6 +138,20 @@ function AppContent() {
               <Route index element={<Navigate to="/vendor/dashboard" replace />} />
               <Route path="dashboard" element={<VendorDashboardPanel />} />
               <Route path="products" element={<VendorProductsPanel />} />
+            </Route>
+            <Route
+              path="/biller"
+              element={
+                <ProtectedRoute allowedRoles={['biller']}>
+                  <BillerPanelPage />
+                </ProtectedRoute>
+              }
+            >
+              <Route index element={<Navigate to="/biller/dashboard" replace />} />
+              <Route path="dashboard" element={<BillerDashboardPanel />} />
+              <Route path="orders" element={<BillerPlaceholderPanel title="Orders" />} />
+              <Route path="invoices" element={<BillerPlaceholderPanel title="Invoices" />} />
+              <Route path="print" element={<BillerPlaceholderPanel title="Print Bill" />} />
             </Route>
           </Routes>
         </main>
