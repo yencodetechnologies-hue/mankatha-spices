@@ -23,7 +23,7 @@ const Register = () => {
   // OTP States
   const [otpSent, setOtpSent] = useState(false);
   const [enteredOtp, setEnteredOtp] = useState('');
-  const [generatedOtp, setGeneratedOtp] = useState('');
+
   const [otpCountdown, setOtpCountdown] = useState(60);
   const [otpError, setOtpError] = useState('');
 
@@ -110,9 +110,7 @@ const Register = () => {
         phone: formData.phone,
       });
 
-      if (res.debugOtp) {
-        setGeneratedOtp(res.debugOtp);
-      }
+
       setOtpSent(true);
       setOtpCountdown(60);
     } catch (error) {
@@ -153,9 +151,6 @@ const Register = () => {
         password: formData.password,
         phone: formData.phone,
       });
-      if (res.debugOtp) {
-        setGeneratedOtp(res.debugOtp);
-      }
       setOtpCountdown(60);
     } catch (error) {
       const msg = error.response?.data?.message || 'Failed to resend OTP. Please try again.';

@@ -83,7 +83,6 @@ const ProductDetail = () => {
   const currentPrice = activeWeightObj.price || product.price || 0;
   const originalPrice = activeWeightObj.original_price || product.original_price || currentPrice;
   const activeCurrency = activeCountryPricing.currency || "INR";
-  const discount = Math.round(((originalPrice - currentPrice) / originalPrice) * 100);
 
   const handleAddToCart = () => {
     const numWeight = parseFloat(selectedWeight) || product.weight || 100;
@@ -112,7 +111,6 @@ const ProductDetail = () => {
   };
 
   const RelatedProductCard = ({ relatedProduct }) => {
-    const relatedDiscount = Math.round(((relatedProduct.original_price - relatedProduct.price) / relatedProduct.original_price) * 100);
 
     return (
       <div className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden">

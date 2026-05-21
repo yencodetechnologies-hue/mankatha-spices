@@ -59,44 +59,7 @@ const Profile = () => {
     { id: 'settings', label: 'Settings', icon: Settings }
   ];
 
-  const mockOrders = [
-    {
-      id: 'ORD-001',
-      date: '2024-01-15',
-      status: 'delivered',
-      total: 45.99,
-      items: 3
-    },
-    {
-      id: 'ORD-002',
-      date: '2024-01-20',
-      status: 'processing',
-      total: 67.49,
-      items: 5
-    },
-    {
-      id: 'ORD-003',
-      date: '2024-01-25',
-      status: 'shipped',
-      total: 32.99,
-      items: 2
-    }
-  ];
 
-  const mockWishlist = [
-    {
-      id: 1,
-      name: 'Organic Fresh Apples',
-      price: 4.99,
-      image: 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=100&h=100&fit=crop'
-    },
-    {
-      id: 2,
-      name: 'Fresh Organic Carrots',
-      price: 3.49,
-      image: 'https://images.unsplash.com/photo-1445282768818-728615cc910a?w=100&h=100&fit=crop'
-    }
-  ];
 
   const getStatusBadge = (status) => {
     const statusConfig = {
