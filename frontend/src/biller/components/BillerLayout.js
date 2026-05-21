@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { LayoutDashboard, Receipt, ShoppingCart, LogOut, Printer } from "lucide-react";
+import { LayoutDashboard, Receipt, ShoppingCart, LogOut, Printer, Menu } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import MankathaBanner from "../../components/Brand/MankathaBanner";
 import "../../admin.css";
@@ -8,6 +8,7 @@ import "../../admin.css";
 const BillerLayout = ({ children }) => {
   const { logout, user } = useAuth();
   const navigate = useNavigate();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const onLogout = () => {
     logout();
@@ -16,7 +17,15 @@ const BillerLayout = ({ children }) => {
 
   return (
     <div className="admin-shell">
-      <aside className="admin-sidebar">
+      <div 
+        className={`admin-sidebar-overlay ${isSidebarOpen ? "open" : ""}`} 
+        onClick={() => setIsSidebarOpen(false)}
+        onMouseEnter={() => setIsSidebarOpen(false)}
+      />
+      <aside 
+        className={`admin-sidebar ${isSidebarOpen ? "open" : ""}`}
+        onMouseLeave={() => setIsSidebarOpen(false)}
+      >
         <div className="admin-brand">
           <div className="mb-3 overflow-hidden rounded-xl border border-white/10 bg-black/20">
             <MankathaBanner variant="strip" className="!rounded-none !border-0 !shadow-none" />
@@ -43,7 +52,7 @@ const BillerLayout = ({ children }) => {
                   className={({ isActive }) => `admin-nav-link${isActive ? " active" : ""}`}
                 >
                   <ShoppingCart size={18} strokeWidth={1.75} className="admin-nav-icon" aria-hidden />
-                  <span className="admin-nav-label">Orders</span>
+                  <span className="admin-nav-label">Billing Orders</span>
                 </NavLink>
               </li>
               <li>
@@ -72,6 +81,13 @@ const BillerLayout = ({ children }) => {
       <section className="admin-main">
         <header className="admin-topbar">
           <div className="topbar-left">
+            <button 
+              className="mobile-menu-btn" 
+              onClick={() => setIsSidebarOpen(true)}
+              aria-label="Open sidebar"
+            >
+              <Menu size={24} />
+            </button>
             <h1 className="flex items-center gap-2 text-lg font-semibold text-[#3d2f26]">
               <Receipt size={22} className="text-primary-600" aria-hidden />
               Biller workspace

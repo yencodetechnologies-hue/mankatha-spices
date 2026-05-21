@@ -334,9 +334,6 @@ const ProductDetail = () => {
                         
                         const unitPrice = w.price / baseValue;
                         
-                        const currencySymbols = { INR: "₹", LKR: "Rs.", AED: "AED", USD: "$" };
-                        const curSymbol = currencySymbols[activeCurrency] || activeCurrency;
-                        
                         let displayUnit = rawUnit;
                         if (rawUnit === "kilogram") displayUnit = "kg";
                         else if (rawUnit === "milligram") displayUnit = "mg";
@@ -347,7 +344,7 @@ const ProductDetail = () => {
                         const formattedWeight = `${num} ${displayUnit}`;
                         return (
                           <option key={w.weight} value={w.weight}>
-                            {formattedWeight} ({curSymbol} {unitPrice.toFixed(2)} / 1 {baseUnit})
+                            {formattedWeight} ({formatMoney(unitPrice)} / 1 {baseUnit})
                           </option>
                         );
                       })

@@ -64,7 +64,35 @@ app.use("/api/auth", authRoutes);
 app.get("/api/settings", ...adminOnly, getSettings);
 app.put("/api/settings", ...adminOnly, putSettings);
 app.patch("/api/settings", ...adminOnly, patchSettings);
+const requestIp = require("request-ip");
+const geoip = require("geoip-country");
+
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+app.get("/api/location", (req, res) => {
+  const ip = requestIp.getClientIp(req);
+  const geo = geoip.lookup(ip);
+
+  let currency = "INR";
+  let amount = 1000;
+
+  if (geo && geo.country === "GB") {
+    currency = "GBP";
+    amount = 15;
+  }
+
+  if (geo && geo.country === "US") {
+    currency = "USD";
+    amount = 20;
+  }
+
+  res.json({
+    ip,
+    country: geo?.country,
+    currency,
+    amount
+  });
+});
 
 app.get("/api/health", (_, res) => {
   res.json({

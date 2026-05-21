@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { LayoutDashboard, Truck, LogOut, Store } from "lucide-react";
+import { LayoutDashboard, Truck, LogOut, Store, Menu } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import MankathaBanner from "../../components/Brand/MankathaBanner";
 import "../../admin.css";
@@ -8,6 +8,7 @@ import "../../admin.css";
 const VendorLayout = ({ children }) => {
   const { logout, user } = useAuth();
   const navigate = useNavigate();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const onLogout = () => {
     logout();
@@ -16,7 +17,15 @@ const VendorLayout = ({ children }) => {
 
   return (
     <div className="admin-shell">
-      <aside className="admin-sidebar">
+      <div 
+        className={`admin-sidebar-overlay ${isSidebarOpen ? "open" : ""}`} 
+        onClick={() => setIsSidebarOpen(false)}
+        onMouseEnter={() => setIsSidebarOpen(false)}
+      />
+      <aside 
+        className={`admin-sidebar ${isSidebarOpen ? "open" : ""}`}
+        onMouseLeave={() => setIsSidebarOpen(false)}
+      >
         <div className="admin-brand">
           <div className="mb-3 overflow-hidden rounded-xl border border-white/10 bg-black/20">
             <MankathaBanner variant="strip" className="!rounded-none !border-0 !shadow-none" />
@@ -54,6 +63,13 @@ const VendorLayout = ({ children }) => {
       <section className="admin-main">
         <header className="admin-topbar">
           <div className="topbar-left">
+            <button 
+              className="mobile-menu-btn" 
+              onClick={() => setIsSidebarOpen(true)}
+              aria-label="Open sidebar"
+            >
+              <Menu size={24} />
+            </button>
             <h1 className="flex items-center gap-2 text-lg font-semibold text-[#3d2f26]">
               <Store size={22} className="text-primary-600" aria-hidden />
               Vendor workspace

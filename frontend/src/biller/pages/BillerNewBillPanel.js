@@ -62,7 +62,20 @@ const BillerNewBillPanel = () => {
     return true;
   });
 
+  const getProductPrice = (p) => {
+    if (typeof p.price === 'number') return p.price;
+    if (p.pricing && p.pricing.length > 0) {
+      // Try to find LKR/Sri Lanka pricing, else default to first
+      const targetPricing = p.pricing.find(pr => pr.currency === "LKR") || p.pricing[0];
+      if (targetPricing && targetPricing.weights && targetPricing.weights.length > 0) {
+        return targetPricing.weights[0].price;
+      }
+    }
+    return 0;
+  };
+
   const addToCart = (product) => {
+    const price = getProductPrice(product);
     setCart((prev) => {
       const existing = prev.find((item) => item._id === product._id);
       if (existing) {
@@ -70,7 +83,7 @@ const BillerNewBillPanel = () => {
           item._id === product._id ? { ...item, qty: item.qty + 1 } : item
         );
       }
-      return [...prev, { ...product, qty: 1 }];
+      return [...prev, { ...product, price, qty: 1 }];
     });
   };
 
@@ -93,9 +106,16 @@ const BillerNewBillPanel = () => {
 
   const total = cart.reduce((sum, item) => sum + (item.price || 0) * item.qty, 0);
 
-  const handleSubmit = async (e) => {
+  const [showCheckout, setShowCheckout] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState("Cash");
+
+  const handleCheckoutClick = (e) => {
     e.preventDefault();
     if (cart.length === 0) return;
+    setShowCheckout(true);
+  };
+
+  const handleConfirmPayment = async () => {
     setSubmitting(true);
     
     try {
@@ -110,6 +130,7 @@ const BillerNewBillPanel = () => {
         customerName: customerName.trim() || "Walk-in Customer",
         total: total,
         payment: "Paid",
+        paymentMethod: paymentMethod,
         status: "Delivered",
         lineItems: lineItems,
         itemCount: lineItems.reduce((acc, item) => acc + item.quantity, 0)
@@ -118,6 +139,7 @@ const BillerNewBillPanel = () => {
       setSuccess(newOrder);
       setCart([]);
       setCustomerName("");
+      setShowCheckout(false);
     } catch (err) {
       alert(err?.response?.data?.message || "Failed to generate bill.");
     } finally {
@@ -157,72 +179,76 @@ const BillerNewBillPanel = () => {
 
         {/* Printable Receipt Area */}
         <div 
-          className="hidden print:block w-full max-w-md mx-auto bg-white p-6"
+          className="hidden print:block w-full max-w-md mx-auto bg-white p-4"
           style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}
         >
-          <div className="text-center mb-6 border-b-2 border-[#91521f] pb-6">
-            <MankathaBanner variant="strip" className="mb-4 !border-0 !shadow-none !bg-transparent" />
-            <h1 className="text-2xl font-bold tracking-wider mb-2 text-[#91521f] font-serif uppercase">Mankatha Spices</h1>
+          <div className="text-center mb-4 border-b border-[#91521f] pb-4">
+            <MankathaBanner variant="strip" className="mb-2 !border-0 !shadow-none !bg-transparent" />
+            <h1 className="text-xl font-bold tracking-wider mb-1 text-[#91521f] font-serif uppercase">Mankatha Spices</h1>
             <p className="text-sm text-gray-700 font-medium">123 Spice Market, Bazaar Road</p>
             <p className="text-sm text-gray-700 font-medium">Chennai - 600001</p>
             <p className="text-sm text-gray-700 font-medium mt-1 font-mono">Ph: +91 98765 43210</p>
           </div>
           
-          <div className="mb-6 bg-[#fdfaf6] p-4 rounded-xl border border-[#f2d4bb]">
-            <div className="flex justify-between mb-2 text-sm text-[#3d2f26]">
+          <div className="mb-4 bg-[#fdfaf6] p-3 rounded-lg border border-[#f2d4bb]">
+            <div className="flex justify-between mb-1 text-sm text-[#3d2f26]">
               <span className="font-semibold text-gray-500">Date:</span>
               <span className="font-bold">{new Date().toLocaleDateString('en-IN')}</span>
             </div>
-            <div className="flex justify-between mb-2 text-sm text-[#3d2f26]">
+            <div className="flex justify-between mb-1 text-sm text-[#3d2f26]">
               <span className="font-semibold text-gray-500">Time:</span>
               <span className="font-bold">{new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</span>
             </div>
-            <div className="flex justify-between mb-2 text-sm text-[#3d2f26]">
+            <div className="flex justify-between mb-1 text-sm text-[#3d2f26]">
               <span className="font-semibold text-gray-500">Order ID:</span>
               <span className="font-mono font-bold text-[#b45309]">{success.orderId}</span>
             </div>
-            <div className="flex justify-between mb-2 text-sm text-[#3d2f26]">
+            <div className="flex justify-between mb-1 text-sm text-[#3d2f26]">
+              <span className="font-semibold text-gray-500">Payment:</span>
+              <span className="font-bold text-[#6b9312]">{success.paymentMethod || "Cash"}</span>
+            </div>
+            <div className="flex justify-between mb-1 text-sm text-[#3d2f26]">
               <span className="font-semibold text-gray-500">Cashier:</span>
               <span className="font-bold">Biller Desk</span>
             </div>
             {success.customerName && success.customerName !== "Walk-in Customer" && (
-              <div className="flex justify-between mt-3 pt-3 border-t border-[#f2d4bb] text-sm text-[#3d2f26]">
+              <div className="flex justify-between mt-2 pt-2 border-t border-[#f2d4bb] text-sm text-[#3d2f26]">
                 <span className="font-semibold text-gray-500">Customer:</span>
                 <span className="font-bold text-[#6b9312]">{success.customerName}</span>
               </div>
             )}
           </div>
 
-          <div className="mb-6">
+          <div className="mb-4">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left border-b-2 border-[#91521f] text-[#91521f]">
-                  <th className="font-bold pb-2 w-1/2 uppercase tracking-wide text-xs">Item</th>
-                  <th className="font-bold pb-2 text-center w-1/6 uppercase tracking-wide text-xs">Qty</th>
-                  <th className="font-bold pb-2 text-right w-1/3 uppercase tracking-wide text-xs">Price</th>
+                <tr className="text-left border-b border-[#91521f] text-[#91521f]">
+                  <th className="font-bold pb-1 w-1/2 uppercase tracking-wide text-xs">Item</th>
+                  <th className="font-bold pb-1 text-center w-1/6 uppercase tracking-wide text-xs">Qty</th>
+                  <th className="font-bold pb-1 text-right w-1/3 uppercase tracking-wide text-xs">Price</th>
                 </tr>
               </thead>
               <tbody className="text-[#3d2f26]">
                 {success.lineItems?.map((item, idx) => (
                   <tr key={idx} className="border-b border-gray-100 last:border-0">
-                    <td className="py-3 pr-2 font-medium">{item.name}</td>
-                    <td className="py-3 text-center bg-gray-50/50 font-bold">{item.quantity}</td>
-                    <td className="py-3 text-right font-bold">₹{(item.price || 0) * item.quantity}</td>
+                    <td className="py-2 pr-2 font-medium">{item.name}</td>
+                    <td className="py-2 text-center bg-gray-50/50 font-bold">{item.quantity}</td>
+                    <td className="py-2 text-right font-bold">{formatMoneyWhole((item.price || 0) * item.quantity)}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
 
-          <div className="flex justify-between items-center font-bold text-xl border-t-2 border-[#91521f] pt-4 mb-8 text-[#91521f]">
+          <div className="flex justify-between items-center font-bold text-lg border-t border-[#91521f] pt-3 mb-4 text-[#91521f]">
             <span className="uppercase tracking-wide">Total Amount:</span>
-            <span className="text-2xl">₹{success.total}</span>
+            <span className="text-xl">{formatMoneyWhole(success.total)}</span>
           </div>
 
-          <div className="text-center text-sm text-gray-600 bg-gray-50 py-4 rounded-lg border border-gray-100">
+          <div className="text-center text-sm text-gray-600 bg-gray-50 py-3 rounded-lg border border-gray-100">
             <p className="font-semibold text-[#6b9312] mb-1">Thank you for shopping with us!</p>
-            <p className="italic">Pure spices, rich flavour, trusted quality.</p>
-            <p className="mt-2 text-xs font-mono text-gray-400">Visit again</p>
+            <p className="italic text-xs">Pure spices, rich flavour, trusted quality.</p>
+            <p className="mt-1 text-[10px] font-mono text-gray-400 uppercase">Visit again</p>
           </div>
         </div>
       </div>
@@ -233,6 +259,23 @@ const BillerNewBillPanel = () => {
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-140px)]">
       {/* ── Products List ── */}
       <div className="lg:col-span-2 flex flex-col bg-white border border-[#ede6dc] rounded-2xl shadow-sm overflow-hidden h-full">
+        {/* Category Tabs */}
+        <div className="flex items-center gap-2 px-4 py-3 border-b border-[#ede6dc] overflow-x-auto bg-white custom-scrollbar">
+          {categories.map((c) => (
+            <button
+              key={c}
+              onClick={() => setCategory(c)}
+              className={`px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all ${
+                category === c
+                  ? "bg-primary-600 text-white shadow-md shadow-primary-500/20"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
+            >
+              {c}
+            </button>
+          ))}
+        </div>
+
         <div className="p-4 border-b border-[#ede6dc] bg-gray-50/50 flex flex-col sm:flex-row gap-3">
           <input
             type="text"
@@ -241,6 +284,7 @@ const BillerNewBillPanel = () => {
             onChange={(e) => setSearch(e.target.value)}
             className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
           />
+          {/* Hide select on larger screens since we have pills, show on mobile if pills are too small, actually just keep it */}
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
@@ -282,7 +326,7 @@ const BillerNewBillPanel = () => {
                       {p.name}
                     </h4>
                     <p className="text-primary-600 font-bold mt-auto">
-                      {formatMoneyWhole(p.price)}
+                      {formatMoneyWhole(getProductPrice(p))}
                     </p>
                   </button>
                 );
@@ -348,7 +392,7 @@ const BillerNewBillPanel = () => {
         </div>
 
         <div className="p-4 bg-gray-50 border-t border-[#ede6dc]">
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleCheckoutClick} className="space-y-4">
             <div>
               <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">
                 Customer Name (Optional)
@@ -366,22 +410,86 @@ const BillerNewBillPanel = () => {
               <div className="flex items-center justify-between text-lg font-bold text-[#3d2f26] mb-4">
                 <span>Total Amount:</span>
                 <span className="flex items-center text-primary-700">
-                  <IndianRupee size={20} className="mr-1" />
-                  {total.toLocaleString("en-IN")}
+                  {formatMoneyWhole(total)}
                 </span>
               </div>
               
               <button
                 type="submit"
-                disabled={cart.length === 0 || submitting}
+                disabled={cart.length === 0}
                 className="w-full py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl font-bold shadow-md hover:from-primary-600 hover:to-primary-700 hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 uppercase tracking-wide text-sm"
               >
-                {submitting ? "Processing..." : "Generate Bill"}
+                Proceed to Pay
               </button>
             </div>
           </form>
         </div>
       </div>
+
+      {/* ── Checkout Modal ── */}
+      {showCheckout && (
+        <div className="fixed inset-0 bg-black/60 z-[60] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
+            <div className="p-5 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
+              <h2 className="text-xl font-bold text-[#3d2f26]">Confirm Payment</h2>
+              <button 
+                onClick={() => setShowCheckout(false)}
+                className="text-gray-400 hover:text-gray-600 transition"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="p-6">
+              <div className="mb-6 bg-primary-50 rounded-xl p-4 text-center border border-primary-100">
+                <p className="text-sm text-primary-700 font-semibold mb-1 uppercase tracking-wider">Total Amount to Pay</p>
+                <div className="text-4xl font-bold text-primary-800 flex items-center justify-center">
+                  {formatMoneyWhole(total)}
+                </div>
+              </div>
+
+              <div className="mb-6">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Customer Name</label>
+                <input
+                  type="text"
+                  value={customerName}
+                  onChange={(e) => setCustomerName(e.target.value)}
+                  placeholder="Walk-in Customer"
+                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-[#3d2f26] font-medium focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white transition"
+                />
+              </div>
+
+              <div className="mb-8">
+                <label className="block text-sm font-semibold text-gray-700 mb-3">Payment Method</label>
+                <div className="grid grid-cols-2 gap-3">
+                  {["Cash", "Card", "Bank Transfer", "UPI"].map(method => (
+                    <button
+                      key={method}
+                      type="button"
+                      onClick={() => setPaymentMethod(method)}
+                      className={`py-3 px-4 rounded-xl border text-sm font-bold transition-all ${
+                        paymentMethod === method 
+                          ? "bg-primary-600 border-primary-600 text-white shadow-md" 
+                          : "bg-white border-gray-200 text-gray-600 hover:border-primary-300 hover:bg-primary-50"
+                      }`}
+                    >
+                      {method}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <button
+                onClick={handleConfirmPayment}
+                disabled={submitting}
+                className="w-full py-3.5 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl font-bold text-lg shadow-lg hover:from-green-600 hover:to-green-700 hover:shadow-xl transition-all disabled:opacity-50 flex justify-center items-center gap-2"
+              >
+                {submitting ? "Processing..." : `Confirm ${formatMoneyWhole(total)} Payment`}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

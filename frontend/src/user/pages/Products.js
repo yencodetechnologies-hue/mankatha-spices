@@ -208,7 +208,7 @@ const ProductCard = ({ product }) => {
               const num = parseFloat(v.weight) || 1;
               const unit = v.weight.replace(/[0-9.]/g, '').trim() || '';
               const perUnitPrice = (v.price / num).toFixed(2);
-              return <option key={i} value={i}>{v.weight} (₹ {perUnitPrice} / 1 {unit})</option>;
+              return <option key={i} value={i}>{v.weight} ({formatMoney(perUnitPrice)} / 1 {unit})</option>;
             })}
           </select>
           <div className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none">

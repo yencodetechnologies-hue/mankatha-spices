@@ -183,7 +183,7 @@ const ProductCard = ({ product, index }) => {
               const perUnitPrice = (v.price / num).toFixed(2);
               return (
                 <option key={i} value={i}>
-                  {v.weight} (₹ {perUnitPrice} / 1 {unit})
+                  {v.weight} ({formatMoney(perUnitPrice)} / 1 {unit})
                 </option>
               );
             })}

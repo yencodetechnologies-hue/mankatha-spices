@@ -25,7 +25,7 @@ export const SIDEBAR_GROUPS = [
       { id: "inventory", label: "Inventory", path: "inventory" },
       { id: "category", label: "Category", path: "category" },
       { id: "products", label: "Products", path: "products" },
-      { id: "orders", label: "Orders", path: "orders", badge: 12 },
+      { id: "orders", label: "Billing Orders", path: "orders" },
       { id: "customers", label: "Customers", path: "customers" },
     ],
   },

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -16,6 +16,7 @@ import {
   Layers,
   Image,
   Sliders,
+  Menu,
 } from "lucide-react";
 import { SIDEBAR_GROUPS } from "../constants";
 import { useAuth } from "../contexts/AuthContext";
@@ -41,6 +42,7 @@ const ICON_MAP = {
 const AdminLayout = ({ children }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -49,7 +51,15 @@ const AdminLayout = ({ children }) => {
 
   return (
     <div className="admin-shell">
-      <aside className="admin-sidebar">
+      <div 
+        className={`admin-sidebar-overlay ${isSidebarOpen ? "open" : ""}`} 
+        onClick={() => setIsSidebarOpen(false)}
+        onMouseEnter={() => setIsSidebarOpen(false)}
+      />
+      <aside 
+        className={`admin-sidebar ${isSidebarOpen ? "open" : ""}`}
+        onMouseLeave={() => setIsSidebarOpen(false)}
+      >
         <div className="admin-brand">
           <div className="mb-3 overflow-hidden rounded-xl border border-white/10 bg-black/20">
             <MankathaBanner variant="strip" className="!rounded-none !border-0 !shadow-none" />
@@ -90,6 +100,13 @@ const AdminLayout = ({ children }) => {
       <section className="admin-main">
         <header className="admin-topbar">
           <div className="topbar-left">
+            <button 
+              className="mobile-menu-btn" 
+              onClick={() => setIsSidebarOpen(true)}
+              aria-label="Open sidebar"
+            >
+              <Menu size={24} />
+            </button>
             <h1>Admin Dashboard</h1>
           </div>
           <div className="topbar-right flex items-center gap-2">

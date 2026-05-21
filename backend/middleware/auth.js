@@ -1,13 +1,14 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
+let cachedSecret = process.env.JWT_SECRET;
+if (!cachedSecret) {
+  console.warn("JWT_SECRET is not set — using an insecure development default. Set JWT_SECRET in production.");
+  cachedSecret = "mankatha-dev-only-jwt-secret";
+}
+
 function getJwtSecret() {
-  const secret = process.env.JWT_SECRET;
-  if (!secret) {
-    console.warn("JWT_SECRET is not set — using an insecure development default. Set JWT_SECRET in production.");
-    return "mankatha-dev-only-jwt-secret";
-  }
-  return secret;
+  return cachedSecret;
 }
 
 function signToken(userId) {
