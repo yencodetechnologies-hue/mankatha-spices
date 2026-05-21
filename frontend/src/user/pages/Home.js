@@ -25,8 +25,10 @@ const getNormalizedWeight = (item) => {
 };
 
 const getCartItemKey = (item) => {
+  if (item.cartItemId) return item.cartItemId;
   const baseId = item._id || item.id || '';
   const normalizedWeight = getNormalizedWeight(item);
+  if (normalizedWeight && String(baseId).endsWith(`-${normalizedWeight}`)) return baseId;
   return normalizedWeight ? `${baseId}-${normalizedWeight}` : baseId;
 };
 
@@ -64,7 +66,7 @@ const ProductCard = ({ product, index, addToCart, removeFromCart, updateQuantity
 
   const handleAdd = () => addToCart({ ...product, quantity: 1, weight: currentVariant.weight, price: currentPrice, original_price: currentOriginalPrice, cartItemId: variantCartItemId });
   const handleIncrease = () => {
-    if (qty >= 5) {
+    if (qty + 1 >= 5) {
       setBulkQty(qty + 1);
       setBulkOpen(true);
     } else {
