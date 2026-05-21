@@ -72,7 +72,7 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const res = await authApi.forgotSendOtp({ emailOrPhone: forgotEmailOrPhone });
+      await authApi.forgotSendOtp({ emailOrPhone: forgotEmailOrPhone });
       setForgotStep(2);
       setForgotCountdown(60);
     } catch (error) {
@@ -142,7 +142,7 @@ const Login = () => {
   const handleForgotResendOtp = async () => {
     setForgotError('');
     try {
-      const res = await authApi.forgotSendOtp({ emailOrPhone: forgotEmailOrPhone });
+      await authApi.forgotSendOtp({ emailOrPhone: forgotEmailOrPhone });
       setForgotCountdown(60);
     } catch (error) {
       const msg = error.response?.data?.message || 'Failed to resend reset code. Please try again.';
