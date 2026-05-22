@@ -104,9 +104,11 @@ const ProductDetail = () => {
   };
 
   const incrementQuantity = () => {
-    const maxQty = product.max_quantity || 99;
+    const maxQty = product.stock !== undefined ? Math.min(product.stock, product.max_quantity || 99) : (product.max_quantity || 99);
     if (quantity < maxQty) {
       setQuantity(quantity + 1);
+    } else {
+      alert(`Only ${maxQty} units available in stock`);
     }
   };
 
@@ -146,12 +148,22 @@ const ProductDetail = () => {
                 </span>
               )}
             </div>
-            <button
-              onClick={() => addToCart(relatedProduct, 1)}
-              className="bg-primary-500 hover:bg-primary-600 text-white p-1 rounded transition-colors"
-            >
-              <ShoppingCart size={14} />
-            </button>
+            {relatedProduct.stock <= 0 ? (
+              <button
+                disabled
+                className="bg-gray-400 text-white p-1 rounded cursor-not-allowed"
+                title="Out of Stock"
+              >
+                <ShoppingCart size={14} />
+              </button>
+            ) : (
+              <button
+                onClick={() => addToCart(relatedProduct, 1)}
+                className="bg-primary-500 hover:bg-primary-600 text-white p-1 rounded transition-colors"
+              >
+                <ShoppingCart size={14} />
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -291,8 +303,14 @@ const ProductDetail = () => {
                     type="number"
                     value={quantity}
                     onChange={(e) => {
-                      const val = parseInt(e.target.value);
-                      if (val >= product.min_quantity && val <= product.max_quantity) {
+                      let val = parseInt(e.target.value);
+                      if (isNaN(val)) return;
+                      const maxQty = product.stock !== undefined ? Math.min(product.stock, product.max_quantity || 99) : (product.max_quantity || 99);
+                      if (val > maxQty) {
+                         val = maxQty;
+                         alert(`Only ${maxQty} units available in stock`);
+                      }
+                      if (val >= product.min_quantity && val <= maxQty) {
                         setQuantity(val);
                       }
                     }}
@@ -343,13 +361,23 @@ const ProductDetail = () => {
               </div>
 
               <div className="flex gap-4">
-                <button
-                  onClick={handleAddToCart}
-                  className="flex-1 bg-primary-500 hover:bg-primary-600 text-white py-3 px-6 rounded-lg font-semibold flex items-center justify-center space-x-2 transition-colors"
-                >
-                  <ShoppingCart size={20} />
-                  <span>Add to Cart</span>
-                </button>
+                {product.stock <= 0 ? (
+                  <button
+                    disabled
+                    className="flex-1 bg-gray-400 text-white py-3 px-6 rounded-lg font-semibold flex items-center justify-center space-x-2 cursor-not-allowed"
+                  >
+                    <ShoppingCart size={20} />
+                    <span>Out of Stock</span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleAddToCart}
+                    className="flex-1 bg-primary-500 hover:bg-primary-600 text-white py-3 px-6 rounded-lg font-semibold flex items-center justify-center space-x-2 transition-colors"
+                  >
+                    <ShoppingCart size={20} />
+                    <span>Add to Cart</span>
+                  </button>
+                )}
                 <button
                   onClick={() => toggleWishlist(product)}
                   className={`p-3 border rounded-lg transition-colors ${

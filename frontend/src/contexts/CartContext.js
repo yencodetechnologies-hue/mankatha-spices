@@ -7,6 +7,8 @@ const cartReducer = (state, action) => {
   switch (action.type) {
     case 'ADD_TO_CART': {
       const payloadKey = action.payload.cartItemId || action.payload.id;
+      const stockLimit = action.payload.stock !== undefined ? action.payload.stock : Infinity;
+      
       const existingItem = state.items.find(item =>
         (item.cartItemId || item.id) === payloadKey
       );
@@ -15,14 +17,14 @@ const cartReducer = (state, action) => {
           ...state,
           items: state.items.map(item =>
             (item.cartItemId || item.id) === payloadKey
-              ? { ...item, quantity: item.quantity + action.payload.quantity }
+              ? { ...item, quantity: Math.min(item.quantity + action.payload.quantity, stockLimit) }
               : item
           )
         };
       }
       return {
         ...state,
-        items: [...state.items, { ...action.payload, id: payloadKey, cartItemId: payloadKey }]
+        items: [...state.items, { ...action.payload, quantity: Math.min(action.payload.quantity, stockLimit), id: payloadKey, cartItemId: payloadKey }]
       };
     }
 
@@ -38,11 +40,13 @@ const cartReducer = (state, action) => {
     case 'UPDATE_QUANTITY': {
       return {
         ...state,
-        items: state.items.map(item =>
-          (item.cartItemId || item.id) === action.payload.id
-            ? { ...item, quantity: action.payload.quantity }
-            : item
-        )
+        items: state.items.map(item => {
+          if ((item.cartItemId || item.id) === action.payload.id) {
+            const stockLimit = item.stock !== undefined ? item.stock : Infinity;
+            return { ...item, quantity: Math.min(action.payload.quantity, stockLimit) };
+          }
+          return item;
+        })
       };
     }
 

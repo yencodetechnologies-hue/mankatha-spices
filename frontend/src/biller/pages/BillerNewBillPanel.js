@@ -77,6 +77,10 @@ const BillerProductCard = ({ product, cart, addToCart, updateQty, removeFromCart
   const handleIncrease = () => {
     if (qty === 0) { handleAdd(); return; }
     const nextQty = qty + 1;
+    if (product.stock !== undefined && nextQty > product.stock) {
+      alert(`Only ${product.stock} units available in stock`);
+      return;
+    }
     if (nextQty >= 5) {
       setBulkQty(nextQty);
       setBulkOpen(true);
@@ -86,7 +90,11 @@ const BillerProductCard = ({ product, cart, addToCart, updateQty, removeFromCart
   };
 
   const handleBulkConfirm = () => {
-    const n = Math.min(99, Math.max(1, Number(bulkQty) || 1));
+    let n = Math.min(99, Math.max(1, Number(bulkQty) || 1));
+    if (product.stock !== undefined && n > product.stock) {
+      n = product.stock;
+      alert(`Only ${product.stock} units available in stock`);
+    }
     const delta = n - qty;
     updateQty(variantCartItemId, delta);
     setBulkOpen(false);
@@ -162,7 +170,15 @@ const BillerProductCard = ({ product, cart, addToCart, updateQty, removeFromCart
 
         {/* Add/Cart Controls */}
         <div className="flex items-center gap-2 w-full mt-1 h-8">
-          {qty === 0 ? (
+          {product.stock <= 0 ? (
+            <button
+              disabled
+              className="w-full h-full bg-gray-300 text-gray-500 rounded font-bold text-xs uppercase tracking-wide cursor-not-allowed flex items-center justify-center gap-1.5"
+            >
+              <ShoppingCart size={14} />
+              Out of Stock
+            </button>
+          ) : qty === 0 ? (
             <button
               onClick={handleAdd}
               className="w-full h-full bg-primary-50 text-primary-700 hover:bg-primary-600 hover:text-white rounded border border-primary-200 font-bold text-xs uppercase tracking-wide transition-colors flex items-center justify-center gap-1.5"
@@ -177,7 +193,15 @@ const BillerProductCard = ({ product, cart, addToCart, updateQty, removeFromCart
                   <Minus size={12} />
                 </button>
                 <div className="flex-1 flex items-center justify-center font-bold text-gray-800 text-sm">{qty}</div>
-                <button onClick={handleIncrease} className="bg-primary-500 text-white w-8 h-full flex items-center justify-center hover:bg-primary-600 transition-colors">
+                <button 
+                  onClick={handleIncrease} 
+                  disabled={product.stock !== undefined && qty >= product.stock}
+                  className={`w-8 h-full flex items-center justify-center transition-colors ${
+                    product.stock !== undefined && qty >= product.stock
+                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      : "bg-primary-500 text-white hover:bg-primary-600"
+                  }`}
+                >
                   <Plus size={12} />
                 </button>
               </div>
@@ -310,17 +334,22 @@ const BillerNewBillPanel = () => {
 
   const addToCart = (productWithVariant, initialQty = 1) => {
     setCart((prev) => {
+      const stockLimit = productWithVariant.stock !== undefined ? productWithVariant.stock : Infinity;
+      const validInitialQty = Math.min(initialQty, stockLimit);
+      
       const existing = prev.find((item) => (item.cartItemId || item._id) === productWithVariant.cartItemId);
       if (existing) {
         return prev.map((item) =>
-          (item.cartItemId || item._id) === productWithVariant.cartItemId ? { ...item, qty: item.qty + initialQty } : item
+          (item.cartItemId || item._id) === productWithVariant.cartItemId 
+            ? { ...item, qty: Math.min(item.qty + initialQty, stockLimit) } 
+            : item
         );
       }
       return [...prev, {
         ...productWithVariant,
         _id: productWithVariant.cartItemId, // Compatibility with backend
         name: `${productWithVariant.name} - ${productWithVariant.weight}`,
-        qty: initialQty
+        qty: validInitialQty
       }];
     });
   };
@@ -330,7 +359,8 @@ const BillerNewBillPanel = () => {
       prev
         .map((item) => {
           if ((item.cartItemId || item._id) === cartItemId) {
-            return { ...item, qty: item.qty + delta };
+            const stockLimit = item.stock !== undefined ? item.stock : Infinity;
+            return { ...item, qty: Math.min(item.qty + delta, stockLimit) };
           }
           return item;
         })
@@ -595,7 +625,13 @@ const BillerNewBillPanel = () => {
                     </button>
                     <span className="text-sm font-bold w-4 text-center">{item.qty}</span>
                     <button
-                      onClick={() => updateQty(item.cartItemId || item._id, 1)}
+                      onClick={() => {
+                        if (item.stock !== undefined && item.qty + 1 > item.stock) {
+                           alert(`Only ${item.stock} units available in stock`);
+                        } else {
+                           updateQty(item.cartItemId || item._id, 1);
+                        }
+                      }}
                       className="w-6 h-6 flex items-center justify-center bg-white border border-gray-300 rounded text-gray-600 hover:bg-gray-100"
                     >
                       <Plus size={12} />

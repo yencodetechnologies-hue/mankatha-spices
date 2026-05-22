@@ -89,12 +89,21 @@ const Deals = () => {
                   <span className="text-3xl font-black text-primary-600">$4.99</span>
                   <span className="text-lg text-gray-400 line-through">$8.99</span>
                 </div>
-                <button 
-                  onClick={() => allProducts[0] && addToCart(allProducts[0])}
-                  className="w-full btn-premium py-4 flex items-center justify-center gap-2"
-                >
-                  <ShoppingCart size={20} /> Add to Cart
-                </button>
+                {allProducts[0]?.stock <= 0 ? (
+                  <button 
+                    disabled
+                    className="w-full bg-gray-400 text-white rounded-xl py-4 flex items-center justify-center gap-2 cursor-not-allowed font-bold"
+                  >
+                    <ShoppingCart size={20} /> Out of Stock
+                  </button>
+                ) : (
+                  <button 
+                    onClick={() => allProducts[0] && addToCart(allProducts[0])}
+                    className="w-full btn-premium py-4 flex items-center justify-center gap-2"
+                  >
+                    <ShoppingCart size={20} /> Add to Cart
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -132,12 +141,22 @@ const Deals = () => {
                   <span className="text-2xl font-black text-primary-600">{formatMoney(product.price)}</span>
                   <p className="text-sm text-gray-400 line-through">{formatMoney(product.original_price)}</p>
                 </div>
-                <button 
-                  onClick={() => addToCart(product)}
-                  className="w-12 h-12 bg-slate-900 text-white rounded-2xl flex items-center justify-center hover:bg-primary-500 transition-colors shadow-lg"
-                >
-                  <ShoppingCart size={20} />
-                </button>
+                {product.stock <= 0 ? (
+                  <button 
+                    disabled
+                    className="w-12 h-12 bg-gray-400 text-white rounded-2xl flex items-center justify-center cursor-not-allowed shadow-lg"
+                    title="Out of Stock"
+                  >
+                    <ShoppingCart size={20} />
+                  </button>
+                ) : (
+                  <button 
+                    onClick={() => addToCart(product)}
+                    className="w-12 h-12 bg-slate-900 text-white rounded-2xl flex items-center justify-center hover:bg-primary-500 transition-colors shadow-lg"
+                  >
+                    <ShoppingCart size={20} />
+                  </button>
+                )}
               </div>
             </div>
           ))}

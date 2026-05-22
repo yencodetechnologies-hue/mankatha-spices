@@ -67,6 +67,10 @@ const ProductCard = ({ product, index }) => {
   const handleIncrease = () => {
     if (qty === 0) { handleAdd(); return; }
     const nextQty = qty + 1;
+    if (product.stock !== undefined && nextQty > product.stock) {
+      alert(`Only ${product.stock} units available in stock`);
+      return;
+    }
     if (nextQty >= 5) {
       setBulkQty(nextQty);
       setBulkOpen(true);
@@ -76,7 +80,11 @@ const ProductCard = ({ product, index }) => {
   };
   const handleDecrease = () => updateQuantity(variantCartItemId, qty - 1);
   const handleBulkConfirm = () => {
-    const n = Math.min(99, Math.max(1, Number(bulkQty) || 1));
+    let n = Math.min(99, Math.max(1, Number(bulkQty) || 1));
+    if (product.stock !== undefined && n > product.stock) {
+      n = product.stock;
+      alert(`Only ${product.stock} units available in stock`);
+    }
     updateQuantity(variantCartItemId, n);
     setBulkOpen(false);
   };
@@ -201,7 +209,15 @@ const ProductCard = ({ product, index }) => {
           >
             <Heart size={20} className={isInWishlist(product._id || product.id) ? "fill-primary-500 text-primary-500" : ""} />
           </button>
-          {qty === 0 ? (
+          {product.stock <= 0 ? (
+            <button
+              disabled
+              className="w-full h-[42px] flex items-center justify-center gap-2 bg-gray-400 text-white rounded font-bold uppercase tracking-wide cursor-not-allowed"
+            >
+              <ShoppingCart size={18} />
+              <span>Out of Stock</span>
+            </button>
+          ) : qty === 0 ? (
             <button
               onClick={handleAdd}
               className="w-full h-[42px] flex items-center justify-center gap-2 bg-primary-500 hover:bg-primary-600 text-white rounded font-bold uppercase tracking-wide transition-colors"
@@ -223,7 +239,12 @@ const ProductCard = ({ product, index }) => {
               </div>
               <button
                 onClick={handleIncrease}
-                className="bg-primary-500 text-white w-12 h-full flex items-center justify-center hover:bg-primary-600 transition-colors"
+                disabled={product.stock !== undefined && qty >= product.stock}
+                className={`w-12 h-full flex items-center justify-center transition-colors ${
+                  product.stock !== undefined && qty >= product.stock
+                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    : "bg-primary-500 text-white hover:bg-primary-600"
+                }`}
               >
                 <Plus size={16} />
               </button>
