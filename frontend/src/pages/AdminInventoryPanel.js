@@ -48,7 +48,6 @@ const AdminInventoryPanel = () => {
   const [data, setData] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [toast, setToast] = useState("");
-  const [busyId, setBusyId] = useState(null);
   const [bulkBusy, setBulkBusy] = useState(false);
   const [showRestockModal, setShowRestockModal] = useState(false);
   const [restockForm, setRestockForm] = useState({ productId: "", qty: "" });
