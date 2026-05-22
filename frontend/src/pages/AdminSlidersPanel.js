@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Search } from "lucide-react";
+import heroBlendedMasala from "../assets/hero_blended_masala.png";
+import heroOrganicSpices from "../assets/hero_organic_spices.png";
+import heroWholeSpices from "../assets/hero_whole_spices.png";
 
 const AdminSlidersPanel = () => {
   const [sliders, setSliders] = useState([]);
@@ -12,6 +15,15 @@ const AdminSlidersPanel = () => {
     const saved = localStorage.getItem("mankatha_sliders_v2");
     if (saved) {
       setSliders(JSON.parse(saved));
+    } else {
+      // Add the 3 default sliders if empty
+      const defaultInitial = [
+        { id: "1", title: "Mankatha Blended Masalas", imageUrl: heroBlendedMasala, link: "/products", isActive: true },
+        { id: "2", title: "Pure & Organic Spices", imageUrl: heroOrganicSpices, link: "/products", isActive: true },
+        { id: "3", title: "Traditional Whole Spices", imageUrl: heroWholeSpices, link: "/products", isActive: true }
+      ];
+      setSliders(defaultInitial);
+      localStorage.setItem("mankatha_sliders_v2", JSON.stringify(defaultInitial));
     }
   }, []);
 
@@ -27,7 +39,7 @@ const AdminSlidersPanel = () => {
       setFormData(slider);
     } else {
       setEditingSlider(null);
-      setFormData({ title: "", imageUrl: "", link: "", isActive: true });
+      setFormData({ title: "", imageUrl: "", isActive: true });
     }
     setShowModal(true);
   };
@@ -84,7 +96,6 @@ const AdminSlidersPanel = () => {
               <tr>
                 <th>Image</th>
                 <th>Title</th>
-                <th>Link</th>
                 <th>Status</th>
                 <th>Action</th>
               </tr>
@@ -92,7 +103,7 @@ const AdminSlidersPanel = () => {
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="orders-empty-cell">No sliders found.</td>
+                  <td colSpan={4} className="orders-empty-cell">No sliders found.</td>
                 </tr>
               ) : (
                 filtered.map((s) => (
@@ -101,7 +112,6 @@ const AdminSlidersPanel = () => {
                       <img src={s.imageUrl} alt={s.title} style={{ width: '60px', height: '40px', objectFit: 'cover', borderRadius: '4px' }} />
                     </td>
                     <td style={{ fontWeight: '600' }}>{s.title}</td>
-                    <td>{s.link}</td>
                     <td>
                       <span className={`order-pill ${s.isActive ? 'status-delivered' : 'status-cancelled'}`}>
                         {s.isActive ? 'Active' : 'Inactive'}
@@ -147,21 +157,27 @@ const AdminSlidersPanel = () => {
 
               <div>
                 <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>Slider Image</label>
-                <input 
-                  type="file" 
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files[0];
-                    if (file) {
-                      const reader = new FileReader();
-                      reader.onloadend = () => {
-                        setFormData({ ...formData, imageUrl: reader.result });
-                      };
-                      reader.readAsDataURL(file);
-                    }
-                  }}
-                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db' }}
-                />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <label style={{ cursor: 'pointer', padding: '8px 16px', background: '#f9fafb', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px', fontWeight: '500', color: '#374151', display: 'inline-block' }}>
+                    {formData.imageUrl ? 'Change Image' : 'Choose Image'}
+                    <input 
+                      type="file" 
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            setFormData({ ...formData, imageUrl: reader.result });
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                      style={{ display: 'none' }}
+                    />
+                  </label>
+                  {formData.imageUrl && <span style={{ fontSize: '13px', color: '#6b9312', fontWeight: '600' }}>✓ Image Ready</span>}
+                </div>
                 {formData.imageUrl && (
                   <div style={{ marginTop: '12px' }}>
                     <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>Preview:</p>
@@ -170,16 +186,7 @@ const AdminSlidersPanel = () => {
                 )}
               </div>
 
-              <div>
-                <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>Destination Link</label>
-                <input 
-                  type="text" 
-                  value={formData.link}
-                  onChange={(e) => setFormData({ ...formData, link: e.target.value })}
-                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db' }}
-                  placeholder="/products or /deals"
-                />
-              </div>
+          
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <input 

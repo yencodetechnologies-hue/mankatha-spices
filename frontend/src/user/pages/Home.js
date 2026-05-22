@@ -390,6 +390,7 @@ const Home = () => {
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [scrollY, setScrollY] = useState(0);
   const [categoriesList, setCategoriesList] = useState([]);
+  const [slides, setSlides] = useState([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -493,7 +494,7 @@ const Home = () => {
     };
   }, [featuredProducts]); // Re-run when products are loaded
 
-  const slides = [
+  const defaultSlides = [
     {
       id: 1,
       title: "Mankatha Blended Masalas",
@@ -522,6 +523,32 @@ const Home = () => {
       ctaLink: "/products"
     }
   ];
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("mankatha_sliders_v2");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        const activeSliders = parsed.filter(s => s.isActive === true);
+        if (activeSliders.length > 0) {
+          const mappedSlides = activeSliders.map(s => ({
+            id: s.id,
+            title: s.title || "Mankatha Special",
+            subtitle: "",
+            description: "",
+            image: s.imageUrl || s.image,
+            cta: "Shop Now",
+            ctaLink: s.link || "/products"
+          }));
+          setSlides(mappedSlides);
+          return;
+        }
+      }
+    } catch (e) {
+      console.error("Failed to load custom sliders", e);
+    }
+    setSlides(defaultSlides);
+  }, []);
 
   const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % slides.length);
   const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
@@ -581,12 +608,14 @@ const Home = () => {
                   </span>
                   <h1 className="text-5xl md:text-7xl font-extrabold mb-6 leading-tight text-white drop-shadow-2xl">
                     {slide.title.split(' ').map((word, i) => (
-                      <span key={i} className={i === 1 ? 'text-primary-400' : ''}>{word} </span>
+                      <span key={i} className={i % 2 !== 0 ? 'text-primary-400' : ''}>{word} </span>
                     ))}
                   </h1>
-                  <p className="text-xl md:text-2xl mb-10 text-gray-200 leading-relaxed max-w-xl">
-                    {slide.description}
-                  </p>
+                  {slide.description && (
+                    <p className="text-xl md:text-2xl mb-10 text-gray-200 leading-relaxed max-w-xl">
+                      {slide.description}
+                    </p>
+                  )}
                   <div className="flex flex-wrap gap-4">
                     <Link
                       to={slide.ctaLink}
@@ -595,9 +624,11 @@ const Home = () => {
                       {slide.cta}
                       <ArrowRight size={20} />
                     </Link>
-                    <button className="glass px-10 py-5 rounded-xl text-white font-bold hover:bg-white/20 transition-all">
-                      Learn More
-                    </button>
+                    {slide.description && (
+                      <button className="glass px-10 py-5 rounded-xl text-white font-bold hover:bg-white/20 transition-all">
+                        Learn More
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
