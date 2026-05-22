@@ -384,6 +384,36 @@ const getCategoryImg = (name, staticImg) => {
   return images[slug] || heroOrganicSpices;
 };
 
+const defaultSlides = [
+  {
+    id: 1,
+    title: "Mankatha Blended Masalas",
+    subtitle: "Authentic Flavors, Rich Tradition",
+    description: "Experience the premium taste of our handcrafted spice blends, perfect for enhancing your traditional home cooking.",
+    image: heroBlendedMasala,
+    cta: "Explore Blends",
+    ctaLink: "/products"
+  },
+  {
+    id: 2,
+    title: "Pure & Organic Spices",
+    subtitle: "100% Certified Organic Spice Powders",
+    description: "Sourced directly from the finest organic farms, packed with natural flavor, color, and rich aromatics.",
+    image: heroOrganicSpices,
+    cta: "Shop Pure Powders",
+    ctaLink: "/products"
+  },
+  {
+    id: 3,
+    title: "Traditional Whole Spices",
+    subtitle: "Gourmet Aromatics for Fine Culinary Art",
+    description: "Carefully selected whole cardamom, cloves, cinnamon, and pepper to bring gourmet level depth to your kitchen.",
+    image: heroWholeSpices,
+    cta: "Shop Whole Spices",
+    ctaLink: "/products"
+  }
+];
+
 const Home = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [allProducts, setAllProducts] = useState(products);
@@ -493,36 +523,6 @@ const Home = () => {
       clearTimeout(timer);
     };
   }, [featuredProducts]); // Re-run when products are loaded
-
-  const defaultSlides = [
-    {
-      id: 1,
-      title: "Mankatha Blended Masalas",
-      subtitle: "Authentic Flavors, Rich Tradition",
-      description: "Experience the premium taste of our handcrafted spice blends, perfect for enhancing your traditional home cooking.",
-      image: heroBlendedMasala,
-      cta: "Explore Blends",
-      ctaLink: "/products"
-    },
-    {
-      id: 2,
-      title: "Pure & Organic Spices",
-      subtitle: "100% Certified Organic Spice Powders",
-      description: "Sourced directly from the finest organic farms, packed with natural flavor, color, and rich aromatics.",
-      image: heroOrganicSpices,
-      cta: "Shop Pure Powders",
-      ctaLink: "/products"
-    },
-    {
-      id: 3,
-      title: "Traditional Whole Spices",
-      subtitle: "Gourmet Aromatics for Fine Culinary Art",
-      description: "Carefully selected whole cardamom, cloves, cinnamon, and pepper to bring gourmet level depth to your kitchen.",
-      image: heroWholeSpices,
-      cta: "Shop Whole Spices",
-      ctaLink: "/products"
-    }
-  ];
 
   useEffect(() => {
     try {
