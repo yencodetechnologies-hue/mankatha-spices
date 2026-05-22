@@ -185,31 +185,6 @@ const BillerNewBillPanel = () => {
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(null);
 
-  const [location, setLocation] = useState(null);
-  const [locationError, setLocationError] = useState("");
-
-  const getLocation = async () => {
-    try {
-      setLocationError("");
-      const response = await fetch("https://ipapi.co/json/");
-      const data = await response.json();
-
-      if (data && data.latitude && data.longitude) {
-        setLocation({
-          lat: data.latitude,
-          lng: data.longitude,
-          city: data.city,
-          region: data.region
-        });
-      } else {
-        setLocationError("Location details not found from IP.");
-      }
-    } catch (err) {
-      console.error(err);
-      setLocationError("Failed to fetch location from ipapi.");
-    }
-  };
-
   useEffect(() => {
     productApi
       .getProducts()
