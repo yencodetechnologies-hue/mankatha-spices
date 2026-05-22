@@ -1,18 +1,81 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { MapPin, X, CheckCircle, AlertCircle, Search, Globe } from 'lucide-react';
+import { MapPin, X, AlertCircle, Search } from 'lucide-react';
 import { getAdminApiBase } from '../api/adminApiBase';
 
 const LocationModal = ({ isOpen, onClose, onLocationSet }) => {
   const [pincode, setPincode] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [searchResults, setSearchResults] = useState([]);
-  const [isSearching, setIsSearching] = useState(false);
+  const [, setIsSearching] = useState(false);
   const [step, setStep] = useState(1);
   const [selectedCity, setSelectedCity] = useState('');
   const [selectedDesc, setSelectedDesc] = useState('');
-  const [tempCurrency, setTempCurrency] = useState(localStorage.getItem("appCurrency") || "INR");
+
+  const handleDetectLocation = () => {
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser");
+      return;
+    }
+    
+    setLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        
+        try {
+          // Try Nominatim first (with email parameter to prevent rate limits)
+          const response = await axios.get(`https://nominatim.openstreetmap.org/reverse`, {
+            params: { lat: lat, lon: lng, format: 'json', email: 'test@mankathaspices.com' }
+          });
+          
+          if (response.data && response.data.address && response.data.address.postcode) {
+             const pin = response.data.address.postcode;
+             const desc = response.data.display_name;
+             checkLocation(pin, desc);
+          } else {
+             throw new Error("Nominatim failed or no postcode");
+          }
+        } catch (err) {
+          console.warn("Nominatim failed, falling back to Photon...", err.message);
+          
+          // Fallback to Photon API (Free, returns accurate Indian pincodes)
+          try {
+            const fallbackResponse = await axios.get(`https://photon.komoot.io/reverse`, {
+              params: { lat: lat, lon: lng }
+            });
+            
+            if (fallbackResponse.data && fallbackResponse.data.features && fallbackResponse.data.features.length > 0) {
+              const props = fallbackResponse.data.features[0].properties;
+              
+              const pin = props.postcode || props.city || "Unknown";
+              const desc = props.name || props.locality || props.street || props.city || "Serviceable Area";
+              
+              checkLocation(pin, desc);
+            } else {
+              alert("Could not detect area from your location.");
+              setLoading(false);
+            }
+          } catch (fallbackErr) {
+            console.error("Both Geocoding APIs failed", fallbackErr);
+            alert("Failed to reverse geocode location. Please search manually.");
+            setLoading(false);
+          }
+        }
+      },
+      (error) => {
+        alert("Location permission denied. Please allow location access.");
+        setLoading(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      }
+    );
+  };
 
   const fetchNominatimFallback = async (query) => {
     try {
@@ -227,6 +290,18 @@ const LocationModal = ({ isOpen, onClose, onLocationSet }) => {
                 </div>
               )}
             </div>
+
+            {/* Detect Location Button */}
+            <button 
+              onClick={handleDetectLocation}
+              className="flex items-center gap-2 text-[#2e8b57] font-semibold text-[14px] hover:text-[#218838] transition-colors z-20 relative mx-auto mb-6 bg-green-50 px-4 py-2 rounded-full border border-green-100"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+              Detect my current location
+            </button>
 
             {/* Result Alert (Only for errors in step 1 now) */}
             {result && !result.available && (

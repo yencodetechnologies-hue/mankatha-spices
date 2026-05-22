@@ -14,7 +14,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { orderApi } from "../../api/orderApi";
-import { formatMoneyWhole } from "../../utils/formatMoney";
+import { formatMoney } from "../../utils/formatMoney";
 
 /* ─── helpers ──────────────────────────────────────────────── */
 const fmtTime = (iso) => {
@@ -186,7 +186,7 @@ const BillerDashboardPanel = () => {
         <StatCard
           icon={IndianRupee}
           label="Today's Revenue"
-          value={formatMoneyWhole(todayRevenue)}
+          value={formatMoney(todayRevenue)}
           sub={`${todayCount} bill${todayCount !== 1 ? "s" : ""} today`}
           color="#8dbe20"
           loading={loading}
@@ -309,7 +309,7 @@ const BillerDashboardPanel = () => {
                     <td className="px-5 py-3 text-gray-700">{o.customerName}</td>
                     <td className="px-5 py-3 text-gray-500">{o.itemCount}</td>
                     <td className="px-5 py-3 font-semibold text-[#3d2f26]">
-                      {formatMoneyWhole(o.total)}
+                      {formatMoney(o.total)}
                     </td>
                     <td className="px-5 py-3">
                       <span className={statusBadge(o.status)}>{o.status}</span>

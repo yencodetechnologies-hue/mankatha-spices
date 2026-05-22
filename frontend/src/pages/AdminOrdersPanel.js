@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { Search } from "lucide-react";
 import { orderApi } from "../api/orderApi";
-import { formatMoneyWhole } from "../utils/formatMoney";
+import { formatMoney } from "../utils/formatMoney";
 
 const formatOrderDate = (iso) =>
   new Intl.DateTimeFormat("en-LK", { month: "short", day: "numeric" }).format(new Date(iso));
@@ -290,7 +290,7 @@ const AdminOrdersPanel = () => {
                       <td>
                         {o.items} item{o.items === 1 ? "" : "s"}
                       </td>
-                      <td className="order-total-cell">{formatMoneyWhole(o.total)}</td>
+                      <td className="order-total-cell">{formatMoney(o.total)}</td>
                       <td>
                         <span className={paymentClass(o.payment)}>{o.payment}</span>
                       </td>

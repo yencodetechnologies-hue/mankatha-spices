@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Plus, Minus, ShoppingCart, IndianRupee, Printer, CheckCircle, Trash2 } from "lucide-react";
+import { Plus, Minus, ShoppingCart, Printer, CheckCircle, Trash2, Star, ChevronDown, X } from "lucide-react";
 import { productApi } from "../../api/productApi";
 import { orderApi } from "../../api/orderApi";
-import { formatMoneyWhole } from "../../utils/formatMoney";
+import { formatMoney } from "../../utils/formatMoney";
 import { getBackendOrigin } from "../../api/adminApiBase";
 import MankathaLoader from "../../components/Brand/MankathaLoader";
 import MankathaBanner from "../../components/Brand/MankathaBanner";
@@ -30,6 +30,150 @@ const getCategoryImg = (name) => {
   return images[slug] || heroOrganicSpices;
 };
 
+const makeVariantKey = (product, variantIndex) => {
+  const baseId = product.slug || product._id || product.id || product.name || 'item';
+  return `${baseId}||variant-${variantIndex}`;
+};
+
+const BillerProductCard = ({ product, cart, addToCart, updateQty, removeFromCart }) => {
+  const hasVariants = product.pricing && product.pricing.length > 0 && product.pricing[0].weights && product.pricing[0].weights.length > 0;
+  const variants = hasVariants ? product.pricing[0].weights.map(w => ({
+    weight: w.weight,
+    price: w.price,
+    original_price: w.original_price || w.price
+  })) : [{
+    weight: `${product.weight || ''} ${product.unit || ''}`.trim() || '1 pc',
+    price: product.price,
+    original_price: product.original_price || product.price
+  }];
+
+  const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
+  const currentVariant = variants[selectedVariantIndex] || variants[0];
+  const currentPrice = currentVariant.price;
+  const currentOriginalPrice = currentVariant.original_price;
+
+  const discount = currentOriginalPrice > currentPrice
+    ? Math.round(((currentOriginalPrice - currentPrice) / currentOriginalPrice) * 100)
+    : 0;
+
+  const imgUrl = product.images?.[0] ? `${getBackendOrigin()}${product.images[0]}` : null;
+
+  const variantCartItemId = makeVariantKey(product, selectedVariantIndex);
+  const cartItem = cart.find(i => (i.cartItemId || i._id) === variantCartItemId);
+  const qty = cartItem ? cartItem.qty : 0;
+
+  const handleAdd = () => addToCart({
+    ...product,
+    cartItemId: variantCartItemId,
+    price: currentPrice,
+    original_price: currentOriginalPrice,
+    weight: currentVariant.weight,
+    variantIndex: selectedVariantIndex
+  }, 1);
+
+  return (
+    <div className="flex flex-col bg-white border border-[#ede6dc] rounded-xl hover:border-primary-400 hover:shadow-md transition group overflow-hidden">
+      {/* Image */}
+      <div className="w-full h-32 bg-gray-100 overflow-hidden relative cursor-pointer" onClick={() => qty === 0 ? handleAdd() : updateQty(variantCartItemId, 1)}>
+        {imgUrl ? (
+          <img src={imgUrl} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+        ) : (
+          <img src={getCategoryImg(product.category)} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+        )}
+      </div>
+
+      {/* Info */}
+      <div className="p-3 flex flex-col flex-1">
+        <div className="flex items-center justify-between mb-1.5">
+          <span className="bg-green-50 text-green-700 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider">ORGANIC</span>
+          <div className="flex items-center gap-0.5 text-xs text-gray-500">
+            <Star size={10} className="text-yellow-400 fill-current" />
+            <span>{product.rating || "4.5"}</span>
+          </div>
+        </div>
+
+        <h4 className="text-sm font-bold text-[#3d2f26] mb-2 line-clamp-2 leading-tight cursor-pointer hover:text-primary-600 transition-colors" onClick={() => qty === 0 ? handleAdd() : updateQty(variantCartItemId, 1)}>
+          {product.name}
+        </h4>
+
+        {/* Pricing block */}
+        <div className="flex flex-col mt-auto">
+          <div className="flex items-end justify-between">
+            <div className="flex items-end gap-2.5">
+              <div className="flex flex-col text-center">
+                <span className="text-[9px] text-gray-500 mb-0.5">MRP</span>
+                {currentOriginalPrice > currentPrice ? (
+                  <span className="text-[10px] text-gray-500 line-through leading-none">{formatMoney(currentOriginalPrice)}</span>
+                ) : (
+                  <span className="text-[10px] text-transparent leading-none">-</span>
+                )}
+              </div>
+              <div className="flex flex-col text-center">
+                <span className="text-[9px] text-gray-800 mb-0.5">DMart</span>
+                <span className="font-bold text-[13px] text-gray-900 leading-none">{formatMoney(currentPrice)}</span>
+              </div>
+            </div>
+            {discount > 0 && (
+              <div className="bg-green-50 text-green-700 px-1.5 py-1 rounded text-center border border-green-100 flex flex-col justify-center">
+                <span className="font-bold text-[10px] leading-tight">{formatMoney(currentOriginalPrice - currentPrice)}</span>
+                <span className="text-[8px] font-semibold uppercase leading-tight">OFF</span>
+              </div>
+            )}
+          </div>
+          <div className="text-[8px] text-gray-500 mt-1 italic mb-2">(Inclusive of all taxes)</div>
+
+          {/* Variant Dropdown */}
+          <div className="relative w-full mb-3">
+            <select
+              value={selectedVariantIndex}
+              onChange={(e) => setSelectedVariantIndex(Number(e.target.value))}
+              className="w-full border border-gray-200 rounded p-1.5 text-xs appearance-none bg-white cursor-pointer hover:border-primary-500 transition-colors focus:outline-none"
+            >
+              {variants.map((v, i) => (
+                <option key={i} value={i}>{v.weight} ({formatMoney(v.price)})</option>
+              ))}
+            </select>
+            <div className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
+              <ChevronDown size={12} className="text-gray-400" />
+            </div>
+          </div>
+        </div>
+
+        {/* Add/Cart Controls */}
+        <div className="flex items-center gap-2 w-full mt-1 h-8">
+          {qty === 0 ? (
+            <button
+              onClick={handleAdd}
+              className="w-full h-full bg-primary-50 text-primary-700 hover:bg-primary-600 hover:text-white rounded border border-primary-200 font-bold text-xs uppercase tracking-wide transition-colors flex items-center justify-center gap-1.5"
+            >
+              <ShoppingCart size={14} />
+              Add to Bill
+            </button>
+          ) : (
+            <div className="flex items-center gap-2 w-full h-full">
+              <div className="flex items-center border border-gray-300 rounded flex-1 h-full overflow-hidden">
+                <button onClick={() => updateQty(variantCartItemId, -1)} className="bg-gray-100 text-gray-600 w-8 h-full flex items-center justify-center hover:bg-gray-200 transition-colors">
+                  <Minus size={12} />
+                </button>
+                <div className="flex-1 flex items-center justify-center font-bold text-gray-800 text-sm">{qty}</div>
+                <button onClick={() => updateQty(variantCartItemId, 1)} className="bg-primary-500 text-white w-8 h-full flex items-center justify-center hover:bg-primary-600 transition-colors">
+                  <Plus size={12} />
+                </button>
+              </div>
+              <button
+                onClick={() => removeFromCart(variantCartItemId)}
+                className="border border-gray-300 rounded w-8 h-full flex items-center justify-center text-gray-500 hover:text-primary-600 hover:border-primary-300 transition-colors bg-white flex-shrink-0"
+              >
+                <X size={14} />
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const BillerNewBillPanel = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -40,6 +184,31 @@ const BillerNewBillPanel = () => {
   const [customerName, setCustomerName] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(null);
+
+  const [location, setLocation] = useState(null);
+  const [locationError, setLocationError] = useState("");
+
+  const getLocation = async () => {
+    try {
+      setLocationError("");
+      const response = await fetch("https://ipapi.co/json/");
+      const data = await response.json();
+
+      if (data && data.latitude && data.longitude) {
+        setLocation({
+          lat: data.latitude,
+          lng: data.longitude,
+          city: data.city,
+          region: data.region
+        });
+      } else {
+        setLocationError("Location details not found from IP.");
+      }
+    } catch (err) {
+      console.error(err);
+      setLocationError("Failed to fetch location from ipapi.");
+    }
+  };
 
   useEffect(() => {
     productApi
@@ -62,36 +231,28 @@ const BillerNewBillPanel = () => {
     return true;
   });
 
-  const getProductPrice = (p) => {
-    if (typeof p.price === 'number') return p.price;
-    if (p.pricing && p.pricing.length > 0) {
-      // Try to find LKR/Sri Lanka pricing, else default to first
-      const targetPricing = p.pricing.find(pr => pr.currency === "LKR") || p.pricing[0];
-      if (targetPricing && targetPricing.weights && targetPricing.weights.length > 0) {
-        return targetPricing.weights[0].price;
-      }
-    }
-    return 0;
-  };
-
-  const addToCart = (product) => {
-    const price = getProductPrice(product);
+  const addToCart = (productWithVariant, initialQty = 1) => {
     setCart((prev) => {
-      const existing = prev.find((item) => item._id === product._id);
+      const existing = prev.find((item) => (item.cartItemId || item._id) === productWithVariant.cartItemId);
       if (existing) {
         return prev.map((item) =>
-          item._id === product._id ? { ...item, qty: item.qty + 1 } : item
+          (item.cartItemId || item._id) === productWithVariant.cartItemId ? { ...item, qty: item.qty + initialQty } : item
         );
       }
-      return [...prev, { ...product, price, qty: 1 }];
+      return [...prev, {
+        ...productWithVariant,
+        _id: productWithVariant.cartItemId, // Compatibility with backend
+        name: `${productWithVariant.name} - ${productWithVariant.weight}`,
+        qty: initialQty
+      }];
     });
   };
 
-  const updateQty = (id, delta) => {
+  const updateQty = (cartItemId, delta) => {
     setCart((prev) =>
       prev
         .map((item) => {
-          if (item._id === id) {
+          if ((item.cartItemId || item._id) === cartItemId) {
             return { ...item, qty: item.qty + delta };
           }
           return item;
@@ -100,8 +261,8 @@ const BillerNewBillPanel = () => {
     );
   };
 
-  const removeFromCart = (id) => {
-    setCart((prev) => prev.filter((item) => item._id !== id));
+  const removeFromCart = (cartItemId) => {
+    setCart((prev) => prev.filter((item) => (item.cartItemId || item._id) !== cartItemId));
   };
 
   const total = cart.reduce((sum, item) => sum + (item.price || 0) * item.qty, 0);
@@ -117,7 +278,7 @@ const BillerNewBillPanel = () => {
 
   const handleConfirmPayment = async () => {
     setSubmitting(true);
-    
+
     try {
       const lineItems = cart.map(item => ({
         name: item.name,
@@ -125,9 +286,9 @@ const BillerNewBillPanel = () => {
         category: item.category,
         price: item.price
       }));
-      
+
       const newOrder = await orderApi.createOrder({
-        customerName: customerName.trim() || "Walk-in Customer",
+        customerName: customerName.trim() || "",
         total: total,
         payment: "Paid",
         paymentMethod: paymentMethod,
@@ -135,7 +296,7 @@ const BillerNewBillPanel = () => {
         lineItems: lineItems,
         itemCount: lineItems.reduce((acc, item) => acc + item.quantity, 0)
       });
-      
+
       setSuccess(newOrder);
       setCart([]);
       setCustomerName("");
@@ -156,9 +317,9 @@ const BillerNewBillPanel = () => {
           </div>
           <h2 className="text-2xl font-bold text-[#3d2f26] mb-2">Bill Generated Successfully</h2>
           <p className="text-gray-500 mb-6">Order ID: <span className="font-mono font-bold text-primary-700">{success.orderId}</span></p>
-          
+
           <div className="flex gap-4">
-            <button 
+            <button
               type="button"
               onClick={() => window.print()}
               className="flex items-center gap-2 px-6 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg font-medium transition"
@@ -166,7 +327,7 @@ const BillerNewBillPanel = () => {
               <Printer size={18} />
               Print Receipt
             </button>
-            <button 
+            <button
               type="button"
               onClick={() => setSuccess(null)}
               className="flex items-center gap-2 px-6 py-2.5 bg-primary-500 hover:bg-primary-600 text-white rounded-lg font-medium transition"
@@ -178,7 +339,7 @@ const BillerNewBillPanel = () => {
         </div>
 
         {/* Printable Receipt Area */}
-        <div 
+        <div
           className="hidden print:block w-full max-w-md mx-auto bg-white p-4"
           style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}
         >
@@ -189,7 +350,7 @@ const BillerNewBillPanel = () => {
             <p className="text-sm text-gray-700 font-medium">Chennai - 600001</p>
             <p className="text-sm text-gray-700 font-medium mt-1 font-mono">Ph: +91 98765 43210</p>
           </div>
-          
+
           <div className="mb-4 bg-[#fdfaf6] p-3 rounded-lg border border-[#f2d4bb]">
             <div className="flex justify-between mb-1 text-sm text-[#3d2f26]">
               <span className="font-semibold text-gray-500">Date:</span>
@@ -233,7 +394,7 @@ const BillerNewBillPanel = () => {
                   <tr key={idx} className="border-b border-gray-100 last:border-0">
                     <td className="py-2 pr-2 font-medium">{item.name}</td>
                     <td className="py-2 text-center bg-gray-50/50 font-bold">{item.quantity}</td>
-                    <td className="py-2 text-right font-bold">{formatMoneyWhole((item.price || 0) * item.quantity)}</td>
+                    <td className="py-2 text-right font-bold">{formatMoney((item.price || 0) * item.quantity)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -242,7 +403,7 @@ const BillerNewBillPanel = () => {
 
           <div className="flex justify-between items-center font-bold text-lg border-t border-[#91521f] pt-3 mb-4 text-[#91521f]">
             <span className="uppercase tracking-wide">Total Amount:</span>
-            <span className="text-xl">{formatMoneyWhole(success.total)}</span>
+            <span className="text-xl">{formatMoney(success.total)}</span>
           </div>
 
           <div className="text-center text-sm text-gray-600 bg-gray-50 py-3 rounded-lg border border-gray-100">
@@ -265,11 +426,10 @@ const BillerNewBillPanel = () => {
             <button
               key={c}
               onClick={() => setCategory(c)}
-              className={`px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all ${
-                category === c
+              className={`px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all ${category === c
                   ? "bg-primary-600 text-white shadow-md shadow-primary-500/20"
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-              }`}
+                }`}
             >
               {c}
             </button>
@@ -295,7 +455,7 @@ const BillerNewBillPanel = () => {
             ))}
           </select>
         </div>
-        
+
         <div className="flex-1 overflow-y-auto p-4 bg-gray-50/20">
           {loading ? (
             <div className="flex justify-center items-center h-full">
@@ -307,30 +467,16 @@ const BillerNewBillPanel = () => {
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
-              {filteredProducts.map((p) => {
-                const imgUrl = p.images?.[0] ? `${getBackendOrigin()}${p.images[0]}` : null;
-                return (
-                  <button
-                    key={p._id}
-                    onClick={() => addToCart(p)}
-                    className="flex flex-col items-center text-center p-4 bg-white border border-[#ede6dc] rounded-xl hover:border-primary-400 hover:shadow-md transition group"
-                  >
-                    <div className="w-16 h-16 mb-3 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden">
-                      {imgUrl ? (
-                        <img src={imgUrl} alt={p.name} className="w-full h-full object-cover" />
-                      ) : (
-                        <img src={getCategoryImg(p.category)} alt={p.name} className="w-full h-full object-cover" />
-                      )}
-                    </div>
-                    <h4 className="text-sm font-semibold text-[#3d2f26] mb-1 line-clamp-2 leading-tight">
-                      {p.name}
-                    </h4>
-                    <p className="text-primary-600 font-bold mt-auto">
-                      {formatMoneyWhole(getProductPrice(p))}
-                    </p>
-                  </button>
-                );
-              })}
+              {filteredProducts.map((p) => (
+                <BillerProductCard
+                  key={p._id}
+                  product={p}
+                  cart={cart}
+                  addToCart={addToCart}
+                  updateQty={updateQty}
+                  removeFromCart={removeFromCart}
+                />
+              ))}
             </div>
           )}
         </div>
@@ -357,22 +503,22 @@ const BillerNewBillPanel = () => {
           ) : (
             <div className="space-y-4">
               {cart.map((item) => (
-                <div key={item._id} className="flex items-center justify-between gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                <div key={item.cartItemId || item._id} className="flex items-center justify-between gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
                   <div className="flex-1 min-w-0">
-                    <h4 className="text-sm font-semibold text-[#3d2f26] truncate">{item.name}</h4>
-                    <p className="text-xs text-gray-500 mt-0.5">{formatMoneyWhole(item.price)} each</p>
+                    <h4 className="text-sm font-semibold text-[#3d2f26] truncate" title={item.name}>{item.name}</h4>
+                    <p className="text-xs text-gray-500 mt-0.5">{formatMoney(item.price)} each</p>
                   </div>
-                  
+
                   <div className="flex items-center gap-2">
-                    <button 
-                      onClick={() => updateQty(item._id, -1)}
+                    <button
+                      onClick={() => updateQty(item.cartItemId || item._id, -1)}
                       className="w-6 h-6 flex items-center justify-center bg-white border border-gray-300 rounded text-gray-600 hover:bg-gray-100"
                     >
                       <Minus size={12} />
                     </button>
                     <span className="text-sm font-bold w-4 text-center">{item.qty}</span>
-                    <button 
-                      onClick={() => updateQty(item._id, 1)}
+                    <button
+                      onClick={() => updateQty(item.cartItemId || item._id, 1)}
                       className="w-6 h-6 flex items-center justify-center bg-white border border-gray-300 rounded text-gray-600 hover:bg-gray-100"
                     >
                       <Plus size={12} />
@@ -380,8 +526,8 @@ const BillerNewBillPanel = () => {
                   </div>
 
                   <div className="flex flex-col items-end gap-1 ml-2">
-                    <span className="text-sm font-bold text-[#3d2f26]">{formatMoneyWhole(item.price * item.qty)}</span>
-                    <button onClick={() => removeFromCart(item._id)} className="text-xs text-red-500 hover:text-red-700">
+                    <span className="text-sm font-bold text-[#3d2f26]">{formatMoney(item.price * item.qty)}</span>
+                    <button onClick={() => removeFromCart(item.cartItemId || item._id)} className="text-xs text-red-500 hover:text-red-700">
                       <Trash2 size={12} />
                     </button>
                   </div>
@@ -405,15 +551,17 @@ const BillerNewBillPanel = () => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
             </div>
-            
+
+
+
             <div className="pt-2 border-t border-gray-200">
               <div className="flex items-center justify-between text-lg font-bold text-[#3d2f26] mb-4">
                 <span>Total Amount:</span>
                 <span className="flex items-center text-primary-700">
-                  {formatMoneyWhole(total)}
+                  {formatMoney(total)}
                 </span>
               </div>
-              
+
               <button
                 type="submit"
                 disabled={cart.length === 0}
@@ -432,19 +580,19 @@ const BillerNewBillPanel = () => {
           <div className="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
             <div className="p-5 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
               <h2 className="text-xl font-bold text-[#3d2f26]">Confirm Payment</h2>
-              <button 
+              <button
                 onClick={() => setShowCheckout(false)}
                 className="text-gray-400 hover:text-gray-600 transition"
               >
                 ✕
               </button>
             </div>
-            
+
             <div className="p-6">
               <div className="mb-6 bg-primary-50 rounded-xl p-4 text-center border border-primary-100">
                 <p className="text-sm text-primary-700 font-semibold mb-1 uppercase tracking-wider">Total Amount to Pay</p>
                 <div className="text-4xl font-bold text-primary-800 flex items-center justify-center">
-                  {formatMoneyWhole(total)}
+                  {formatMoney(total)}
                 </div>
               </div>
 
@@ -467,11 +615,10 @@ const BillerNewBillPanel = () => {
                       key={method}
                       type="button"
                       onClick={() => setPaymentMethod(method)}
-                      className={`py-3 px-4 rounded-xl border text-sm font-bold transition-all ${
-                        paymentMethod === method 
-                          ? "bg-primary-600 border-primary-600 text-white shadow-md" 
+                      className={`py-3 px-4 rounded-xl border text-sm font-bold transition-all ${paymentMethod === method
+                          ? "bg-primary-600 border-primary-600 text-white shadow-md"
                           : "bg-white border-gray-200 text-gray-600 hover:border-primary-300 hover:bg-primary-50"
-                      }`}
+                        }`}
                     >
                       {method}
                     </button>
@@ -484,7 +631,7 @@ const BillerNewBillPanel = () => {
                 disabled={submitting}
                 className="w-full py-3.5 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl font-bold text-lg shadow-lg hover:from-green-600 hover:to-green-700 hover:shadow-xl transition-all disabled:opacity-50 flex justify-center items-center gap-2"
               >
-                {submitting ? "Processing..." : `Confirm ${formatMoneyWhole(total)} Payment`}
+                {submitting ? "Processing..." : `Confirm ${formatMoney(total)} Payment`}
               </button>
             </div>
           </div>

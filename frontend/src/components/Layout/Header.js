@@ -127,6 +127,7 @@ const Header = () => {
 
   useEffect(() => {
     if (localStorage.getItem("appCity")) return; // Skip if manually set
+    
     fetch("https://ipapi.co/json/")
       .then(res => res.json())
       .then(data => {
@@ -239,27 +240,31 @@ const Header = () => {
             </Link>
 
             {/* Location - Amazon Style */}
-            <div 
-              onClick={() => setLocationModalOpen(true)}
-              className="hidden lg:flex items-center gap-1 cursor-pointer hover:ring-1 hover:ring-gray-200 p-1.5 rounded transition-all"
-            >
-              <MapPin size={20} className="text-gray-800 mt-1.5" strokeWidth={1.5} />
-              <div className="flex flex-col">
-                <span className="text-[11px] text-gray-500 leading-none">Delivering to {userLocation.city}</span>
-                <div className="text-[14px] font-bold text-gray-900 leading-tight truncate max-w-[140px]">
-                  {userLocation.region}
+            {user?.role !== 'admin' && (
+              <div 
+                onClick={() => setLocationModalOpen(true)}
+                className="hidden lg:flex items-center gap-1 cursor-pointer hover:ring-1 hover:ring-gray-200 p-1.5 rounded transition-all border border-gray-100 shadow-sm px-3"
+              >
+                <MapPin size={20} className="text-gray-800 mt-1.5" strokeWidth={1.5} />
+                <div className="flex flex-col">
+                  <span className="text-[11px] text-gray-500 leading-none">Delivering to {userLocation.city}</span>
+                  <div className="text-[14px] font-bold text-gray-900 leading-tight truncate max-w-[140px]">
+                    {userLocation.region}
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
             {/* Delivery Time */}
-            <div className="hidden xl:flex flex-col">
-              <div className="text-xs text-gray-500">Earliest <span className="text-primary-600 font-semibold">Home Delivery</span></div>
-              <div className="text-sm font-bold text-gray-800 flex items-center mt-0.5 gap-1">
-                <Clock size={13} className="text-orange-500" />
-                Today 03:00 PM – 06:00 PM
+            {user?.role !== 'admin' && (
+              <div className="hidden xl:flex flex-col">
+                <div className="text-xs text-gray-500">Earliest <span className="text-primary-600 font-semibold">Home Delivery</span></div>
+                <div className="text-sm font-bold text-gray-800 flex items-center mt-0.5 gap-1">
+                  <Clock size={13} className="text-orange-500" />
+                  Today 03:00 PM – 06:00 PM
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Search Bar */}
             <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-2xl">
