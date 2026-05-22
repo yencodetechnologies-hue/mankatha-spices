@@ -73,6 +73,15 @@ export const AuthProvider = ({ children }) => {
 
   const logout = useCallback(() => {
     localStorage.removeItem(AUTH_TOKEN_KEY);
+    // Clear user-specific data from local storage so guests don't see it
+    localStorage.removeItem('cart');
+    localStorage.removeItem('mankatha_cart_coupon');
+    localStorage.removeItem('wishlist');
+    localStorage.removeItem('appNotifications');
+    
+    // Dispatch events so contexts update their state immediately
+    window.dispatchEvent(new Event('userLogout'));
+    
     dispatch({ type: "LOGOUT" });
   }, []);
 

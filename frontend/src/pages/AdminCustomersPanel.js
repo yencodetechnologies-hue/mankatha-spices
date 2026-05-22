@@ -45,6 +45,11 @@ const AdminCustomersPanel = () => {
   const [cityFilter, setCityFilter] = useState("All");
   const [page, setPage] = useState(1);
 
+  // Modal state for viewing customer orders
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [customerOrders, setCustomerOrders] = useState([]);
+  const [loadingOrders, setLoadingOrders] = useState(false);
+
   const loadStats = useCallback(async () => {
     const cachedStats = customerApi.getCachedStats();
     if (cachedStats) {
@@ -97,6 +102,28 @@ const AdminCustomersPanel = () => {
   useEffect(() => {
     setPage(1);
   }, [search, tierFilter, cityFilter]);
+
+  const handleViewCustomer = async (customer) => {
+    setSelectedCustomer(customer);
+    setLoadingOrders(true);
+    setCustomerOrders([]);
+    try {
+      // Use the orderApi to fetch orders matching the customer's name
+      // Use dynamic import or assume orderApi is globally available or imported if I add it.
+      // Wait, I need to import orderApi at the top!
+      const { orderApi } = await import('../api/orderApi');
+      const res = await orderApi.getOrders({ search: customer.name, period: 'all' });
+      // Filter exactly to this customer to be safe (in case of partial matches)
+      const exactMatches = (res.orders || []).filter(
+        o => o.customerName && o.customerName.toLowerCase() === customer.name.toLowerCase()
+      );
+      setCustomerOrders(exactMatches);
+    } catch (err) {
+      console.error("Failed to load customer orders", err);
+    } finally {
+      setLoadingOrders(false);
+    }
+  };
 
   const exportCsv = () => {
     const header = ["Name", "Email", "Phone", "City", "Orders", "Spent", "Tier", "Joined"];
@@ -208,11 +235,10 @@ const AdminCustomersPanel = () => {
                 <tr>
                   <th>Customer</th>
                   <th>Email</th>
+                  <th>Phone</th>
                   <th>City</th>
                   <th>Orders</th>
                   <th>Spent</th>
-                  <th>Tier</th>
-                  <th>Joined</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -239,16 +265,13 @@ const AdminCustomersPanel = () => {
                         </div>
                       </td>
                       <td className="customers-email-cell">{c.email}</td>
+                      <td>{c.phone}</td>
                       <td>{c.city}</td>
                       <td>{c.orderCount}</td>
                       <td className="order-total-cell">{formatMoneyWhole(c.totalSpent)}</td>
                       <td>
-                        <span className={tierClass(c.tier)}>{c.tier}</span>
-                      </td>
-                      <td>{fmtJoined(c.joinedAt)}</td>
-                      <td>
-                        <button type="button" className="order-view-btn">
-                          View
+                        <button type="button" className="order-view-btn" onClick={() => handleViewCustomer(c)}>
+                          View Orders
                         </button>
                       </td>
                     </tr>
@@ -284,6 +307,67 @@ const AdminCustomersPanel = () => {
             )}
           </div>
       </div>
+
+      {/* Customer Orders Modal */}
+      {selectedCustomer && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setSelectedCustomer(null)}>
+          <div style={{ background: '#fff', borderRadius: '12px', padding: '24px', width: '600px', maxWidth: '90%', maxHeight: '85vh', display: 'flex', flexDirection: 'column', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f4f8ec', margin: '-24px -24px 20px -24px', padding: '24px', borderBottom: '1px solid #d3e1b7', borderTopLeftRadius: '12px', borderTopRightRadius: '12px' }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 'bold', color: '#52720d' }}>{selectedCustomer.name}'s Orders</h3>
+                <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#6b9312', fontWeight: '500' }}>
+                  {selectedCustomer.email} • {selectedCustomer.phone}
+                </p>
+              </div>
+              <button onClick={() => setSelectedCustomer(null)} style={{ border: 'none', background: '#e1ecd0', cursor: 'pointer', fontSize: '14px', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#52720d' }}>✕</button>
+            </div>
+
+            <div style={{ flex: 1, overflowY: 'auto' }}>
+              {loadingOrders ? (
+                <div style={{ padding: '40px', textAlign: 'center', color: '#6b7280' }}>Loading orders...</div>
+              ) : customerOrders.length === 0 ? (
+                <div style={{ padding: '40px', textAlign: 'center', background: '#f9fafb', borderRadius: '8px', color: '#6b7280' }}>
+                  No orders found for this customer.
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {customerOrders.map((o) => (
+                    <div key={o._id || o.orderId} style={{ border: '1px solid #e5e7eb', borderRadius: '8px', padding: '16px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+                        <div>
+                          <div style={{ fontWeight: 'bold', color: '#111827' }}>Order #{o.orderId}</div>
+                          <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '2px' }}>
+                            {new Date(o.orderDate).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' })}
+                          </div>
+                        </div>
+                        <div style={{ textAlign: 'right' }}>
+                          <div style={{ fontWeight: 'bold', color: '#6b9312', fontSize: '16px' }}>{formatMoneyWhole(o.total)}</div>
+                          <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '2px', textTransform: 'capitalize' }}>
+                            {o.status} • {o.paymentMethod || o.payment}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {o.lineItems && o.lineItems.length > 0 && (
+                        <div style={{ background: '#f9fafb', padding: '12px', borderRadius: '6px' }}>
+                          <div style={{ fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase', color: '#9ca3af', marginBottom: '8px' }}>Items Purchased</div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                            {o.lineItems.map((item, idx) => (
+                              <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+                                <span style={{ color: '#4b5563' }}>{item.quantity}x {item.name}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

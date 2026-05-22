@@ -1,5 +1,6 @@
 const Order = require("../models/Order");
-
+const Coupon = require("../models/Coupon");
+const Customer = require("../models/Customer");
 const periodToFilter = (period) => {
   const now = new Date();
   if (period === "this-month") {
@@ -88,23 +89,64 @@ const getStats = async (req, res) => {
 
 const createOrder = async (req, res) => {
   try {
-    const { customerName, total, payment, paymentMethod, status, lineItems, itemCount } = req.body;
+    const { customerName, email, phone, city, total, payment, paymentMethod, status, lineItems, itemCount, couponCode, discountAmount } = req.body;
     
     // Simple order ID generator
     const orderId = "SE" + Math.floor(1000 + Math.random() * 9000);
     
+    const isBiller = req.user && req.user.role === "biller";
+    const customerId = !isBiller && req.user ? req.user._id : undefined;
+    const billerId = isBiller ? req.user._id : undefined;
+    const billerName = isBiller ? req.user.name : undefined;
+
+    // Increment coupon usedCount if couponCode is provided
+    if (couponCode) {
+      await Coupon.findOneAndUpdate(
+        { code: couponCode.trim().toUpperCase() },
+        { $inc: { usedCount: 1 } }
+      );
+    }
+    
     const order = await Order.create({
       orderId,
-      customerName: customerName || "Walk-in Customer",
+      customerName: customerName || (req.user ? req.user.name : "Walk-in Customer"),
       itemCount: itemCount || (lineItems ? lineItems.length : 1),
       total: total || 0,
       payment: payment || "Paid",
       paymentMethod: paymentMethod || "Cash",
-      status: status || "Delivered",
+      status: status || "Processing",
       lineItems: lineItems || [],
-      billerId: req.user ? req.user._id : undefined,
-      billerName: req.user ? req.user.name : "Website",
+      billerId,
+      billerName,
+      customerId,
+      couponCode,
+      discountAmount
     });
+
+    // Upsert Customer Analytics Record if email is provided
+    if (email) {
+      const orderValue = total || 0;
+      await Customer.findOneAndUpdate(
+        { email: email.toLowerCase().trim() },
+        { 
+          $set: { 
+            name: customerName || "Walk-in Customer",
+            phone: phone || "N/A",
+            city: city || "N/A",
+            lastActivityAt: new Date()
+          },
+          $inc: {
+            orderCount: 1,
+            totalSpent: orderValue
+          },
+          $setOnInsert: {
+            tier: "New",
+            joinedAt: new Date()
+          }
+        },
+        { upsert: true, new: true, setDefaultsOnInsert: true }
+      );
+    }
 
     res.status(201).json(order);
   } catch (err) {
@@ -112,8 +154,23 @@ const createOrder = async (req, res) => {
   }
 };
 
+const getMyOrders = async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    const orders = await Order.find({ customerId: req.user._id })
+      .sort({ orderDate: -1 })
+      .lean();
+    res.json({ orders });
+  } catch (err) {
+    res.status(500).json({ message: err.message || "Failed to load your orders" });
+  }
+};
+
 module.exports = {
   getOrders,
   getStats,
   createOrder,
+  getMyOrders,
 };

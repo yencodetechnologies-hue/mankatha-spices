@@ -23,6 +23,7 @@ const Register = () => {
   // OTP States
   const [otpSent, setOtpSent] = useState(false);
   const [enteredOtp, setEnteredOtp] = useState('');
+  const [previewUrl, setPreviewUrl] = useState('');
 
   const [otpCountdown, setOtpCountdown] = useState(60);
   const [otpError, setOtpError] = useState('');
@@ -103,13 +104,18 @@ const Register = () => {
 
     try {
       const name = `${formData.firstName} ${formData.lastName}`.trim();
-      await authApi.registerSendOtp({
+      const res = await authApi.registerSendOtp({
         name,
         email: formData.email,
         password: formData.password,
         phone: formData.phone,
       });
 
+      if (res.previewUrl) {
+        setPreviewUrl(res.previewUrl);
+      } else {
+        setPreviewUrl('');
+      }
 
       setOtpSent(true);
       setOtpCountdown(60);
@@ -145,12 +151,17 @@ const Register = () => {
     setOtpError('');
     try {
       const name = `${formData.firstName} ${formData.lastName}`.trim();
-      await authApi.registerSendOtp({
+      const res = await authApi.registerSendOtp({
         name,
         email: formData.email,
         password: formData.password,
         phone: formData.phone,
       });
+      if (res.previewUrl) {
+        setPreviewUrl(res.previewUrl);
+      } else {
+        setPreviewUrl('');
+      }
       setOtpCountdown(60);
     } catch (error) {
       const msg = error.response?.data?.message || 'Failed to resend OTP. Please try again.';
@@ -176,9 +187,16 @@ const Register = () => {
             <p className="mt-2 text-center text-sm text-gray-600">
               We have sent a 6-digit OTP verification code to <span className="font-semibold text-gray-900">{formData.email}</span>. Please check your inbox.
             </p>
+            {previewUrl && (
+              <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-center">
+                <span className="font-bold text-yellow-800">Development Mode:</span><br/>
+                No real email was sent. Click below to view the OTP email.<br/>
+                <a href={previewUrl} target="_blank" rel="noreferrer" className="text-blue-600 font-bold hover:underline mt-2 inline-block">
+                  View Test Email (Ethereal)
+                </a>
+              </div>
+            )}
           </div>
-
-
 
           <form className="mt-6 space-y-6" onSubmit={handleVerifyAndRegister}>
             {otpError && (

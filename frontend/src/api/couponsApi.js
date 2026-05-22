@@ -26,4 +26,11 @@ export const couponsApi = {
     );
     return response.data;
   },
+  validateCoupon: async (code, cartTotal) => {
+    // Note: No auth headers needed for validation
+    const base = getAdminApiBase(); 
+    // We use getAdminApiBase just to get the base /api path, it handles production/dev URLs
+    const response = await axios.post(`${base}/coupons/validate`, { code, cartTotal });
+    return response.data;
+  },
 };

@@ -38,5 +38,10 @@ export const orderApi = {
     ordersCache = null; // Invalidate cache
     statsCache = null;
     return response.data;
+  },
+  
+  getMyOrders: async () => {
+    const response = await client.get("orders/my-orders");
+    return response.data;
   }
 };

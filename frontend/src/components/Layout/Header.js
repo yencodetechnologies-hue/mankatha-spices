@@ -373,18 +373,19 @@ const Header = () => {
               </div>
 
               {/* Notification Bell — dynamic */}
-              <div 
-                ref={notificationsRef}
-                className="hidden md:block relative cursor-pointer" 
-                title="Notifications"
-                onClick={() => setNotificationsOpen(!notificationsOpen)}
-              >
-                <Bell size={22} className="text-gray-600 hover:text-primary-600 transition-colors" />
-                {unreadCount > 0 && (
-                  <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
-                    {unreadCount}
-                  </span>
-                )}
+              {isAuthenticated && (
+                <div 
+                  ref={notificationsRef}
+                  className="hidden md:block relative cursor-pointer" 
+                  title="Notifications"
+                  onClick={() => setNotificationsOpen(!notificationsOpen)}
+                >
+                  <Bell size={22} className="text-gray-600 hover:text-primary-600 transition-colors" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                      {unreadCount}
+                    </span>
+                  )}
                 
                 {notificationsOpen && (
                   <div className="absolute right-0 top-full mt-3 w-80 bg-white border border-gray-200 shadow-xl z-50 rounded-lg overflow-hidden cursor-default" onClick={e => e.stopPropagation()}>
@@ -422,6 +423,7 @@ const Header = () => {
                   </div>
                 )}
               </div>
+              )}
 
               {/* Cart */}
               <button

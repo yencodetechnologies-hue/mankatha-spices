@@ -1,14 +1,22 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, CreditCard, Truck } from 'lucide-react';
+import { ShoppingCart, CreditCard, Truck, Tag, Trash2 } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { formatMoney } from '../../utils/formatMoney';
+import { couponsApi } from '../../api/couponsApi';
+import { orderApi } from '../../api/orderApi';
 
 const Checkout = () => {
   const navigate = useNavigate();
-  const { items, getCartTotal, clearCart } = useCart();
+  const { items, getCartTotal, clearCart, appliedCoupon, applyCoupon, removeCoupon, getDiscountAmount } = useCart();
   const { user } = useAuth();
+  
+  const [couponCode, setCouponCode] = useState('');
+  const [couponError, setCouponError] = useState('');
+  const [applyingCoupon, setApplyingCoupon] = useState(false);
+  const [placingOrder, setPlacingOrder] = useState(false);
+  const [orderError, setOrderError] = useState('');
   
   const [shippingInfo, setShippingInfo] = useState({
     firstName: user?.name?.split(' ')[0] || '',
@@ -40,7 +48,23 @@ const Checkout = () => {
 
   const shipping = getCartTotal() > 50 ? 0 : 5.99;
   const tax = getCartTotal() * 0.08;
-  const total = getCartTotal() + shipping + tax;
+  const discount = getDiscountAmount();
+  const total = Math.max(0, getCartTotal() + shipping + tax - discount);
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) return;
+    setApplyingCoupon(true);
+    setCouponError('');
+    try {
+      const res = await couponsApi.validateCoupon(couponCode, getCartTotal());
+      applyCoupon(res.coupon);
+      setCouponCode('');
+    } catch (err) {
+      setCouponError(err.response?.data?.message || 'Invalid coupon');
+    } finally {
+      setApplyingCoupon(false);
+    }
+  };
 
   const handleInputChange = (e, section) => {
     const { name, value } = e.target;
@@ -51,42 +75,45 @@ const Checkout = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setPlacingOrder(true);
+    setOrderError('');
 
-    // Construct the new order object
-    const newOrder = {
-      id: `ORD-${Math.floor(100000 + Math.random() * 900000)}`,
-      date: new Date().toISOString().split('T')[0],
-      status: 'processing',
-      total: total,
-      itemsCount: items.reduce((acc, curr) => acc + curr.quantity, 0),
-      items: items.map(item => ({
-        name: item.name,
-        price: item.price,
-        quantity: item.quantity,
-        featured_image: item.featured_image
-      }))
-    };
-
-    // Save order in localStorage
     try {
-      const existingOrdersJson = localStorage.getItem('user_orders');
-      const existingOrders = existingOrdersJson ? JSON.parse(existingOrdersJson) : [];
-      localStorage.setItem('user_orders', JSON.stringify([newOrder, ...existingOrders]));
-    } catch (err) {
-      console.error("Error saving order to localStorage:", err);
-    }
+      const payload = {
+        customerName: `${shippingInfo.firstName} ${shippingInfo.lastName}`.trim(),
+        email: shippingInfo.email,
+        phone: shippingInfo.phone,
+        city: shippingInfo.city,
+        total: total,
+        payment: paymentMethod === 'card' ? 'Paid' : 'Pending',
+        paymentMethod: paymentMethod === 'card' ? 'Card' : 'Bank Transfer',
+        status: 'Processing',
+        couponCode: appliedCoupon ? appliedCoupon.code : undefined,
+        discountAmount: discount,
+        itemCount: items.reduce((acc, curr) => acc + curr.quantity, 0),
+        lineItems: items.map(item => ({
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          category: item.category || 'Whole Spices'
+        }))
+      };
 
-    // Simulate order processing
-    setTimeout(() => {
+      await orderApi.createOrder(payload);
+
       setOrderPlaced(true);
       clearCart();
-      // Clear cart after successful order
+      
       setTimeout(() => {
         navigate('/');
       }, 3000);
-    }, 2000);
+    } catch (err) {
+      setOrderError(err.response?.data?.message || 'Failed to place order. Please try again.');
+    } finally {
+      setPlacingOrder(false);
+    }
   };
 
   if (items.length === 0) {
@@ -452,11 +479,17 @@ const Checkout = () => {
                 )}
               </div>
 
+              {orderError && (
+                <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm mb-4">
+                  {orderError}
+                </div>
+              )}
               <button
                 type="submit"
-                className="w-full bg-primary-500 hover:bg-primary-600 text-white py-3 px-6 rounded-lg font-semibold transition-colors"
+                disabled={placingOrder}
+                className="w-full bg-primary-500 hover:bg-primary-600 text-white py-3 px-6 rounded-lg font-semibold transition-colors disabled:opacity-50"
               >
-                Place Order
+                {placingOrder ? 'Processing...' : 'Place Order'}
               </button>
             </form>
           </div>
@@ -496,6 +529,56 @@ const Checkout = () => {
                   <span className="text-gray-600">Tax</span>
                   <span className="font-medium">{formatMoney(tax)}</span>
                 </div>
+                {appliedCoupon && (
+                  <div className="flex justify-between text-green-600">
+                    <span className="font-medium flex items-center gap-1">
+                      <Tag size={16} /> Discount ({appliedCoupon.code})
+                    </span>
+                    <span className="font-medium">-{formatMoney(discount)}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Coupon Section */}
+              <div className="border-t pt-4 mb-4">
+                {!appliedCoupon ? (
+                  <div>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        placeholder="Coupon code"
+                        value={couponCode}
+                        onChange={(e) => {
+                          setCouponCode(e.target.value);
+                          setCouponError('');
+                        }}
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                      />
+                      <button
+                        onClick={handleApplyCoupon}
+                        disabled={applyingCoupon || !couponCode.trim()}
+                        className="bg-gray-800 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-900 transition-colors disabled:opacity-50"
+                      >
+                        {applyingCoupon ? '...' : 'Apply'}
+                      </button>
+                    </div>
+                    {couponError && <p className="text-red-500 text-xs mt-2">{couponError}</p>}
+                  </div>
+                ) : (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex justify-between items-center text-sm">
+                    <div className="flex items-center gap-2 text-green-700 font-medium">
+                      <Tag size={16} />
+                      {appliedCoupon.code} applied
+                    </div>
+                    <button
+                      onClick={removeCoupon}
+                      className="text-gray-500 hover:text-red-500 transition-colors"
+                      title="Remove coupon"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div className="border-t pt-4 mb-4">

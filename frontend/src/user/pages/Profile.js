@@ -5,6 +5,7 @@ import { User, Mail, Phone, MapPin, Heart, Package, Settings, LogOut, Edit2, Sav
 import { useAuth } from '../../contexts/AuthContext';
 import { useWishlist } from '../../contexts/WishlistContext';
 import { formatMoney } from '../../utils/formatMoney';
+import { orderApi } from '../../api/orderApi';
 
 
 const Profile = () => {
@@ -16,11 +17,17 @@ const Profile = () => {
   const [orders, setOrders] = useState([]);
 
   React.useEffect(() => {
-    try {
-      const saved = localStorage.getItem('user_orders');
-      setOrders(saved ? JSON.parse(saved) : []);
-    } catch (e) {
-      setOrders([]);
+    if (activeTab === 'orders') {
+      const loadOrders = async () => {
+        try {
+          const res = await orderApi.getMyOrders();
+          setOrders(res.orders || []);
+        } catch (e) {
+          console.error("Failed to load orders", e);
+          setOrders([]);
+        }
+      };
+      loadOrders();
     }
   }, [activeTab]);
   const [editForm, setEditForm] = useState({
@@ -224,11 +231,13 @@ const Profile = () => {
                 <div className="flex items-center gap-4">
                   <div>
                     <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">Order ID</p>
-                    <p className="font-bold text-gray-800 text-sm">{order.id}</p>
+                    <p className="font-bold text-gray-800 text-sm">{order.orderId || order.id}</p>
                   </div>
                   <div>
                     <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">Date Placed</p>
-                    <p className="font-semibold text-gray-700 text-sm">{order.date}</p>
+                    <p className="font-semibold text-gray-700 text-sm">
+                      {order.orderDate ? new Date(order.orderDate).toLocaleDateString() : order.date}
+                    </p>
                   </div>
                   <div>
                     <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">Total Amount</p>
@@ -242,7 +251,7 @@ const Profile = () => {
 
               {/* Order items list */}
               <div className="divide-y divide-gray-100 px-6">
-                {order.items && order.items.map((item, idx) => (
+                {(order.lineItems || order.items || []).map((item, idx) => (
                   <div key={idx} className="py-4 flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
                       {item.featured_image ? (

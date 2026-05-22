@@ -11,7 +11,7 @@ const { getCustomers, getStats } = require("./controllers/customerController");
 const analyticsRoutes = require("./routes/analyticsRoutes");
 const { getReviewStats, getReviews, approveReview, deleteReview } = require("./controllers/reviewController");
 const { getInventory, postReorder, postBulkRestock } = require("./controllers/inventoryController");
-const { getCouponStats, getCoupons, createCoupon, updateCoupon } = require("./controllers/couponController");
+const { getCouponStats, getCoupons, createCoupon, updateCoupon, validateCoupon } = require("./controllers/couponController");
 const { getSettings, putSettings, patchSettings } = require("./controllers/settingsController");
 const authRoutes = require("./routes/authRoutes");
 const { requireAuth, requireRoles } = require("./middleware/auth");
@@ -115,6 +115,7 @@ app.get("/api/health", (_, res) => {
   });
 });
 /** Coupons first (single GET returns list + stats) — register before other `/api/*` handlers. */
+app.post("/api/coupons/validate", validateCoupon); // No auth needed to check coupon validity
 app.get("/api/coupons/stats", ...adminOnly, getCouponStats);
 app.get("/api/coupons", ...adminOnly, getCoupons);
 app.post("/api/coupons", ...adminOnly, createCoupon);

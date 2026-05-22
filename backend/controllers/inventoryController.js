@@ -82,6 +82,10 @@ const postReorder = async (req, res) => {
       urgent,
     });
 
+    // Actually update the stock so it reflects immediately for the user
+    product.stock = (Number(product.stock) || 0) + qty;
+    await product.save();
+
     const msg = urgent ? "Urgent reorder logged with supplier." : "Reorder logged with supplier.";
     return res.status(201).json({ ok: true, message: msg, qty, urgent });
   } catch (err) {
@@ -106,6 +110,14 @@ const postBulkRestock = async (req, res) => {
     }));
 
     await RestockRequest.insertMany(docs);
+
+    // Actually update the stock for all low stock items
+    for (const p of products) {
+      const doc = docs.find(d => d.productId.equals(p._id));
+      if (doc) {
+        await Product.findByIdAndUpdate(p._id, { $inc: { stock: doc.qty } });
+      }
+    }
 
     return res.status(201).json({
       ok: true,

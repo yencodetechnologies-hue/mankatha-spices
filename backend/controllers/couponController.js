@@ -148,4 +148,44 @@ const updateCoupon = async (req, res) => {
   }
 };
 
-module.exports = { getCouponStats, getCoupons, createCoupon, updateCoupon };
+const validateCoupon = async (req, res) => {
+  try {
+    const { code, cartTotal } = req.body;
+    if (!code) return res.status(400).json({ message: "Coupon code is required" });
+
+    const coupon = await Coupon.findOne({ code: code.trim().toUpperCase() });
+    if (!coupon) return res.status(404).json({ message: "Invalid coupon code" });
+
+    if (effectiveStatus(coupon) !== "active") {
+      return res.status(400).json({ message: "This coupon is expired or inactive" });
+    }
+
+    if (coupon.usageLimit && coupon.usedCount >= coupon.usageLimit) {
+      return res.status(400).json({ message: "This coupon has reached its usage limit" });
+    }
+
+    let discountAmount = 0;
+    const total = Number(cartTotal) || 0;
+
+    if (coupon.type === "percentage") {
+      discountAmount = (total * coupon.value) / 100;
+    } else if (coupon.type === "fixed_amount") {
+      discountAmount = coupon.value;
+      if (discountAmount > total) discountAmount = total;
+    }
+
+    res.json({
+      valid: true,
+      coupon: {
+        code: coupon.code,
+        type: coupon.type,
+        value: coupon.value
+      },
+      discountAmount
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message || "Coupon validation failed" });
+  }
+};
+
+module.exports = { getCouponStats, getCoupons, createCoupon, updateCoupon, validateCoupon };

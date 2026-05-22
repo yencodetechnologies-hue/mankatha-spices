@@ -41,6 +41,9 @@ const orderSchema = new mongoose.Schema({
   lineItems: { type: [lineItemSchema], default: [] },
   billerId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   billerName: { type: String, trim: true },
+  customerId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  couponCode: { type: String, trim: true },
+  discountAmount: { type: Number, default: 0, min: 0 },
   orderDate: { type: Date, default: Date.now },
   createdAt: { type: Date, default: Date.now },
 });

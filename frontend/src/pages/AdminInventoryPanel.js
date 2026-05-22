@@ -50,6 +50,8 @@ const AdminInventoryPanel = () => {
   const [toast, setToast] = useState("");
   const [busyId, setBusyId] = useState(null);
   const [bulkBusy, setBulkBusy] = useState(false);
+  const [showRestockModal, setShowRestockModal] = useState(false);
+  const [restockForm, setRestockForm] = useState({ productId: "", qty: "" });
 
   const origin = getBackendOrigin();
   const readOnlyInventory = data?._meta?.source === "products-fallback";
@@ -139,11 +141,18 @@ const AdminInventoryPanel = () => {
         <button
           type="button"
           className="top-add-btn"
-          disabled={bulkBusy || readOnlyInventory}
-          onClick={onBulkRestock}
+          disabled={readOnlyInventory}
+          onClick={() => {
+            if (readOnlyInventory) {
+              setToast("Restart the backend to enable restock.");
+              return;
+            }
+            setShowRestockModal(true);
+            setRestockForm({ productId: items[0]?.id || "", qty: items[0]?.reorderQty || 50 });
+          }}
           title={readOnlyInventory ? "Restart the backend with the latest server.js to log restock orders." : undefined}
         >
-          {bulkBusy ? "Placing…" : "+ Place Restock Order"}
+          + Place Restock Order
         </button>
       </div>
 
@@ -242,30 +251,39 @@ const AdminInventoryPanel = () => {
                           <button
                             type="button"
                             className="inv-btn-outline"
-                            disabled={busy || readOnlyInventory}
-                            onClick={() => onReorder(row, false)}
+                            disabled={readOnlyInventory}
+                            onClick={() => {
+                              setShowRestockModal(true);
+                              setRestockForm({ productId: row.id, qty: row.reorderQty });
+                            }}
                           >
-                            {busy ? "…" : "Reorder"}
+                            Reorder
                           </button>
                         ) : null}
                         {row.status === "low_stock" ? (
                           <button
                             type="button"
                             className="inv-btn-warn"
-                            disabled={busy || readOnlyInventory}
-                            onClick={() => onReorder(row, false)}
+                            disabled={readOnlyInventory}
+                            onClick={() => {
+                              setShowRestockModal(true);
+                              setRestockForm({ productId: row.id, qty: row.reorderQty });
+                            }}
                           >
-                            {busy ? "…" : "Reorder Now"}
+                            Reorder Now
                           </button>
                         ) : null}
                         {row.status === "out_of_stock" ? (
                           <button
                             type="button"
                             className="inv-btn-urgent"
-                            disabled={busy || readOnlyInventory}
-                            onClick={() => onReorder(row, true)}
+                            disabled={readOnlyInventory}
+                            onClick={() => {
+                              setShowRestockModal(true);
+                              setRestockForm({ productId: row.id, qty: row.reorderQty });
+                            }}
                           >
-                            {busy ? "…" : "Urgent Reorder"}
+                            Urgent Reorder
                           </button>
                         ) : null}
                       </td>
@@ -278,6 +296,77 @@ const AdminInventoryPanel = () => {
           {items.length === 0 ? <p className="inv-empty">No products yet. Add products under Products.</p> : null}
         </div>
       ) : null}
+
+      {/* Manual Restock Modal */}
+      {showRestockModal && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setShowRestockModal(false)}>
+          <div style={{ background: '#fff', borderRadius: '12px', padding: '24px', width: '500px', maxWidth: '90%', display: 'flex', flexDirection: 'column', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid #eee', paddingBottom: '16px' }}>
+              <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 'bold', color: '#111827' }}>Place Restock Order</h3>
+              <button onClick={() => setShowRestockModal(false)} style={{ border: 'none', background: '#f3f4f6', cursor: 'pointer', fontSize: '14px', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4b5563' }}>✕</button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>Select Product</label>
+                <select 
+                  value={restockForm.productId}
+                  onChange={(e) => {
+                    const sel = items.find(i => i.id === e.target.value);
+                    setRestockForm({ productId: e.target.value, qty: sel ? sel.reorderQty : 50 });
+                  }}
+                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db' }}
+                >
+                  {items.map(p => (
+                    <option key={p.id} value={p.id}>{p.name} (Current: {p.currentStock})</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>Restock Quantity</label>
+                <input 
+                  type="number" 
+                  min="1"
+                  value={restockForm.qty}
+                  onChange={(e) => setRestockForm({ ...restockForm, qty: e.target.value })}
+                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db' }}
+                />
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+              <button 
+                onClick={() => setShowRestockModal(false)}
+                style={{ padding: '10px 16px', background: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', color: '#374151', fontWeight: '500', cursor: 'pointer' }}
+              >
+                Cancel
+              </button>
+              <button 
+                disabled={bulkBusy || !restockForm.productId || !restockForm.qty}
+                onClick={async () => {
+                  setBulkBusy(true);
+                  try {
+                    const row = items.find(i => i.id === restockForm.productId);
+                    if (!row) throw new Error("Product not found");
+                    const res = await inventoryApi.reorder(row.id, { urgent: false, qty: Number(restockForm.qty) });
+                    setToast(`Restocked ${restockForm.qty} units of ${row.name}`);
+                    setShowRestockModal(false);
+                    load();
+                  } catch (err) {
+                    setToast(err.message || "Failed to restock");
+                  } finally {
+                    setBulkBusy(false);
+                  }
+                }}
+                style={{ padding: '10px 16px', background: '#6b9312', border: 'none', borderRadius: '6px', color: '#fff', fontWeight: '500', cursor: 'pointer', opacity: (bulkBusy || !restockForm.qty) ? 0.7 : 1 }}
+              >
+                {bulkBusy ? 'Processing...' : 'Submit Order'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

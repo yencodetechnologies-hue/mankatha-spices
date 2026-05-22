@@ -1,11 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Trash2, Plus, Minus, ShoppingBag } from 'lucide-react';
+import { Trash2, Plus, Minus, ShoppingBag, Tag } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
 import { formatMoney } from '../../utils/formatMoney';
+import { couponsApi } from '../../api/couponsApi';
 
 const Cart = () => {
-  const { items, removeFromCart, updateQuantity, getCartTotal, clearCart } = useCart();
+  const { items, removeFromCart, updateQuantity, getCartTotal, clearCart, appliedCoupon, applyCoupon, removeCoupon, getDiscountAmount } = useCart();
+  const [couponCode, setCouponCode] = React.useState('');
+  const [couponError, setCouponError] = React.useState('');
+  const [applyingCoupon, setApplyingCoupon] = React.useState(false);
 
   const handleQuantityChange = (productId, newQuantity) => {
     if (newQuantity <= 0) {
@@ -17,7 +21,23 @@ const Cart = () => {
 
   const shipping = getCartTotal() > 50 ? 0 : 5.99;
   const tax = getCartTotal() * 0.08;
-  const total = getCartTotal() + shipping + tax;
+  const discount = getDiscountAmount();
+  const total = Math.max(0, getCartTotal() + shipping + tax - discount);
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) return;
+    setApplyingCoupon(true);
+    setCouponError('');
+    try {
+      const res = await couponsApi.validateCoupon(couponCode, getCartTotal());
+      applyCoupon(res.coupon);
+      setCouponCode('');
+    } catch (err) {
+      setCouponError(err.response?.data?.message || 'Invalid coupon');
+    } finally {
+      setApplyingCoupon(false);
+    }
+  };
 
   if (items.length === 0) {
     return (
@@ -142,6 +162,14 @@ const Cart = () => {
                   <span className="text-gray-600">Tax</span>
                   <span className="font-medium">{formatMoney(tax)}</span>
                 </div>
+                {appliedCoupon && (
+                  <div className="flex justify-between text-green-600">
+                    <span className="font-medium flex items-center gap-1">
+                      <Tag size={16} /> Discount ({appliedCoupon.code})
+                    </span>
+                    <span className="font-medium">-{formatMoney(discount)}</span>
+                  </div>
+                )}
                 {getCartTotal() < 50 && (
                   <div className="text-sm text-primary-600 bg-primary-50 p-2 rounded">
                     Add {formatMoney(50 - getCartTotal())} more for free shipping!
@@ -156,6 +184,48 @@ const Cart = () => {
                     {formatMoney(total)}
                   </span>
                 </div>
+              </div>
+
+              {/* Coupon Section */}
+              <div className="border-t pt-4 mb-6">
+                {!appliedCoupon ? (
+                  <div>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        placeholder="Coupon code"
+                        value={couponCode}
+                        onChange={(e) => {
+                          setCouponCode(e.target.value);
+                          setCouponError('');
+                        }}
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                      />
+                      <button
+                        onClick={handleApplyCoupon}
+                        disabled={applyingCoupon || !couponCode.trim()}
+                        className="bg-gray-800 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-900 transition-colors disabled:opacity-50"
+                      >
+                        {applyingCoupon ? '...' : 'Apply'}
+                      </button>
+                    </div>
+                    {couponError && <p className="text-red-500 text-xs mt-2">{couponError}</p>}
+                  </div>
+                ) : (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex justify-between items-center text-sm">
+                    <div className="flex items-center gap-2 text-green-700 font-medium">
+                      <Tag size={16} />
+                      {appliedCoupon.code} applied
+                    </div>
+                    <button
+                      onClick={removeCoupon}
+                      className="text-gray-500 hover:text-red-500 transition-colors"
+                      title="Remove coupon"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                )}
               </div>
 
               <Link
