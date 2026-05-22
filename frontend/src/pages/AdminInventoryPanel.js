@@ -88,39 +88,7 @@ const AdminInventoryPanel = () => {
     return `${origin}${p}`;
   };
 
-  const onReorder = async (row, urgent) => {
-    if (readOnlyInventory) {
-      setToast("Restart the backend to enable reorder logging.");
-      return;
-    }
-    try {
-      setBusyId(row.id);
-      setToast("");
-      const res = await inventoryApi.reorder(row.id, { urgent, qty: row.reorderQty });
-      setToast(res.message || "Reorder placed.");
-    } catch (error) {
-      setToast(error.response?.data?.message || error.message || "Reorder failed.");
-    } finally {
-      setBusyId(null);
-    }
-  };
 
-  const onBulkRestock = async () => {
-    if (readOnlyInventory) {
-      setToast("Restart the backend to enable bulk restock.");
-      return;
-    }
-    try {
-      setBulkBusy(true);
-      setToast("");
-      const res = await inventoryApi.restockBulk();
-      setToast(res.message || "Done.");
-    } catch (error) {
-      setToast(error.response?.data?.message || error.message || "Bulk restock failed.");
-    } finally {
-      setBulkBusy(false);
-    }
-  };
 
   return (
     <div className="admin-inventory">
@@ -215,7 +183,6 @@ const AdminInventoryPanel = () => {
               <tbody>
                 {items.map((row) => {
                   const src = imageSrc(row.image);
-                  const busy = busyId === row.id;
                   return (
                     <tr key={row.id}>
                       <td>
@@ -349,7 +316,7 @@ const AdminInventoryPanel = () => {
                   try {
                     const row = items.find(i => i.id === restockForm.productId);
                     if (!row) throw new Error("Product not found");
-                    const res = await inventoryApi.reorder(row.id, { urgent: false, qty: Number(restockForm.qty) });
+                    await inventoryApi.reorder(row.id, { urgent: false, qty: Number(restockForm.qty) });
                     setToast(`Restocked ${restockForm.qty} units of ${row.name}`);
                     setShowRestockModal(false);
                     load();

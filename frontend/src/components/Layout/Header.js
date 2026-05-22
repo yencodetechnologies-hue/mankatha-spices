@@ -326,14 +326,16 @@ const Header = () => {
                           <p className="text-xs text-gray-500">Signed in as</p>
                           <p className="text-sm font-semibold text-gray-800 truncate">{user?.name}</p>
                         </div>
-                        <Link
-                          to="/adminpanel/overview"
-                          className="flex items-center gap-2.5 px-4 py-2.5 hover:bg-green-50 text-sm text-gray-700 hover:text-primary-600 transition-colors"
-                          onClick={() => setAccountOpen(false)}
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-                          Admin Panel
-                        </Link>
+                        {user?.role === 'admin' && (
+                          <Link
+                            to="/adminpanel/overview"
+                            className="flex items-center gap-2.5 px-4 py-2.5 hover:bg-green-50 text-sm text-gray-700 hover:text-primary-600 transition-colors"
+                            onClick={() => setAccountOpen(false)}
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                            Admin Panel
+                          </Link>
+                        )}
                         {user?.role === 'vendor' && (
                           <Link
                             to="/vendor/dashboard"
@@ -535,7 +537,9 @@ const Header = () => {
                     <div className="text-sm font-bold text-primary-600 mb-2 border-b border-gray-200 pb-2">
                       {user?.name}
                     </div>
-                    <Link to="/adminpanel/overview" className="block text-gray-700 hover:text-primary-600 py-1.5 font-medium text-sm" onClick={() => setIsMobileMenuOpen(false)}>Admin Panel</Link>
+                    {user?.role === 'admin' && (
+                      <Link to="/adminpanel/overview" className="block text-gray-700 hover:text-primary-600 py-1.5 font-medium text-sm" onClick={() => setIsMobileMenuOpen(false)}>Admin Panel</Link>
+                    )}
                     {user?.role === 'vendor' && (
                       <Link to="/vendor/dashboard" className="block text-gray-700 hover:text-primary-600 py-1.5 font-medium text-sm" onClick={() => setIsMobileMenuOpen(false)}>Vendor Portal</Link>
                     )}

@@ -28,12 +28,7 @@ const hueFromName = (name) => {
   return Math.abs(h) % 360;
 };
 
-const tierClass = (tier) => {
-  if (tier === "VIP") return "tier-pill tier-vip";
-  if (tier === "Gold") return "tier-pill tier-gold";
-  if (tier === "New") return "tier-pill tier-new";
-  return "tier-pill tier-regular";
-};
+
 
 const AdminCustomersPanel = () => {
   const [stats, setStats] = useState(null);
