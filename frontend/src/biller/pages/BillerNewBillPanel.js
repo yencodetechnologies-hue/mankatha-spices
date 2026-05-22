@@ -71,10 +71,31 @@ const BillerProductCard = ({ product, cart, addToCart, updateQty, removeFromCart
     variantIndex: selectedVariantIndex
   }, 1);
 
+  const [bulkOpen, setBulkOpen] = useState(false);
+  const [bulkQty, setBulkQty] = useState(5);
+
+  const handleIncrease = () => {
+    if (qty === 0) { handleAdd(); return; }
+    const nextQty = qty + 1;
+    if (nextQty >= 5) {
+      setBulkQty(nextQty);
+      setBulkOpen(true);
+    } else {
+      updateQty(variantCartItemId, 1);
+    }
+  };
+
+  const handleBulkConfirm = () => {
+    const n = Math.min(99, Math.max(1, Number(bulkQty) || 1));
+    const delta = n - qty;
+    updateQty(variantCartItemId, delta);
+    setBulkOpen(false);
+  };
+
   return (
     <div className="flex flex-col bg-white border border-[#ede6dc] rounded-xl hover:border-primary-400 hover:shadow-md transition group overflow-hidden">
       {/* Image */}
-      <div className="w-full h-32 bg-gray-100 overflow-hidden relative cursor-pointer" onClick={() => qty === 0 ? handleAdd() : updateQty(variantCartItemId, 1)}>
+      <div className="w-full h-32 bg-gray-100 overflow-hidden relative cursor-pointer" onClick={handleIncrease}>
         {imgUrl ? (
           <img src={imgUrl} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
         ) : (
@@ -92,7 +113,7 @@ const BillerProductCard = ({ product, cart, addToCart, updateQty, removeFromCart
           </div>
         </div>
 
-        <h4 className="text-sm font-bold text-[#3d2f26] mb-2 line-clamp-2 leading-tight cursor-pointer hover:text-primary-600 transition-colors" onClick={() => qty === 0 ? handleAdd() : updateQty(variantCartItemId, 1)}>
+        <h4 className="text-sm font-bold text-[#3d2f26] mb-2 line-clamp-2 leading-tight cursor-pointer hover:text-primary-600 transition-colors" onClick={handleIncrease}>
           {product.name}
         </h4>
 
@@ -156,7 +177,7 @@ const BillerProductCard = ({ product, cart, addToCart, updateQty, removeFromCart
                   <Minus size={12} />
                 </button>
                 <div className="flex-1 flex items-center justify-center font-bold text-gray-800 text-sm">{qty}</div>
-                <button onClick={() => updateQty(variantCartItemId, 1)} className="bg-primary-500 text-white w-8 h-full flex items-center justify-center hover:bg-primary-600 transition-colors">
+                <button onClick={handleIncrease} className="bg-primary-500 text-white w-8 h-full flex items-center justify-center hover:bg-primary-600 transition-colors">
                   <Plus size={12} />
                 </button>
               </div>
@@ -170,6 +191,87 @@ const BillerProductCard = ({ product, cart, addToCart, updateQty, removeFromCart
           )}
         </div>
       </div>
+
+      {/* Bulk Quantity Popup */}
+      {bulkOpen && (
+        <div
+          style={{
+            position: 'fixed', inset: 0, zIndex: 9999,
+            background: 'rgba(0,0,0,0.45)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center'
+          }}
+          onClick={() => setBulkOpen(false)}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              background: '#fff', borderRadius: '16px',
+              padding: '2rem', width: '340px', maxWidth: '92vw',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.18)', position: 'relative'
+            }}
+          >
+            {/* Close */}
+            <button
+              onClick={() => setBulkOpen(false)}
+              style={{
+                position: 'absolute', top: '1rem', right: '1rem',
+                background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem',
+                color: '#374151', lineHeight: 1
+              }}
+            >✕</button>
+
+            {/* Header */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+              <div style={{
+                width: '40px', height: '40px', borderRadius: '50%',
+                background: '#e8f5e9', display: 'flex', alignItems: 'center', justifyContent: 'center'
+              }}>
+                <ShoppingCart size={18} color="#6b9312" />
+              </div>
+              <h3 style={{ margin: 0, fontWeight: 700, fontSize: '1.1rem', color: '#111827' }}>
+                Available in Bulk Quantity
+              </h3>
+            </div>
+
+            <p style={{ color: '#6b7280', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
+              {product.name}{product.weight ? ` : ${product.weight}${product.unit ? ' ' + product.unit : ''}` : ''}
+            </p>
+
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
+              <div>
+                <div style={{ fontWeight: 600, color: '#111827', marginBottom: '2px' }}>Enter Quantities</div>
+                <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>Max allowed quantity: 99</div>
+              </div>
+              <input
+                type="number"
+                min={1}
+                max={99}
+                value={bulkQty}
+                onChange={e => setBulkQty(e.target.value)}
+                style={{
+                  width: '80px', padding: '0.5rem 0.75rem',
+                  border: '1.5px solid #d1b97a', borderRadius: '8px',
+                  fontSize: '1rem', fontWeight: 700, textAlign: 'center',
+                  background: '#fffbef', color: '#111827', outline: 'none'
+                }}
+              />
+            </div>
+
+            <button
+              onClick={handleBulkConfirm}
+              style={{
+                width: '100%', padding: '0.85rem',
+                background: '#6b9312', color: '#fff',
+                border: 'none', borderRadius: '10px',
+                fontWeight: 700, fontSize: '1rem',
+                cursor: 'pointer', letterSpacing: '0.04em'
+              }}
+            >
+              ADD TO BILL
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

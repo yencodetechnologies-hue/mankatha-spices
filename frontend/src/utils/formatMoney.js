@@ -14,8 +14,8 @@ const EXCHANGE_RATES = {
   AED: 0.044
 };
 
-export const APP_CURRENCY = localStorage.getItem("appCurrency") || "INR";
-export const APP_LOCALE = LOCALE_MAP[APP_CURRENCY] || "en-IN";
+export const APP_CURRENCY = localStorage.getItem("appCurrency") || "GBP";
+export const APP_LOCALE = LOCALE_MAP[APP_CURRENCY] || "en-GB";
 
 export function formatMoney(amount, opts = {}) {
   const { minimumFractionDigits, maximumFractionDigits = 2, currency = APP_CURRENCY } = opts;

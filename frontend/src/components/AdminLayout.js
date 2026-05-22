@@ -17,6 +17,7 @@ import {
   Image,
   Sliders,
   Menu,
+  Store,
 } from "lucide-react";
 import { SIDEBAR_GROUPS } from "../constants";
 import { useAuth } from "../contexts/AuthContext";
@@ -32,6 +33,7 @@ const ICON_MAP = {
   reviews: MessageSquare,
   coupons: Ticket,
   distributors: Truck,
+  general: Store,
   settings: Settings,
   category: Layers,
   banners: Image,

@@ -4,7 +4,7 @@ import { orderApi } from "../api/orderApi";
 import { formatMoney } from "../utils/formatMoney";
 
 const formatOrderDate = (iso) =>
-  new Intl.DateTimeFormat("en-LK", { month: "short", day: "numeric" }).format(new Date(iso));
+  new Intl.DateTimeFormat("en-GB", { month: "short", day: "numeric" }).format(new Date(iso));
 
 const initialsFromName = (name) => {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -27,11 +27,12 @@ const toRow = (o) => ({
   customer: o.customerName,
   initials: initialsFromName(o.customerName),
   avatarHue: hueFromName(o.customerName),
-  items: o.itemCount,
+  itemCount: o.itemCount,
   total: o.total,
   payment: o.payment,
   status: o.status,
   date: formatOrderDate(o.orderDate),
+  items: o.lineItems || [],
 });
 
 const paymentClass = (p) => {
@@ -71,6 +72,7 @@ const AdminOrdersPanel = () => {
     pendingAction: 0,
   });
   const [errorMessage, setErrorMessage] = useState("");
+  const [selectedOrder, setSelectedOrder] = useState(null);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All Status");
   const [periodFilter, setPeriodFilter] = useState("This Month");
@@ -163,8 +165,8 @@ const AdminOrdersPanel = () => {
   }, [rows]);
 
   const handleExport = () => {
-    const header = ["Order ID", "Customer", "Items", "Total (LKR)", "Payment", "Status", "Date"];
-    const rowsCsv = filtered.map((o) => [o.id, o.customer, o.items, o.total, o.payment, o.status, o.date]);
+    const header = ["Order ID", "Customer", "Items", "Total (£)", "Payment", "Status", "Date"];
+    const rowsCsv = filtered.map((o) => [o.id, o.customer, o.itemCount, o.total, o.payment, o.status, o.date]);
     const csv = [header.join(","), ...rowsCsv.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(","))].join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
@@ -181,7 +183,7 @@ const AdminOrdersPanel = () => {
         <div>
           <h2>Orders</h2>
           <p>
-            {stats.totalOrders.toLocaleString("en-LK")} total orders ·{" "}
+            {stats.totalOrders.toLocaleString("en-GB")} total orders ·{" "}
             <span className="orders-pending-hint">{stats.pendingAction} pending action</span>
           </p>
         </div>
@@ -192,19 +194,19 @@ const AdminOrdersPanel = () => {
 
       <div className="orders-stats-row">
         <div className="order-stat-card stat-delivered">
-          <span className="order-stat-value">{stats.delivered.toLocaleString("en-LK")}</span>
+          <span className="order-stat-value">{stats.delivered.toLocaleString("en-GB")}</span>
           <span className="order-stat-label">Delivered</span>
         </div>
         <div className="order-stat-card stat-processing">
-          <span className="order-stat-value">{stats.processing.toLocaleString("en-LK")}</span>
+          <span className="order-stat-value">{stats.processing.toLocaleString("en-GB")}</span>
           <span className="order-stat-label">Processing</span>
         </div>
         <div className="order-stat-card stat-pending">
-          <span className="order-stat-value">{stats.pending.toLocaleString("en-LK")}</span>
+          <span className="order-stat-value">{stats.pending.toLocaleString("en-GB")}</span>
           <span className="order-stat-label">Pending</span>
         </div>
         <div className="order-stat-card stat-cancelled">
-          <span className="order-stat-value">{stats.cancelled.toLocaleString("en-LK")}</span>
+          <span className="order-stat-value">{stats.cancelled.toLocaleString("en-GB")}</span>
           <span className="order-stat-label">Cancelled</span>
         </div>
       </div>
@@ -288,7 +290,7 @@ const AdminOrdersPanel = () => {
                         </div>
                       </td>
                       <td>
-                        {o.items} item{o.items === 1 ? "" : "s"}
+                        {o.itemCount} item{o.itemCount === 1 ? "" : "s"}
                       </td>
                       <td className="order-total-cell">{formatMoney(o.total)}</td>
                       <td>
@@ -302,7 +304,7 @@ const AdminOrdersPanel = () => {
                       </td>
                       <td>{o.date}</td>
                       <td>
-                        <button type="button" className="order-view-btn">
+                        <button type="button" className="order-view-btn" onClick={() => setSelectedOrder(o)}>
                           View
                         </button>
                       </td>
@@ -313,6 +315,59 @@ const AdminOrdersPanel = () => {
             </table>
           </div>
       </div>
+
+      {selectedOrder && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setSelectedOrder(null)}>
+          <div style={{ background: '#fff', borderRadius: '12px', padding: '24px', width: '500px', maxWidth: '90%', maxHeight: '80vh', display: 'flex', flexDirection: 'column', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid #eee', paddingBottom: '16px' }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 'bold', color: '#111827' }}>Order #{selectedOrder.id} Details</h3>
+                <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#6b7280' }}>{selectedOrder.date}</p>
+              </div>
+              <button onClick={() => setSelectedOrder(null)} style={{ border: 'none', background: '#f3f4f6', cursor: 'pointer', fontSize: '14px', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4b5563' }}>✕</button>
+            </div>
+            
+            <div style={{ marginBottom: '20px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div>
+                <span style={{ fontSize: '11px', textTransform: 'uppercase', color: '#6b7280', fontWeight: '600' }}>Customer</span>
+                <div style={{ fontWeight: '500', color: '#111827', marginTop: '4px' }}>{selectedOrder.customer}</div>
+              </div>
+              <div>
+                <span style={{ fontSize: '11px', textTransform: 'uppercase', color: '#6b7280', fontWeight: '600' }}>Status</span>
+                <div style={{ marginTop: '4px' }}><span className={statusClass(selectedOrder.status)} style={{ marginLeft: 0 }}>{selectedOrder.status}</span></div>
+              </div>
+            </div>
+
+            <div style={{ flex: 1, overflowY: 'auto', marginBottom: '20px' }}>
+              <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: 'bold', color: '#374151' }}>Purchased Items</h4>
+              {selectedOrder.items && selectedOrder.items.length > 0 ? (
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                  {selectedOrder.items.map((item, idx) => (
+                    <li key={idx} style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f3f4f6', padding: '12px 0', alignItems: 'center' }}>
+                      <div style={{ flex: 1, paddingRight: '16px' }}>
+                        <div style={{ fontWeight: '600', color: '#1f2937', fontSize: '14px', marginBottom: '4px' }}>{item.name}</div>
+                        <div style={{ fontSize: '12px', color: '#6b7280' }}>Qty: {item.quantity} × {formatMoney(item.price)}</div>
+                      </div>
+                      <div style={{ fontWeight: '700', color: '#111827', fontSize: '14px' }}>
+                        {formatMoney((item.price || 0) * (item.quantity || 1))}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div style={{ padding: '20px', textAlign: 'center', background: '#f9fafb', borderRadius: '8px', color: '#6b7280', fontSize: '14px' }}>
+                  No item details found for this order.
+                </div>
+              )}
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', background: '#f9fafb', borderRadius: '8px', fontWeight: 'bold', fontSize: '16px', color: '#111827' }}>
+              <span>Total Amount</span>
+              <span style={{ fontSize: '18px', color: '#059669' }}>{formatMoney(selectedOrder.total)}</span>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

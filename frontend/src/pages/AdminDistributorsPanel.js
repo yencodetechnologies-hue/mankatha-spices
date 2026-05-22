@@ -255,286 +255,286 @@ const AdminDistributorsPanel = () => {
 
   const tableRows = useMemo(() => list.slice(0, 12), [list]);
 
-  return (
-    <div className="distributors-page mx-auto max-w-6xl">
-      <header className="products-head mb-2">
-        <div>
-          <h2>Vendors</h2>
-          <p>Create vendor accounts aligned with compliance, payment terms, and contact records.</p>
-        </div>
-      </header>
+  // return (
+  //   <div className="distributors-page mx-auto max-w-6xl">
+  //     <header className="products-head mb-2">
+  //       <div>
+  //         <h2>Vendors</h2>
+  //         <p>Create vendor accounts aligned with compliance, payment terms, and contact records.</p>
+  //       </div>
+  //     </header>
 
-      {success ? (
-        <div className="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-          {success}
-        </div>
-      ) : null}
-      {error ? (
-        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</div>
-      ) : null}
+  //     {success ? (
+  //       <div className="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+  //         {success}
+  //       </div>
+  //     ) : null}
+  //     {error ? (
+  //       <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</div>
+  //     ) : null}
 
-      <form
-        onSubmit={onSubmit}
-        className="rounded-2xl border border-[#E3F2FD] bg-white p-6 shadow-sm sm:p-8"
-      >
-        <SectionHeader Icon={Info} title="Basic Details" />
+  //     <form
+  //       onSubmit={onSubmit}
+  //       className="rounded-2xl border border-[#E3F2FD] bg-white p-6 shadow-sm sm:p-8"
+  //     >
+  //       <SectionHeader Icon={Info} title="Basic Details" />
 
-        <div className="mb-10 grid gap-4 md:grid-cols-2">
-          <Field label="Distributor ID">
-            <Input
-              icon={LayoutGrid}
-              name="distributorId"
-              value={form.distributorId}
-              readOnly
-              className="bg-[#FAFAFA]"
-            />
-          </Field>
-          <Field label="Business Type">
-            <Select icon={Building2} name="businessType" value={form.businessType} onChange={onChange("businessType")}>
-              {BUSINESS_TYPES.map((t) => (
-                <option key={t} value={t}>
-                  {t}
-                </option>
-              ))}
-            </Select>
-          </Field>
-          <Field label="Company Name" required>
-            <Input
-              placeholder="Legal business name"
-              value={form.companyName}
-              onChange={onChange("companyName")}
-              required
-            />
-          </Field>
-          <Field label="Payable Name" required>
-            <Input
-              placeholder="Name on invoices"
-              value={form.payableName}
-              onChange={onChange("payableName")}
-              required
-            />
-          </Field>
-          <div className="md:col-span-2">
-            <Field label="Full Office Address" required>
-              <Input
-                icon={MapPin}
-                placeholder="Street, building, landmark"
-                value={form.fullOfficeAddress}
-                onChange={onChange("fullOfficeAddress")}
-                required
-              />
-            </Field>
-          </div>
-          <Field label="Area / City" required>
-            <Input value={form.areaCity} onChange={onChange("areaCity")} required />
-          </Field>
-          <Field label="State" required>
-            <Input value={form.state} onChange={onChange("state")} required />
-          </Field>
-          <Field label="Pincode" required>
-            <Input value={form.pincode} onChange={onChange("pincode")} required />
-          </Field>
-        </div>
+  //       <div className="mb-10 grid gap-4 md:grid-cols-2">
+  //         <Field label="Distributor ID">
+  //           <Input
+  //             icon={LayoutGrid}
+  //             name="distributorId"
+  //             value={form.distributorId}
+  //             readOnly
+  //             className="bg-[#FAFAFA]"
+  //           />
+  //         </Field>
+  //         <Field label="Business Type">
+  //           <Select icon={Building2} name="businessType" value={form.businessType} onChange={onChange("businessType")}>
+  //             {BUSINESS_TYPES.map((t) => (
+  //               <option key={t} value={t}>
+  //                 {t}
+  //               </option>
+  //             ))}
+  //           </Select>
+  //         </Field>
+  //         <Field label="Company Name" required>
+  //           <Input
+  //             placeholder="Legal business name"
+  //             value={form.companyName}
+  //             onChange={onChange("companyName")}
+  //             required
+  //           />
+  //         </Field>
+  //         <Field label="Payable Name" required>
+  //           <Input
+  //             placeholder="Name on invoices"
+  //             value={form.payableName}
+  //             onChange={onChange("payableName")}
+  //             required
+  //           />
+  //         </Field>
+  //         <div className="md:col-span-2">
+  //           <Field label="Full Office Address" required>
+  //             <Input
+  //               icon={MapPin}
+  //               placeholder="Street, building, landmark"
+  //               value={form.fullOfficeAddress}
+  //               onChange={onChange("fullOfficeAddress")}
+  //               required
+  //             />
+  //           </Field>
+  //         </div>
+  //         <Field label="Area / City" required>
+  //           <Input value={form.areaCity} onChange={onChange("areaCity")} required />
+  //         </Field>
+  //         <Field label="State" required>
+  //           <Input value={form.state} onChange={onChange("state")} required />
+  //         </Field>
+  //         <Field label="Pincode" required>
+  //           <Input value={form.pincode} onChange={onChange("pincode")} required />
+  //         </Field>
+  //       </div>
 
-        <SectionHeader Icon={Contact} title="Contact Information" />
+  //       <SectionHeader Icon={Contact} title="Contact Information" />
 
-        <div className="mb-10 grid gap-4 md:grid-cols-2">
-          <Field label="Contact Person Name" required>
-            <Input
-              icon={User}
-              value={form.contactPersonName}
-              onChange={onChange("contactPersonName")}
-              required
-            />
-          </Field>
-          <Field label="Mobile Number" required>
-            <Input
-              icon={Smartphone}
-              placeholder="+91 ..."
-              value={form.mobileNumber}
-              onChange={onChange("mobileNumber")}
-              required
-            />
-          </Field>
-          <Field label="Office Phone Number" required>
-            <Input
-              icon={Phone}
-              value={form.officePhoneNumber}
-              onChange={onChange("officePhoneNumber")}
-              required
-            />
-          </Field>
-          <Field label="Email Address" required>
-            <Input
-              icon={Mail}
-              type="email"
-              value={form.email}
-              onChange={onChange("email")}
-              required
-            />
-          </Field>
-        </div>
+  //       <div className="mb-10 grid gap-4 md:grid-cols-2">
+  //         <Field label="Contact Person Name" required>
+  //           <Input
+  //             icon={User}
+  //             value={form.contactPersonName}
+  //             onChange={onChange("contactPersonName")}
+  //             required
+  //           />
+  //         </Field>
+  //         <Field label="Mobile Number" required>
+  //           <Input
+  //             icon={Smartphone}
+  //             placeholder="+91 ..."
+  //             value={form.mobileNumber}
+  //             onChange={onChange("mobileNumber")}
+  //             required
+  //           />
+  //         </Field>
+  //         <Field label="Office Phone Number" required>
+  //           <Input
+  //             icon={Phone}
+  //             value={form.officePhoneNumber}
+  //             onChange={onChange("officePhoneNumber")}
+  //             required
+  //           />
+  //         </Field>
+  //         <Field label="Email Address" required>
+  //           <Input
+  //             icon={Mail}
+  //             type="email"
+  //             value={form.email}
+  //             onChange={onChange("email")}
+  //             required
+  //           />
+  //         </Field>
+  //       </div>
 
-        <SectionHeader Icon={Shield} title="Legal & Compliance" />
+  //       <SectionHeader Icon={Shield} title="Legal & Compliance" />
 
-        <div className="mb-10 grid gap-4 md:grid-cols-2">
-          <Field label="GST Registration No">
-            <Input value={form.gstRegistrationNo} onChange={onChange("gstRegistrationNo")} />
-          </Field>
-          <Field label="Drug License No">
-            <Input value={form.drugLicenseNo} onChange={onChange("drugLicenseNo")} />
-          </Field>
-          <Field label="PAN Number">
-            <Input value={form.panNumber} onChange={onChange("panNumber")} />
-          </Field>
-          <Field label="FSSAI License No">
-            <Input value={form.fssaiLicenseNo} onChange={onChange("fssaiLicenseNo")} />
-          </Field>
-        </div>
+  //       <div className="mb-10 grid gap-4 md:grid-cols-2">
+  //         <Field label="GST Registration No">
+  //           <Input value={form.gstRegistrationNo} onChange={onChange("gstRegistrationNo")} />
+  //         </Field>
+  //         <Field label="Drug License No">
+  //           <Input value={form.drugLicenseNo} onChange={onChange("drugLicenseNo")} />
+  //         </Field>
+  //         <Field label="PAN Number">
+  //           <Input value={form.panNumber} onChange={onChange("panNumber")} />
+  //         </Field>
+  //         <Field label="FSSAI License No">
+  //           <Input value={form.fssaiLicenseNo} onChange={onChange("fssaiLicenseNo")} />
+  //         </Field>
+  //       </div>
 
-        <SectionHeader Icon={CreditCard} title="Payment Terms" />
+  //       <SectionHeader Icon={CreditCard} title="Payment Terms" />
 
-        <div className="mb-10 grid gap-4 md:grid-cols-3">
-          <Field label="Payment Type">
-            <Select icon={CreditCard} value={form.paymentType} onChange={onChange("paymentType")}>
-              {PAYMENT_TYPES.map((t) => (
-                <option key={t} value={t}>
-                  {t}
-                </option>
-              ))}
-            </Select>
-          </Field>
-          <Field label="Credit Limit (Days)" required>
-            <Input
-              type="number"
-              min={0}
-              placeholder="0"
-              value={form.creditLimitDays}
-              onChange={onChange("creditLimitDays")}
-              required
-            />
-          </Field>
-          <Field label="Opening Balance">
-            <Input
-              type="number"
-              step="0.01"
-              placeholder="0.00"
-              value={form.openingBalance}
-              onChange={onChange("openingBalance")}
-            />
-          </Field>
-        </div>
+  //       <div className="mb-10 grid gap-4 md:grid-cols-3">
+  //         <Field label="Payment Type">
+  //           <Select icon={CreditCard} value={form.paymentType} onChange={onChange("paymentType")}>
+  //             {PAYMENT_TYPES.map((t) => (
+  //               <option key={t} value={t}>
+  //                 {t}
+  //               </option>
+  //             ))}
+  //           </Select>
+  //         </Field>
+  //         <Field label="Credit Limit (Days)" required>
+  //           <Input
+  //             type="number"
+  //             min={0}
+  //             placeholder="0"
+  //             value={form.creditLimitDays}
+  //             onChange={onChange("creditLimitDays")}
+  //             required
+  //           />
+  //         </Field>
+  //         <Field label="Opening Balance">
+  //           <Input
+  //             type="number"
+  //             step="0.01"
+  //             placeholder="0.00"
+  //             value={form.openingBalance}
+  //             onChange={onChange("openingBalance")}
+  //           />
+  //         </Field>
+  //       </div>
 
-        <SectionHeader Icon={Settings} title="Additional Settings" />
+  //       <SectionHeader Icon={Settings} title="Additional Settings" />
 
-        <div className="mb-10 grid gap-4 md:grid-cols-2">
-          <Field label="Account Status">
-            <Select icon={Settings} value={form.accountStatus} onChange={onChange("accountStatus")}>
-              {ACCOUNT_STATUSES.map((t) => (
-                <option key={t} value={t}>
-                  {t}
-                </option>
-              ))}
-            </Select>
-          </Field>
-          <div className="md:col-span-2">
-            <Field label="Notes / Special Remarks">
-              <textarea
-                rows={3}
-                className="w-full rounded-lg border border-[#ede6dc] bg-white px-3 py-2.5 text-sm text-[#263238] outline-none placeholder:text-[#90A4AE] focus:border-[#d4a017] focus:ring-1 focus:ring-[#d4a017]/40"
-                placeholder="Delivery windows, rebates, approvals…"
-                value={form.notesSpecialRemarks}
-                onChange={onChange("notesSpecialRemarks")}
-              />
-            </Field>
-          </div>
-        </div>
+  //       <div className="mb-10 grid gap-4 md:grid-cols-2">
+  //         <Field label="Account Status">
+  //           <Select icon={Settings} value={form.accountStatus} onChange={onChange("accountStatus")}>
+  //             {ACCOUNT_STATUSES.map((t) => (
+  //               <option key={t} value={t}>
+  //                 {t}
+  //               </option>
+  //             ))}
+  //           </Select>
+  //         </Field>
+  //         <div className="md:col-span-2">
+  //           <Field label="Notes / Special Remarks">
+  //             <textarea
+  //               rows={3}
+  //               className="w-full rounded-lg border border-[#ede6dc] bg-white px-3 py-2.5 text-sm text-[#263238] outline-none placeholder:text-[#90A4AE] focus:border-[#d4a017] focus:ring-1 focus:ring-[#d4a017]/40"
+  //               placeholder="Delivery windows, rebates, approvals…"
+  //               value={form.notesSpecialRemarks}
+  //               onChange={onChange("notesSpecialRemarks")}
+  //             />
+  //           </Field>
+  //         </div>
+  //       </div>
 
-        <div className="flex flex-wrap justify-end gap-3 border-t border-[#ECEFF1] pt-6">
-          <button
-            type="button"
-            className="rounded-lg border border-[#d4a017] bg-white px-5 py-2.5 text-sm font-semibold text-[#6a4b00] transition hover:bg-[#faf7f2]"
-            onClick={discard}
-            disabled={submitting}
-          >
-            Discard Changes
-          </button>
-          <button
-            type="submit"
-            className="rounded-lg bg-[#a61e1e] px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#7f1616] disabled:opacity-60"
-            disabled={submitting}
-          >
-            {submitting ? "Saving…" : form._id ? "Update Vendor" : "Create Vendor"}
-          </button>
-        </div>
-      </form>
+  //       <div className="flex flex-wrap justify-end gap-3 border-t border-[#ECEFF1] pt-6">
+  //         <button
+  //           type="button"
+  //           className="rounded-lg border border-[#d4a017] bg-white px-5 py-2.5 text-sm font-semibold text-[#6a4b00] transition hover:bg-[#faf7f2]"
+  //           onClick={discard}
+  //           disabled={submitting}
+  //         >
+  //           Discard Changes
+  //         </button>
+  //         <button
+  //           type="submit"
+  //           className="rounded-lg bg-[#a61e1e] px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#7f1616] disabled:opacity-60"
+  //           disabled={submitting}
+  //         >
+  //           {submitting ? "Saving…" : form._id ? "Update Vendor" : "Create Vendor"}
+  //         </button>
+  //       </div>
+  //     </form>
 
-      <section className="mt-10 rounded-2xl border border-[#f0e8dc] bg-white p-6 shadow-sm">
-        <h3 className="mb-4 text-base font-semibold text-[#263238]">Recent vendors</h3>
-        {loadingList ? (
-          <p className="text-sm text-[#78909C]">Loading…</p>
-        ) : tableRows.length === 0 ? (
-          <p className="text-sm text-[#78909C]">No vendors yet.</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[640px] text-left text-sm">
-              <thead>
-                <tr className="border-b border-[#ECEFF1] text-xs uppercase tracking-wide text-[#78909C]">
-                  <th className="py-2 pr-4 font-semibold">ID</th>
-                  <th className="py-2 pr-4 font-semibold">Company</th>
-                  <th className="py-2 pr-4 font-semibold">City</th>
-                  <th className="py-2 pr-4 font-semibold">Status</th>
-                  <th className="py-2 pr-4 font-semibold">Created</th>
-                  <th className="py-2 font-semibold">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {tableRows.map((d) => (
-                  <tr key={d._id} className="border-b border-[#F5F5F5] text-[#37474F]">
-                    <td className="py-2.5 pr-4 font-mono text-xs">{d.distributorId}</td>
-                    <td className="py-2.5 pr-4">{d.companyName}</td>
-                    <td className="py-2.5 pr-4">{d.areaCity}</td>
-                    <td className="py-2.5 pr-4">
-                      <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                        d.accountStatus === "Active"
-                          ? "bg-emerald-50 text-emerald-700"
-                          : d.accountStatus === "Suspended"
-                          ? "bg-rose-50 text-rose-700"
-                          : "bg-gray-100 text-gray-700"
-                      }`}>
-                        {d.accountStatus}
-                      </span>
-                    </td>
-                    <td className="py-2.5 pr-4 text-xs text-[#90A4AE]">
-                      {d.createdAt ? new Date(d.createdAt).toLocaleDateString() : "—"}
-                    </td>
-                    <td className="py-2.5">
-                      <div className="flex gap-2">
-                        <button
-                          className="rounded p-1 text-[#78909C] hover:bg-[#faf7f2] hover:text-[#d4a017]"
-                          title="Edit"
-                          onClick={() => handleEdit(d)}
-                        >
-                          <Edit2 size={16} />
-                        </button>
-                        <button
-                          className="rounded p-1 text-[#78909C] hover:bg-red-50 hover:text-red-600"
-                          title="Delete"
-                          onClick={() => handleDelete(d._id)}
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
-    </div>
-  );
+  //     <section className="mt-10 rounded-2xl border border-[#f0e8dc] bg-white p-6 shadow-sm">
+  //       <h3 className="mb-4 text-base font-semibold text-[#263238]">Recent vendors</h3>
+  //       {loadingList ? (
+  //         <p className="text-sm text-[#78909C]">Loading…</p>
+  //       ) : tableRows.length === 0 ? (
+  //         <p className="text-sm text-[#78909C]">No vendors yet.</p>
+  //       ) : (
+  //         <div className="overflow-x-auto">
+  //           <table className="w-full min-w-[640px] text-left text-sm">
+  //             <thead>
+  //               <tr className="border-b border-[#ECEFF1] text-xs uppercase tracking-wide text-[#78909C]">
+  //                 <th className="py-2 pr-4 font-semibold">ID</th>
+  //                 <th className="py-2 pr-4 font-semibold">Company</th>
+  //                 <th className="py-2 pr-4 font-semibold">City</th>
+  //                 <th className="py-2 pr-4 font-semibold">Status</th>
+  //                 <th className="py-2 pr-4 font-semibold">Created</th>
+  //                 <th className="py-2 font-semibold">Actions</th>
+  //               </tr>
+  //             </thead>
+  //             <tbody>
+  //               {tableRows.map((d) => (
+  //                 <tr key={d._id} className="border-b border-[#F5F5F5] text-[#37474F]">
+  //                   <td className="py-2.5 pr-4 font-mono text-xs">{d.distributorId}</td>
+  //                   <td className="py-2.5 pr-4">{d.companyName}</td>
+  //                   <td className="py-2.5 pr-4">{d.areaCity}</td>
+  //                   <td className="py-2.5 pr-4">
+  //                     <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+  //                       d.accountStatus === "Active"
+  //                         ? "bg-emerald-50 text-emerald-700"
+  //                         : d.accountStatus === "Suspended"
+  //                         ? "bg-rose-50 text-rose-700"
+  //                         : "bg-gray-100 text-gray-700"
+  //                     }`}>
+  //                       {d.accountStatus}
+  //                     </span>
+  //                   </td>
+  //                   <td className="py-2.5 pr-4 text-xs text-[#90A4AE]">
+  //                     {d.createdAt ? new Date(d.createdAt).toLocaleDateString() : "—"}
+  //                   </td>
+  //                   <td className="py-2.5">
+  //                     <div className="flex gap-2">
+  //                       <button
+  //                         className="rounded p-1 text-[#78909C] hover:bg-[#faf7f2] hover:text-[#d4a017]"
+  //                         title="Edit"
+  //                         onClick={() => handleEdit(d)}
+  //                       >
+  //                         <Edit2 size={16} />
+  //                       </button>
+  //                       <button
+  //                         className="rounded p-1 text-[#78909C] hover:bg-red-50 hover:text-red-600"
+  //                         title="Delete"
+  //                         onClick={() => handleDelete(d._id)}
+  //                       >
+  //                         <Trash2 size={16} />
+  //                       </button>
+  //                     </div>
+  //                   </td>
+  //                 </tr>
+  //               ))}
+  //             </tbody>
+  //           </table>
+  //         </div>
+  //       )}
+  //     </section>
+  //   </div>
+  // );
 };
 
 export default AdminDistributorsPanel;

@@ -11,6 +11,7 @@ const absoluteImage = (path) => {
 };
 
 const emptyProduct = {
+  type: "general",
   name: "",
   sku: "",
   category: "",
@@ -60,6 +61,7 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
 
     return {
       ...initialData,
+      type: initialData.type ?? "general",
       image: null,
       price: firstWeightPricing?.price ?? 1,
       weight: firstWeightPricing?.weight ?? "100g",
@@ -201,6 +203,14 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
 
         <form onSubmit={submit} className="modal-form">
           <div className="grid-2">
+            <div className="form-group">
+              <label>Product Type</label>
+              <select value={form.type || "general"} onChange={(e) => setField("type", e.target.value)} required>
+                <option value="general">General</option>
+                <option value="vendor">Vendor</option>
+              </select>
+            </div>
+
             <div className="form-group">
               <label>Product Name</label>
               <input placeholder="e.g. Kashmir Saffron" value={form.name} onChange={(e) => setField("name", e.target.value)} required />

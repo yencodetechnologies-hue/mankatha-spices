@@ -21,7 +21,8 @@ export const SIDEBAR_GROUPS = [
     title: "MAIN",
     items: [
       { id: "overview", label: "Overview", path: "overview" },
-      { id: "distributors", label: "Vendors", path: "distributors" },
+      // { id: "distributors", label: "Vendors", path: "distributors" },
+      { id: "general", label: "General", path: "general" },
       { id: "inventory", label: "Inventory", path: "inventory" },
       { id: "category", label: "Category", path: "category" },
       { id: "products", label: "Products", path: "products" },
