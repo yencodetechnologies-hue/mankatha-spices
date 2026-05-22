@@ -121,30 +121,9 @@ const Header = () => {
   
   const savedCity = localStorage.getItem("appCity");
   const [userLocation, setUserLocation] = useState({ 
-    city: savedCity ? savedCity.split(',')[0] : "Detecting...", 
-    region: savedCity ? savedCity.split(',')[1]?.trim() : "Please wait" 
+    city: savedCity ? savedCity.split(',')[0] : "Select Location", 
+    region: savedCity ? savedCity.split(',')[1]?.trim() : "Click to set area" 
   });
-
-  useEffect(() => {
-    if (localStorage.getItem("appCity")) return; // Skip if manually set
-    
-    fetch("https://ipapi.co/json/")
-      .then(res => res.json())
-      .then(data => {
-        if (data && data.city) {
-          setUserLocation({
-            city: data.city,
-            region: `${data.region_code || data.region}, ${data.country_code || data.country_name}`
-          });
-        } else {
-          setUserLocation({ city: "Chennai", region: "Tamil Nadu, IN" });
-        }
-      })
-      .catch(err => {
-        console.warn("Could not fetch IP location", err);
-        setUserLocation({ city: "Chennai", region: "Tamil Nadu, IN" });
-      });
-  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -223,6 +202,47 @@ const Header = () => {
   const cartCount = getCartCount();
   const cartTotal = getCartTotal();
 
+  const handleLocationClick = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          try {
+            const response = await fetch(`https://photon.komoot.io/reverse?lon=${lng}&lat=${lat}`);
+            const data = await response.json();
+            
+            if (data && data.features && data.features.length > 0) {
+              const props = data.features[0].properties;
+              const pin = props.postcode || props.city || "Unknown";
+              const desc = props.name || props.locality || props.street || props.city || "Serviceable Area";
+              
+              setUserLocation({
+                city: pin,
+                region: desc
+              });
+              localStorage.setItem("appCity", `${pin}, ${desc}`);
+              localStorage.setItem("appPincode", pin !== "Unknown" ? pin : "");
+            }
+          } catch (err) {
+            console.error("Geocoding error", err);
+          }
+          
+          // Only open the Location Modal IF they have allowed permission
+          setLocationModalOpen(true);
+        },
+        (err) => {
+          console.warn("Location permission denied", err);
+          // If they block or deny, show this strict alert and DO NOT open the modal
+          alert("Please allow the location permission before continuing");
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    } else {
+      alert("Please allow the location permission before continuing");
+    }
+  };
+
   return (
     <>
       <header className="bg-white shadow-sm sticky top-0 z-50">
@@ -242,7 +262,7 @@ const Header = () => {
             {/* Location - Amazon Style */}
             {user?.role !== 'admin' && (
               <div 
-                onClick={() => setLocationModalOpen(true)}
+                onClick={handleLocationClick}
                 className="hidden lg:flex items-center gap-1 cursor-pointer hover:ring-1 hover:ring-gray-200 p-1.5 rounded transition-all border border-gray-100 shadow-sm px-3"
               >
                 <MapPin size={20} className="text-gray-800 mt-1.5" strokeWidth={1.5} />
