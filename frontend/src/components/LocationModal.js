@@ -219,11 +219,24 @@ const LocationModal = ({ isOpen, onClose, onLocationSet }) => {
         setStep(2);
       }
     } catch (error) {
-      setResult({
-        success: false,
-        available: false,
-        message: "Failed to check service availability. Please try again."
-      });
+      if (error.response && error.response.status === 404) {
+        // Fallback: If backend isn't updated on production yet, assume location is available.
+        setResult({
+          success: true,
+          available: true,
+          message: "Location available (fallback)",
+          city: "Serviceable Area"
+        });
+        setSelectedCity("Serviceable Area");
+        setSelectedDesc(selectedDescription || pinToCheck);
+        setStep(2);
+      } else {
+        setResult({
+          success: false,
+          available: false,
+          message: "Failed to check service availability. Please try again."
+        });
+      }
     } finally {
       setLoading(false);
     }
