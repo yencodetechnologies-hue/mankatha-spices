@@ -28,6 +28,7 @@ import AdminInventoryPanel from './pages/AdminInventoryPanel';
 import AdminReviewsPanel from './pages/AdminReviewsPanel';
 import AdminCouponsPanel from './pages/AdminCouponsPanel';
 import AdminSettingsPanel from './pages/AdminSettingsPanel';
+import AdminBannersPanel from './pages/AdminBannersPanel';
 import AdminSlidersPanel from './pages/AdminSlidersPanel';
 import AdminDistributorsPanel from './pages/AdminDistributorsPanel';
 import AdminGeneralPanel from './pages/AdminGeneralPanel';
@@ -133,6 +134,7 @@ function AppContent() {
               <Route path="distributors" element={<AdminDistributorsPanel />} />
               <Route path="general" element={<AdminGeneralPanel />} />
               <Route path="settings" element={<AdminSettingsPanel />} />
+              <Route path="banners" element={<AdminBannersPanel />} />
               <Route path="sliders" element={<AdminSlidersPanel />} />
               <Route path="category" element={<AdminCategoryPanel />} />
               {adminPlaceholderRoutes}

@@ -10,6 +10,7 @@ import { categoryApi } from '../../api/categoryApi';
 import heroBlendedMasala from '../../assets/hero_blended_masala.png';
 import heroOrganicSpices from '../../assets/hero_organic_spices.png';
 import heroWholeSpices from '../../assets/hero_whole_spices.png';
+import promoBannerImg from '../../assets/promo_banner.png';
 
 import { useWishlist } from '../../contexts/WishlistContext';
 
@@ -419,6 +420,8 @@ const Home = () => {
   const [scrollY, setScrollY] = useState(0);
   const [categoriesList, setCategoriesList] = useState([]);
   const [slides, setSlides] = useState([]);
+  const [promoBanner, setPromoBanner] = useState(null);
+  const [showPromoPopup, setShowPromoPopup] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -547,6 +550,41 @@ const Home = () => {
     }
     setSlides(defaultSlides);
   }, []);
+
+  useEffect(() => {
+    try {
+      const storedBanners = localStorage.getItem("mankatha_promo_banners");
+      if (storedBanners) {
+        const banners = JSON.parse(storedBanners);
+        if (banners.length > 0 && banners[0].isActive) {
+          setPromoBanner(banners[0]);
+          
+          // Only show popup if user hasn't dismissed it in this session
+          const hasSeen = sessionStorage.getItem(`seen_promo_${banners[0].id}`);
+          if (!hasSeen) {
+            setShowPromoPopup(true);
+          }
+        }
+      } else {
+        // Default promotional banner if none configured
+        setPromoBanner({
+          title: "Promo Banner",
+          link: "/products",
+          imageUrl: promoBannerImg,
+          isActive: true
+        });
+      }
+    } catch (e) {
+      console.error("Failed to load promo banners", e);
+    }
+  }, []);
+
+  const closePromoPopup = () => {
+    setShowPromoPopup(false);
+    if (promoBanner) {
+      sessionStorage.setItem(`seen_promo_${promoBanner.id}`, "true");
+    }
+  };
 
   const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % slides.length);
   const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
@@ -677,6 +715,34 @@ const Home = () => {
           ))}
         </div>
       </section>
+      
+      {/* Promo Banner Popup */}
+      {showPromoPopup && promoBanner && promoBanner.imageUrl && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 animate-fade-in">
+          {/* Blurred Backdrop */}
+          <div 
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" 
+            onClick={closePromoPopup}
+          />
+          
+          {/* Modal Content */}
+          <div className="relative z-10 w-full max-w-3xl bg-transparent rounded-3xl overflow-hidden shadow-2xl transform transition-all scale-100 animate-scale-up">
+            <button 
+              onClick={closePromoPopup}
+              className="absolute top-4 right-4 z-50 bg-black/50 hover:bg-black/80 text-white w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md transition-colors"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+            <Link to={promoBanner.link || "/products"} onClick={closePromoPopup} className="block group">
+              <img 
+                src={promoBanner.imageUrl} 
+                alt={promoBanner.title || "Promotional Banner"} 
+                className="w-full h-auto object-contain max-h-[80vh] rounded-3xl"
+              />
+            </Link>
+          </div>
+        </div>
+      )}
 
       {/* Categories */}
       <section className="section-padding overflow-hidden">
