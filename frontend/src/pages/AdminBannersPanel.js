@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { ArrowRight, Plus, Trash2, Edit2 } from "lucide-react";
-import { Link } from "react-router-dom";
 import promoBannerImg from "../assets/promo_banner.png";
 
 const AdminBannersPanel = () => {
