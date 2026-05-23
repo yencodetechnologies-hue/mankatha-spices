@@ -27,9 +27,13 @@ const mergeSearch = (base, search) => {
 
 const getOrders = async (req, res) => {
   try {
-    const { search = "", period = "all", page = 1, limit = 200 } = req.query;
+    const { search = "", period = "all", page = 1, limit = 200, source } = req.query;
     const periodFilter = periodToFilter(period);
-    const filter = mergeSearch(periodFilter, search);
+    let filter = mergeSearch(periodFilter, search);
+    
+    if (source === 'pos') {
+      filter.isPOS = true;
+    }
 
     const skip = (Number(page) - 1) * Number(limit);
     const [orders, total] = await Promise.all([
@@ -52,8 +56,12 @@ const getOrders = async (req, res) => {
 
 const getStats = async (req, res) => {
   try {
-    const { period = "all" } = req.query;
-    const periodFilter = periodToFilter(period);
+    const { period = "all", source } = req.query;
+    let periodFilter = periodToFilter(period);
+    
+    if (source === 'pos' || (req.user && req.user.role === 'biller')) {
+      periodFilter.billerId = req.user._id;
+    }
 
     const [
       totalOrders,
@@ -94,7 +102,7 @@ const getStats = async (req, res) => {
 
 const createOrder = async (req, res) => {
   try {
-    const { customerName, email, phone, city, total, payment, paymentMethod, status, lineItems, itemCount, couponCode, discountAmount } = req.body;
+    const { customerName, email, phone, city, total, payment, paymentMethod, status, lineItems, itemCount, couponCode, discountAmount, isPOS } = req.body;
     
     // Simple order ID generator
     const orderId = "SE" + Math.floor(1000 + Math.random() * 9000);
@@ -139,7 +147,8 @@ const createOrder = async (req, res) => {
       billerName,
       customerId,
       couponCode,
-      discountAmount
+      discountAmount,
+      isPOS: Boolean(isPOS)
     });
 
     // Upsert Customer Analytics Record if email is provided

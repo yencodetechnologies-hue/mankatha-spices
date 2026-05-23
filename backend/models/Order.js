@@ -44,6 +44,7 @@ const orderSchema = new mongoose.Schema({
   customerId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   couponCode: { type: String, trim: true },
   discountAmount: { type: Number, default: 0, min: 0 },
+  isPOS: { type: Boolean, default: false },
   orderDate: { type: Date, default: Date.now },
   createdAt: { type: Date, default: Date.now },
 });

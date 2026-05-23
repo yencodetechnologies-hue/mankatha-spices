@@ -251,7 +251,11 @@ const AdminBannersPanel = () => {
                         onChange={(e) => {
                           const file = e.target.files[0];
                           if (file) {
-                            setFormData({ ...formData, imageFile: file, imageUrl: URL.createObjectURL(file) });
+                            const reader = new FileReader();
+                            reader.onloadend = () => {
+                              setFormData({ ...formData, imageFile: file, imageUrl: reader.result });
+                            };
+                            reader.readAsDataURL(file);
                           }
                         }}
                         style={{ display: 'none' }}

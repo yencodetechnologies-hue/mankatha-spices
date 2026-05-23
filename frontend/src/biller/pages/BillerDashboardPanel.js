@@ -107,8 +107,8 @@ const BillerDashboardPanel = () => {
     setError("");
     try {
       const [statsRes, ordersRes] = await Promise.all([
-        orderApi.getStats(),
-        orderApi.getOrders({ limit: 20 }),
+        orderApi.getStats(), // Ideally getBillerStats, but keeping for now
+        orderApi.getBillerOrders({ limit: 20 }),
       ]);
       setStats(statsRes);
       setOrders(ordersRes.orders || []);
@@ -229,43 +229,6 @@ const BillerDashboardPanel = () => {
         />
       </div>
 
-      {/* ── Quick actions ── */}
-      <div>
-        <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-gray-400">
-          Quick Actions
-        </h3>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <ActionCard
-            icon={FileText}
-            title="New Bill"
-            desc="Create a fresh invoice for walk-in or online orders."
-            color="#8dbe20"
-            onClick={() => window.location.href = "/biller/new-bill"}
-          />
-          <ActionCard
-            icon={ShoppingCart}
-            title="View Orders"
-            desc="Browse all pending and completed customer orders."
-            color="#f59e0b"
-            onClick={() => alert("Orders — coming soon")}
-          />
-          <ActionCard
-            icon={Printer}
-            title="Print Bill"
-            desc="Re-print any invoice directly from the print queue."
-            color="#6366f1"
-            onClick={() => window.print()}
-          />
-          <ActionCard
-            icon={TrendingUp}
-            title="Daily Report"
-            desc="View collection summary for the current business day."
-            color="#10b981"
-            onClick={() => alert("Report — coming soon")}
-          />
-        </div>
-      </div>
-
       {/* ── Recent orders table ── */}
       <div className="rounded-2xl border border-[#ede6dc] bg-white shadow-sm overflow-hidden">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-5 border-b border-[#ede6dc]">
@@ -287,7 +250,6 @@ const BillerDashboardPanel = () => {
                 <th className="px-5 py-3">Customer</th>
                 <th className="px-5 py-3">Items</th>
                 <th className="px-5 py-3">Amount</th>
-                <th className="px-5 py-3">Status</th>
                 <th className="px-5 py-3">Payment</th>
                 <th className="px-5 py-3">Time</th>
                 <th className="px-5 py-3 text-right">Action</th>
@@ -297,7 +259,7 @@ const BillerDashboardPanel = () => {
               {loading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <tr key={i} className="animate-pulse">
-                    {Array.from({ length: 8 }).map((_, j) => (
+                    {Array.from({ length: 7 }).map((_, j) => (
                       <td key={j} className="px-5 py-3">
                         <div className="h-3 rounded bg-gray-200" />
                       </td>
@@ -306,7 +268,7 @@ const BillerDashboardPanel = () => {
                 ))
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-14 text-center text-gray-400">
+                  <td colSpan={7} className="py-14 text-center text-gray-400">
                     {search
                       ? "No orders match your search."
                       : "No orders found. Once customers place orders they'll appear here."}
@@ -324,10 +286,9 @@ const BillerDashboardPanel = () => {
                       {formatMoney(o.total)}
                     </td>
                     <td className="px-5 py-3">
-                      <span className={statusBadge(o.status)}>{o.status}</span>
-                    </td>
-                    <td className="px-5 py-3">
-                      <span className={statusBadge(o.payment)}>{o.payment}</span>
+                      <span className="inline-flex items-center text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-[#dcfce7] text-[#166534]">
+                        Paid
+                      </span>
                     </td>
                     <td className="px-5 py-3 text-gray-400 whitespace-nowrap">
                       {fmtTime(o.orderDate || o.createdAt)}

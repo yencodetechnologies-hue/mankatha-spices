@@ -559,11 +559,11 @@ const Home = () => {
         if (banners.length > 0 && banners[0].isActive) {
           setPromoBanner(banners[0]);
           
-          // Only show popup if user hasn't dismissed it in this session
-          const hasSeen = sessionStorage.getItem(`seen_promo_${banners[0].id}`);
-          if (!hasSeen) {
+          // Temporarily bypassing the 'seen once' logic so you can test it easily
+          // const hasSeen = sessionStorage.getItem(`seen_promo_${banners[0].id}`);
+          // if (!hasSeen) {
             setShowPromoPopup(true);
-          }
+          // }
         }
       } else {
         // Default promotional banner if none configured

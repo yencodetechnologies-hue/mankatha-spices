@@ -403,7 +403,8 @@ const BillerNewBillPanel = () => {
         paymentMethod: paymentMethod,
         status: "Delivered",
         lineItems: lineItems,
-        itemCount: lineItems.reduce((acc, item) => acc + item.quantity, 0)
+        itemCount: lineItems.reduce((acc, item) => acc + item.quantity, 0),
+        isPOS: true
       });
 
       setSuccess(newOrder);

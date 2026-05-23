@@ -122,7 +122,6 @@ const BillerOrdersPanel = () => {
                   <th className="px-5 py-3">Items</th>
                   <th className="px-5 py-3">Total</th>
                   <th className="px-5 py-3">Payment</th>
-                  <th className="px-5 py-3">Status</th>
                   <th className="px-5 py-3">Date</th>
                   <th className="px-5 py-3 text-right">Print</th>
                 </tr>
@@ -130,7 +129,7 @@ const BillerOrdersPanel = () => {
               <tbody className="divide-y divide-gray-100">
                 {loading ? (
                   <tr>
-                    <td colSpan={8} className="px-5 py-10 text-center text-gray-400">
+                    <td colSpan={7} className="px-5 py-10 text-center text-gray-400">
                       <div className="flex justify-center items-center gap-2">
                         <Loader2 size={18} className="animate-spin" />
                         Loading billing orders...
@@ -139,7 +138,7 @@ const BillerOrdersPanel = () => {
                   </tr>
                 ) : filtered.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="px-5 py-12 text-center text-gray-400">
+                    <td colSpan={7} className="px-5 py-12 text-center text-gray-400">
                       <ShoppingCart size={32} className="mx-auto mb-2 text-gray-300" />
                       <p>{search ? "No orders match your search." : "No bills placed yet. Go to New Bill to create one."}</p>
                     </td>
@@ -160,27 +159,9 @@ const BillerOrdersPanel = () => {
                         {formatMoney(o.total)}
                       </td>
                       <td className="px-5 py-3">
-                        <select
-                          value={o.payment || "Paid"}
-                          onChange={(e) => handlePaymentChange(o.orderId, e.target.value)}
-                          className="text-xs font-semibold px-2 py-1.5 rounded-lg border-0 cursor-pointer focus:ring-2 focus:ring-primary-500 focus:outline-none"
-                          style={o.payment === "Paid" ? { background: "#dcfce7", color: "#166534" } : o.payment === "Refunded" ? { background: "#dbeafe", color: "#1d4ed8" } : { background: "#fef3c7", color: "#92400e" }}
-                        >
-                          <option value="Paid">Paid</option>
-                          <option value="Pending">Pending</option>
-                          <option value="Refunded">Refunded</option>
-                        </select>
-                      </td>
-                      <td className="px-5 py-3">
-                        <select
-                          value={o.status || "Delivered"}
-                          onChange={(e) => handleStatusChange(o.orderId, e.target.value)}
-                          className="text-xs font-semibold px-2 py-1.5 rounded-lg border-0 cursor-pointer focus:ring-2 focus:ring-primary-500 focus:outline-none"
-                          style={statusStyle(o.status)}
-                        >
-                          <option value="Delivered">Delivered</option>
-                          <option value="Cancelled">Cancelled</option>
-                        </select>
+                        <span className="inline-flex items-center text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-[#dcfce7] text-[#166534]">
+                          Paid
+                        </span>
                       </td>
                       <td className="px-5 py-3 text-gray-500 text-xs">
                         {fmtDate(o.orderDate || o.createdAt)}
