@@ -12,6 +12,8 @@ function publicUser(doc) {
     phone: doc.phone || "",
     role: doc.role,
     isActive: doc.isActive,
+    emailNotifications: doc.emailNotifications,
+    smsNotifications: doc.smsNotifications
   };
 }
 
@@ -280,6 +282,15 @@ async function registerVerifyOtp(req, res) {
     user.registerOtpExpires = null;
     await user.save();
 
+    const Notification = require("../models/Notification");
+    await Notification.create({
+      user: user._id,
+      title: "Welcome to Mankatha Spices!",
+      message: "Enjoy the authentic taste of premium spices.",
+      icon: "🎉",
+      color: "bg-orange-100"
+    });
+
     const token = signToken(user._id);
     res.status(201).json({
       token,
@@ -428,6 +439,54 @@ async function resetPassword(req, res) {
   }
 }
 
+async function changePassword(req, res) {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: "Current and new password are required." });
+    }
+    if (String(newPassword).length < 6) {
+      return res.status(400).json({ message: "New password must be at least 6 characters." });
+    }
+
+    const user = await User.findById(req.user._id).select("+password");
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    const ok = await bcrypt.compare(String(currentPassword), user.password);
+    if (!ok) {
+      return res.status(401).json({ message: "Incorrect current password." });
+    }
+
+    const hashed = await bcrypt.hash(String(newPassword), 10);
+    user.password = hashed;
+    await user.save();
+
+    res.json({ message: "Password updated successfully!" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to change password." });
+  }
+}
+
+async function updatePreferences(req, res) {
+  try {
+    const { emailNotifications, smsNotifications } = req.body;
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(404).json({ message: "User not found." });
+    
+    if (emailNotifications !== undefined) user.emailNotifications = emailNotifications;
+    if (smsNotifications !== undefined) user.smsNotifications = smsNotifications;
+    
+    await user.save();
+    res.json({ message: "Preferences updated", user: publicUser(user.toObject()) });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to update preferences." });
+  }
+}
+
 module.exports = {
   register,
   login,
@@ -437,5 +496,7 @@ module.exports = {
   registerVerifyOtp,
   forgotSendOtp,
   forgotVerifyOtp,
-  resetPassword
+  resetPassword,
+  changePassword,
+  updatePreferences
 };

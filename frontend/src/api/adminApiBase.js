@@ -4,7 +4,7 @@ export function withAuthHeaders(config = {}) {
   const next = { ...config };
   next.headers = { ...(config.headers || {}) };
   if (typeof localStorage !== "undefined") {
-    const token = localStorage.getItem(AUTH_TOKEN_KEY);
+    const token = localStorage.getItem(AUTH_TOKEN_KEY) || sessionStorage.getItem(AUTH_TOKEN_KEY);
     if (token) next.headers.Authorization = `Bearer ${token}`;
   }
   return next;

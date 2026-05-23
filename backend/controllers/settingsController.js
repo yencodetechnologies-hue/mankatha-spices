@@ -84,7 +84,7 @@ function buildPatch(body) {
     }
     if (key === "currency" && typeof raw === "string") {
       const c = raw.toUpperCase();
-      if (["INR", "USD", "AED", "LKR", "EUR"].includes(c)) patch[key] = c;
+      if (["INR", "USD", "AED", "GBP", "EUR"].includes(c)) patch[key] = c;
       continue;
     }
     if (typeof raw === "string") {

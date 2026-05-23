@@ -45,7 +45,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     let cancelled = false;
     async function hydrate() {
-      const token = typeof localStorage !== "undefined" ? localStorage.getItem(AUTH_TOKEN_KEY) : null;
+      const token = typeof localStorage !== "undefined" ? (localStorage.getItem(AUTH_TOKEN_KEY) || sessionStorage.getItem(AUTH_TOKEN_KEY)) : null;
       if (!token) {
         if (!cancelled) dispatch({ type: "SET_LOADING", payload: false });
         return;
@@ -57,6 +57,7 @@ export const AuthProvider = ({ children }) => {
         }
       } catch {
         localStorage.removeItem(AUTH_TOKEN_KEY);
+        sessionStorage.removeItem(AUTH_TOKEN_KEY);
         if (!cancelled) dispatch({ type: "LOGOUT" });
       }
     }
@@ -66,13 +67,20 @@ export const AuthProvider = ({ children }) => {
     };
   }, []);
 
-  const loginWithSession = useCallback((token, user) => {
-    localStorage.setItem(AUTH_TOKEN_KEY, token);
+  const loginWithSession = useCallback((token, user, rememberMe = true) => {
+    if (rememberMe) {
+      localStorage.setItem(AUTH_TOKEN_KEY, token);
+      sessionStorage.removeItem(AUTH_TOKEN_KEY);
+    } else {
+      sessionStorage.setItem(AUTH_TOKEN_KEY, token);
+      localStorage.removeItem(AUTH_TOKEN_KEY);
+    }
     dispatch({ type: "LOGIN", payload: { token, user } });
   }, []);
 
   const logout = useCallback(() => {
     localStorage.removeItem(AUTH_TOKEN_KEY);
+    sessionStorage.removeItem(AUTH_TOKEN_KEY);
     // Clear user-specific data from local storage so guests don't see it
     localStorage.removeItem('cart');
     localStorage.removeItem('mankatha_cart_coupon');

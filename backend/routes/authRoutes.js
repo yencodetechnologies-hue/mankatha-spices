@@ -9,6 +9,8 @@ const {
   forgotSendOtp,
   forgotVerifyOtp,
   resetPassword,
+  changePassword,
+  updatePreferences
 } = require("../controllers/authController");
 const { requireAuth } = require("../middleware/auth");
 
@@ -22,6 +24,8 @@ router.post("/forgot-verify-otp", forgotVerifyOtp);
 router.post("/reset-password", resetPassword);
 router.post("/login", login);
 router.post("/google", loginWithGoogle);
+router.post("/change-password", requireAuth, changePassword);
+router.put("/preferences", requireAuth, updatePreferences);
 router.get("/me", requireAuth, me);
 
 module.exports = router;

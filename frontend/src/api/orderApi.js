@@ -43,5 +43,24 @@ export const orderApi = {
   getMyOrders: async () => {
     const response = await client.get("orders/my-orders");
     return response.data;
-  }
+  },
+
+  updateOrderStatus: async (id, status) => {
+    const response = await client.patch(`orders/${id}/status`, { status });
+    ordersCache = null;
+    statsCache = null;
+    return response.data;
+  },
+
+  updateOrderPayment: async (id, payment) => {
+    const response = await client.patch(`orders/${id}/payment`, { payment });
+    ordersCache = null;
+    statsCache = null;
+    return response.data;
+  },
+
+  getBillerOrders: async (params = {}) => {
+    const response = await client.get("orders/biller-orders", { params });
+    return response.data;
+  },
 };

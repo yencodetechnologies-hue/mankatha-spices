@@ -24,7 +24,7 @@ const orderSchema = new mongoose.Schema({
   total: { type: Number, required: true, min: 0 },
   payment: {
     type: String,
-    enum: ["Paid", "Pending", "Refunded"],
+    enum: ["Paid", "Pending", "Awaiting Approval", "Refunded"],
     default: "Pending",
   },
   paymentMethod: {
@@ -34,7 +34,7 @@ const orderSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["Delivered", "Processing", "Pending", "Cancelled"],
+    enum: ["Ordered", "Confirmed", "Delivered", "Processing", "Pending", "Shipped", "Out for Delivery", "Awaiting Bank Transfer", "Cancelled"],
     default: "Pending",
   },
   /** Cart lines for overview “products” column & category charts */

@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { orderApi } from "../../api/orderApi";
 import { formatMoney } from "../../utils/formatMoney";
+import MankathaBanner from "../../components/Brand/MankathaBanner";
 
 /* ─── helpers ──────────────────────────────────────────────── */
 const fmtTime = (iso) => {
@@ -58,6 +59,8 @@ const statusBadge = (s) => {
     Paid:      "bg-green-50 text-green-700 border-green-200",
     Processing:"bg-blue-50  text-blue-700  border-blue-200",
     Pending:   "bg-amber-50 text-amber-700 border-amber-200",
+    "Awaiting Bank Transfer": "bg-amber-50 text-amber-700 border-amber-200",
+    "Awaiting Approval": "bg-amber-50 text-amber-700 border-amber-200",
     Cancelled: "bg-red-50   text-red-700   border-red-200",
   };
   return `inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${map[s] ?? "bg-gray-50 text-gray-600 border-gray-200"}`;
@@ -90,6 +93,14 @@ const BillerDashboardPanel = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState("");
   const [search, setSearch]   = useState("");
+  const [printOrder, setPrintOrder] = useState(null);
+
+  const handlePrint = (order) => {
+    setPrintOrder(order);
+    setTimeout(() => {
+      window.print();
+    }, 100);
+  };
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -134,7 +145,8 @@ const BillerDashboardPanel = () => {
   );
 
   return (
-    <div className="space-y-8">
+    <>
+    <div className={`space-y-8 ${printOrder ? 'print:hidden' : ''}`}>
 
       {/* ── Welcome banner ── */}
       <div className="rounded-2xl border border-amber-100 bg-gradient-to-r from-[#fffdf6] to-[#f0f7e6] p-6 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -323,7 +335,7 @@ const BillerDashboardPanel = () => {
                     <td className="px-5 py-3 text-right">
                       <button
                         type="button"
-                        onClick={() => window.print()}
+                        onClick={() => handlePrint(o)}
                         className="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-3 py-1 text-xs font-medium text-gray-600 hover:border-primary-300 hover:text-primary-700 transition"
                       >
                         <Printer size={12} />
@@ -345,6 +357,83 @@ const BillerDashboardPanel = () => {
         )}
       </div>
     </div>
+    
+    {printOrder && (
+      <div
+        className="hidden print:block w-full max-w-md mx-auto bg-white p-4"
+        style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}
+      >
+        <div className="text-center mb-4 border-b border-[#91521f] pb-4">
+          <MankathaBanner variant="strip" className="mb-2 !border-0 !shadow-none !bg-transparent" />
+          <h1 className="text-xl font-bold tracking-wider mb-1 text-[#91521f] font-serif uppercase">Mankatha Spices</h1>
+          <p className="text-sm text-gray-700 font-medium">123 Spice Market, Bazaar Road</p>
+          <p className="text-sm text-gray-700 font-medium">Chennai - 600001</p>
+          <p className="text-sm text-gray-700 font-medium mt-1 font-mono">Ph: +91 98765 43210</p>
+        </div>
+
+        <div className="mb-4 bg-[#fdfaf6] p-3 rounded-lg border border-[#f2d4bb]">
+          <div className="flex justify-between mb-1 text-sm text-[#3d2f26]">
+            <span className="font-semibold text-gray-500">Date:</span>
+            <span className="font-bold">{new Date(printOrder.orderDate || printOrder.createdAt).toLocaleDateString('en-IN')}</span>
+          </div>
+          <div className="flex justify-between mb-1 text-sm text-[#3d2f26]">
+            <span className="font-semibold text-gray-500">Time:</span>
+            <span className="font-bold">{new Date(printOrder.orderDate || printOrder.createdAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</span>
+          </div>
+          <div className="flex justify-between mb-1 text-sm text-[#3d2f26]">
+            <span className="font-semibold text-gray-500">Order ID:</span>
+            <span className="font-mono font-bold text-[#b45309]">{printOrder.orderId}</span>
+          </div>
+          <div className="flex justify-between mb-1 text-sm text-[#3d2f26]">
+            <span className="font-semibold text-gray-500">Payment:</span>
+            <span className="font-bold text-[#6b9312]">{printOrder.paymentMethod || "Cash"}</span>
+          </div>
+          <div className="flex justify-between mb-1 text-sm text-[#3d2f26]">
+            <span className="font-semibold text-gray-500">Cashier:</span>
+            <span className="font-bold">Biller Desk</span>
+          </div>
+          {printOrder.customerName && printOrder.customerName !== "Walk-in Customer" && (
+            <div className="flex justify-between mt-2 pt-2 border-t border-[#f2d4bb] text-sm text-[#3d2f26]">
+              <span className="font-semibold text-gray-500">Customer:</span>
+              <span className="font-bold text-[#6b9312]">{printOrder.customerName}</span>
+            </div>
+          )}
+        </div>
+
+        <div className="mb-4">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-left border-b border-[#91521f] text-[#91521f]">
+                <th className="font-bold pb-1 w-1/2 uppercase tracking-wide text-xs">Item</th>
+                <th className="font-bold pb-1 text-center w-1/6 uppercase tracking-wide text-xs">Qty</th>
+                <th className="font-bold pb-1 text-right w-1/3 uppercase tracking-wide text-xs">Price</th>
+              </tr>
+            </thead>
+            <tbody className="text-[#3d2f26]">
+              {printOrder.lineItems?.map((item, idx) => (
+                <tr key={idx} className="border-b border-gray-100 last:border-0">
+                  <td className="py-2 pr-2 font-medium">{item.name}</td>
+                  <td className="py-2 text-center bg-gray-50/50 font-bold">{item.quantity}</td>
+                  <td className="py-2 text-right font-bold">{formatMoney((item.price || 0) * item.quantity)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="flex justify-between items-center font-bold text-lg border-t border-[#91521f] pt-3 mb-4 text-[#91521f]">
+          <span className="uppercase tracking-wide">Total Amount:</span>
+          <span className="text-xl">{formatMoney(printOrder.total)}</span>
+        </div>
+
+        <div className="text-center text-sm text-gray-600 bg-gray-50 py-3 rounded-lg border border-gray-100">
+          <p className="font-semibold text-[#6b9312] mb-1">Thank you for shopping with us!</p>
+          <p className="italic text-xs">Pure spices, rich flavour, trusted quality.</p>
+          <p className="mt-1 text-[10px] font-mono text-gray-400 uppercase">Visit again</p>
+        </div>
+      </div>
+    )}
+    </>
   );
 };
 

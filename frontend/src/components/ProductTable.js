@@ -35,7 +35,7 @@ const ProductTable = ({
                 <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
                   {countryPricing.weights.map((w) => (
                     <div key={w.weight} style={{ fontSize: "0.8rem", whiteSpace: "nowrap", color: "#3d2f26" }}>
-                      <span style={{ fontWeight: "600" }}>{w.weight}:</span> LKR {w.price}
+                      <span style={{ fontWeight: "600" }}>{w.weight}:</span> {countryPricing.currency} {w.price}
                     </div>
                   ))}
                 </div>

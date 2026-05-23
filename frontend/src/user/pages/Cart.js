@@ -243,12 +243,7 @@ const Cart = () => {
               </Link>
 
               {/* Security Badge */}
-              <div className="mt-6 text-center">
-                <div className="flex items-center justify-center text-sm text-gray-500">
-                  <span className="mr-2">🔒</span>
-                  <span>Secure Checkout</span>
-                </div>
-              </div>
+          
             </div>
           </div>
         </div>

@@ -27,7 +27,7 @@ const Checkout = () => {
     city: user?.addresses?.[0]?.city || '',
     state: user?.addresses?.[0]?.state || '',
     zipCode: user?.addresses?.[0]?.zip_code || '',
-    country: user?.addresses?.[0]?.country || 'Sri Lanka'
+    country: user?.addresses?.[0]?.country || 'United Kingdom'
   });
 
   const [paymentInfo, setPaymentInfo] = useState({
@@ -89,7 +89,7 @@ const Checkout = () => {
         total: total,
         payment: paymentMethod === 'card' ? 'Paid' : 'Pending',
         paymentMethod: paymentMethod === 'card' ? 'Card' : 'Bank Transfer',
-        status: 'Processing',
+        status: paymentMethod === 'card' ? 'Confirmed' : 'Pending',
         couponCode: appliedCoupon ? appliedCoupon.code : undefined,
         discountAmount: discount,
         itemCount: items.reduce((acc, curr) => acc + curr.quantity, 0),
@@ -116,23 +116,6 @@ const Checkout = () => {
     }
   };
 
-  if (items.length === 0) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <ShoppingCart size={64} className="mx-auto text-gray-400 mb-4" />
-          <h2 className="text-2xl font-bold mb-4">Your cart is empty</h2>
-          <Link
-            to="/products"
-            className="inline-block bg-primary-500 hover:bg-primary-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
-          >
-            Continue Shopping
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
   if (orderPlaced) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -147,6 +130,23 @@ const Checkout = () => {
             className="inline-block bg-primary-500 hover:bg-primary-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
           >
             Go to Homepage
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (items.length === 0) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <ShoppingCart size={64} className="mx-auto text-gray-400 mb-4" />
+          <h2 className="text-2xl font-bold mb-4">Your cart is empty</h2>
+          <Link
+            to="/products"
+            className="inline-block bg-primary-500 hover:bg-primary-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+          >
+            Continue Shopping
           </Link>
         </div>
       </div>
@@ -402,7 +402,7 @@ const Checkout = () => {
                         <span className="font-bold text-primary-600">1002 4589 1256</span>
 
                         <span className="text-gray-500 font-medium">Branch:</span>
-                        <span className="font-semibold text-gray-800">Colombo Main (Sri Lanka)</span>
+                        <span className="font-semibold text-gray-800">London Main (UK)</span>
 
                         <span className="text-gray-500 font-medium">SWIFT / BIC:</span>
                         <span className="font-semibold text-gray-800">MANKLK2X</span>
@@ -591,23 +591,7 @@ const Checkout = () => {
               </div>
 
               {/* Security Badge */}
-              <div className="text-center">
-                <div className="flex items-center justify-center text-sm text-gray-500 mb-2">
-                  <span className="mr-2">🔒</span>
-                  <span>Secure Checkout</span>
-                </div>
-                <div className="flex justify-center space-x-2">
-                  <div className="w-10 h-6 bg-gray-100 rounded flex items-center justify-center text-xs font-bold">
-                    VISA
-                  </div>
-                  <div className="w-10 h-6 bg-gray-100 rounded flex items-center justify-center text-xs font-bold">
-                    MC
-                  </div>
-                  <div className="w-10 h-6 bg-gray-100 rounded flex items-center justify-center text-xs font-bold">
-                    AMEX
-                  </div>
-                </div>
-              </div>
+            
             </div>
           </div>
         </div>

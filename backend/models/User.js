@@ -24,6 +24,8 @@ const userSchema = new mongoose.Schema(
     registerOtpExpires: { type: Date },
     forgotOtp: { type: String, default: "" },
     forgotOtpExpires: { type: Date },
+    emailNotifications: { type: Boolean, default: true },
+    smsNotifications: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

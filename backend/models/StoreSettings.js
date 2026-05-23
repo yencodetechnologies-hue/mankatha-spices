@@ -11,7 +11,7 @@ const storeSettingsSchema = new mongoose.Schema(
     phone: { type: String, default: "+91 44 2345 6789", trim: true },
     currency: {
       type: String,
-      enum: ["INR", "USD", "AED", "LKR", "EUR"],
+      enum: ["INR", "USD", "AED", "GBP", "EUR"],
       default: "INR",
     },
     storeAddress: {

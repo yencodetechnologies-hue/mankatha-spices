@@ -182,8 +182,8 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
       ...form,
       pricing: [
         {
-          country: "Sri Lanka",
-          currency: "LKR",
+          country: "United Kingdom",
+          currency: "GBP",
           weights: activeWeights,
         },
       ],
@@ -203,6 +203,7 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
 
         <form onSubmit={submit} className="modal-form">
           <div className="grid-2">
+            {/* 
             <div className="form-group">
               <label>Product Type</label>
               <select value={form.type || "general"} onChange={(e) => setField("type", e.target.value)} required>
@@ -210,6 +211,7 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
                 <option value="vendor">Vendor</option>
               </select>
             </div>
+            */}
 
             <div className="form-group">
               <label>Product Name</label>
@@ -321,7 +323,7 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
 
             <div className="form-group">
               <label>Origin</label>
-              <input placeholder="e.g. Matale, Sri Lanka" value={form.origin} onChange={(e) => setField("origin", e.target.value)} required />
+              <input placeholder="e.g. London, UK" value={form.origin} onChange={(e) => setField("origin", e.target.value)} required />
             </div>
 
             <div className="form-group">

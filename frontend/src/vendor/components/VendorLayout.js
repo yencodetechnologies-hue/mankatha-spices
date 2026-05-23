@@ -40,6 +40,7 @@ const VendorLayout = ({ children }) => {
               <li>
                 <NavLink
                   to="/vendor/dashboard"
+                  onClick={() => setIsSidebarOpen(false)}
                   className={({ isActive }) => `admin-nav-link${isActive ? " active" : ""}`}
                 >
                   <LayoutDashboard size={18} strokeWidth={1.75} className="admin-nav-icon" aria-hidden />
@@ -49,6 +50,7 @@ const VendorLayout = ({ children }) => {
               <li>
                 <NavLink
                   to="/vendor/products"
+                  onClick={() => setIsSidebarOpen(false)}
                   className={({ isActive }) => `admin-nav-link${isActive ? " active" : ""}`}
                 >
                   <Truck size={18} strokeWidth={1.75} className="admin-nav-icon" aria-hidden />

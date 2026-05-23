@@ -308,6 +308,7 @@ const BillerNewBillPanel = () => {
 
   const [cart, setCart] = useState([]);
   const [customerName, setCustomerName] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(null);
 
@@ -396,6 +397,7 @@ const BillerNewBillPanel = () => {
 
       const newOrder = await orderApi.createOrder({
         customerName: customerName.trim() || "",
+        phone: customerPhone.trim() || "",
         total: total,
         payment: "Paid",
         paymentMethod: paymentMethod,
@@ -407,6 +409,7 @@ const BillerNewBillPanel = () => {
       setSuccess(newOrder);
       setCart([]);
       setCustomerName("");
+      setCustomerPhone("");
       setShowCheckout(false);
     } catch (err) {
       alert(err?.response?.data?.message || "Failed to generate bill.");
@@ -661,6 +664,16 @@ const BillerNewBillPanel = () => {
                 value={customerName}
                 onChange={(e) => setCustomerName(e.target.value)}
                 placeholder="Walk-in Customer"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 mb-3"
+              />
+              <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">
+                Customer Phone (Optional)
+              </label>
+              <input
+                type="text"
+                value={customerPhone}
+                onChange={(e) => setCustomerPhone(e.target.value)}
+                placeholder="+91-XXXXXXXXXX"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
             </div>
@@ -709,15 +722,27 @@ const BillerNewBillPanel = () => {
                 </div>
               </div>
 
-              <div className="mb-6">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Customer Name</label>
-                <input
-                  type="text"
-                  value={customerName}
-                  onChange={(e) => setCustomerName(e.target.value)}
-                  placeholder="Walk-in Customer"
-                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-[#3d2f26] font-medium focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white transition"
-                />
+              <div className="mb-6 grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Customer Name</label>
+                  <input
+                    type="text"
+                    value={customerName}
+                    onChange={(e) => setCustomerName(e.target.value)}
+                    placeholder="Walk-in Customer"
+                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-[#3d2f26] font-medium focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white transition"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Phone No.</label>
+                  <input
+                    type="text"
+                    value={customerPhone}
+                    onChange={(e) => setCustomerPhone(e.target.value)}
+                    placeholder="+91-XXXXXXXXXX"
+                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-[#3d2f26] font-medium focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white transition"
+                  />
+                </div>
               </div>
 
               <div className="mb-8">

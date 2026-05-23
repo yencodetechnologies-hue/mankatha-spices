@@ -32,6 +32,7 @@ import AdminSlidersPanel from './pages/AdminSlidersPanel';
 import AdminDistributorsPanel from './pages/AdminDistributorsPanel';
 import AdminGeneralPanel from './pages/AdminGeneralPanel';
 import AdminCategoryPanel from './pages/AdminCategoryPanel';
+import AdminBillersPanel from './pages/AdminBillersPanel';
 import { SIDEBAR_GROUPS } from './constants';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
 import VendorPanelPage from './vendor/pages/VendorPanelPage';
@@ -40,6 +41,7 @@ import VendorProductsPanel from './vendor/pages/VendorProductsPanel';
 import BillerPanelPage from './biller/pages/BillerPanelPage';
 import BillerDashboardPanel from './biller/pages/BillerDashboardPanel';
 import BillerNewBillPanel from './biller/pages/BillerNewBillPanel';
+import BillerOrdersPanel from './biller/pages/BillerOrdersPanel';
 import BillerPlaceholderPanel from './biller/pages/BillerPlaceholderPanel';
 import './index.css';
 
@@ -58,7 +60,8 @@ const adminPlaceholderRoutes = SIDEBAR_GROUPS.flatMap((g) => g.items)
       item.path !== 'general' &&
       item.path !== 'settings' &&
       item.path !== 'sliders' &&
-      item.path !== 'category'
+      item.path !== 'category' &&
+      item.path !== 'billers'
   )
   .map((item) => (
     <Route
@@ -120,6 +123,7 @@ function AppContent() {
             >
               <Route index element={<Navigate to="/adminpanel/overview" replace />} />
               <Route path="overview" element={<AdminOverviewPanel />} />
+              <Route path="billers" element={<AdminBillersPanel />} />
               <Route path="products" element={<AdminProductsPanel />} />
               <Route path="orders" element={<AdminOrdersPanel />} />
               <Route path="customers" element={<AdminCustomersPanel />} />
@@ -156,9 +160,8 @@ function AppContent() {
             >
               <Route index element={<Navigate to="/biller/dashboard" replace />} />
               <Route path="dashboard" element={<BillerDashboardPanel />} />
-              <Route path="orders" element={<BillerPlaceholderPanel title="Orders" />} />
+              <Route path="orders" element={<BillerOrdersPanel />} />
               <Route path="new-bill" element={<BillerNewBillPanel />} />
-              <Route path="print" element={<BillerPlaceholderPanel title="Print Bill" />} />
             </Route>
           </Routes>
         </main>

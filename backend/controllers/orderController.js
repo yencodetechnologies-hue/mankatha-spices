@@ -33,7 +33,7 @@ const getOrders = async (req, res) => {
 
     const skip = (Number(page) - 1) * Number(limit);
     const [orders, total] = await Promise.all([
-      Order.find(filter).sort({ orderDate: -1 }).skip(skip).limit(Number(limit)).lean(),
+      Order.find(filter).populate("customerId", "name email phone").sort({ orderDate: -1 }).skip(skip).limit(Number(limit)).lean(),
       Order.countDocuments(filter),
     ]);
 
@@ -65,12 +65,17 @@ const getStats = async (req, res) => {
     ] = await Promise.all([
       Order.countDocuments(periodFilter),
       Order.countDocuments({ ...periodFilter, status: "Delivered" }),
-      Order.countDocuments({ ...periodFilter, status: "Processing" }),
+      Order.countDocuments({ ...periodFilter, status: { $in: ["Processing", "Confirmed", "Ordered", "Shipped", "Out for Delivery"] } }),
       Order.countDocuments({ ...periodFilter, status: "Pending" }),
       Order.countDocuments({ ...periodFilter, status: "Cancelled" }),
       Order.countDocuments({
         ...periodFilter,
-        $or: [{ status: "Pending" }, { payment: "Pending" }],
+        $or: [
+          { status: "Pending" }, 
+          { status: "Awaiting Bank Transfer" }, 
+          { payment: "Pending" }, 
+          { payment: "Awaiting Approval" }
+        ],
       }),
     ]);
 
@@ -95,9 +100,23 @@ const createOrder = async (req, res) => {
     const orderId = "SE" + Math.floor(1000 + Math.random() * 9000);
     
     const isBiller = req.user && req.user.role === "biller";
-    const customerId = !isBiller && req.user ? req.user._id : undefined;
+    let customerId = !isBiller && req.user ? req.user._id : undefined;
     const billerId = isBiller ? req.user._id : undefined;
     const billerName = isBiller ? req.user.name : undefined;
+
+    // Link order to an existing registered customer if email or phone is provided by Biller
+    if (!customerId && (email || phone)) {
+      const User = require("../models/User");
+      const user = await User.findOne({
+        $or: [
+          ...(email ? [{ email: email.toLowerCase().trim() }] : []),
+          ...(phone ? [{ phone: phone.trim() }] : [])
+        ]
+      });
+      if (user) {
+        customerId = user._id;
+      }
+    }
 
     // Increment coupon usedCount if couponCode is provided
     if (couponCode) {
@@ -148,6 +167,34 @@ const createOrder = async (req, res) => {
       );
     }
 
+    if (customerId) {
+      const Notification = require("../models/Notification");
+      await Notification.create({
+        user: customerId,
+        title: "Order Placed Successfully",
+        message: `Your order #${orderId} has been placed.`,
+        icon: "📦",
+        color: "bg-green-100"
+      });
+    }
+
+    try {
+      const Product = require("../models/Product");
+      if (lineItems && lineItems.length > 0) {
+        for (const item of lineItems) {
+          if (item.name && item.quantity) {
+            const baseName = item.name.split(" - ")[0].trim();
+            await Product.updateMany(
+              { name: new RegExp(`^${baseName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`, "i") },
+              { $inc: { sales: item.quantity } }
+            );
+          }
+        }
+      }
+    } catch (e) {
+      console.error("Failed to increment product sales", e);
+    }
+
     res.status(201).json(order);
   } catch (err) {
     res.status(500).json({ message: err.message || "Failed to create order" });
@@ -168,9 +215,115 @@ const getMyOrders = async (req, res) => {
   }
 };
 
+const updateOrderStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    
+    if (!status) {
+      return res.status(400).json({ message: "Status is required" });
+    }
+
+    const order = await Order.findOneAndUpdate(
+      { orderId: id },
+      { $set: { status } },
+      { new: true }
+    );
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    if (order.customerId) {
+      const Notification = require("../models/Notification");
+      await Notification.create({
+        user: order.customerId,
+        title: "Order Update",
+        message: `Your order #${order.orderId} status changed to ${status}.`,
+        icon: "🚚",
+        color: "bg-blue-100"
+      });
+    }
+
+    res.json(order);
+  } catch (err) {
+    res.status(500).json({ message: err.message || "Failed to update order status" });
+  }
+};
+
+const getBillerOrders = async (req, res) => {
+  try {
+    if (!req.user || req.user.role !== "biller") {
+      return res.status(403).json({ message: "Access denied" });
+    }
+    const { search = "", page = 1, limit = 100 } = req.query;
+    const filter = { billerId: req.user._id };
+    if (search && search.trim()) {
+      const rx = new RegExp(search.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+      filter.$or = [{ orderId: rx }, { customerName: rx }];
+    }
+    const skip = (Number(page) - 1) * Number(limit);
+    const [orders, total] = await Promise.all([
+      Order.find(filter).sort({ orderDate: -1 }).skip(skip).limit(Number(limit)).lean(),
+      Order.countDocuments(filter),
+    ]);
+    res.json({ orders, pagination: { total, page: Number(page), pages: Math.ceil(total / Number(limit)) || 1 } });
+  } catch (err) {
+    res.status(500).json({ message: err.message || "Failed to load biller orders" });
+  }
+};
+
 module.exports = {
   getOrders,
   getStats,
   createOrder,
   getMyOrders,
+  updateOrderStatus,
+  getBillerOrders,
+};
+
+const updateOrderPayment = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { payment } = req.body;
+    
+    if (!payment) {
+      return res.status(400).json({ message: "Payment status is required" });
+    }
+
+    const order = await Order.findOneAndUpdate(
+      { orderId: id },
+      { $set: { payment } },
+      { new: true }
+    );
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    if (order.customerId) {
+      const Notification = require("../models/Notification");
+      await Notification.create({
+        user: order.customerId,
+        title: "Payment Update",
+        message: `Your order #${order.orderId} payment status changed to ${payment}.`,
+        icon: "💳",
+        color: "bg-green-100"
+      });
+    }
+
+    res.json(order);
+  } catch (err) {
+    res.status(500).json({ message: err.message || "Failed to update payment status" });
+  }
+};
+
+module.exports = {
+  getOrders,
+  getStats,
+  createOrder,
+  getMyOrders,
+  updateOrderStatus,
+  updateOrderPayment,
+  getBillerOrders,
 };

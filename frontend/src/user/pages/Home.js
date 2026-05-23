@@ -29,11 +29,13 @@ const ProductCard = ({ product, index }) => {
   const variants = hasVariants ? product.pricing[0].weights.map(w => ({
     weight: w.weight,
     price: w.price,
-    original_price: w.original_price || Math.round(w.price * 1.2)
+    original_price: w.original_price || Math.round(w.price * 1.2),
+    stock: w.stock !== undefined ? w.stock : product.stock
   })) : [{
     weight: `${product.weight || ''} ${product.unit || ''}`.trim() || '1 pc',
     price: product.price,
-    original_price: product.original_price || (product.price ? Math.round(product.price * 1.2) : 0)
+    original_price: product.original_price || (product.price ? Math.round(product.price * 1.2) : 0),
+    stock: product.stock
   }];
 
   const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
@@ -67,8 +69,8 @@ const ProductCard = ({ product, index }) => {
   const handleIncrease = () => {
     if (qty === 0) { handleAdd(); return; }
     const nextQty = qty + 1;
-    if (product.stock !== undefined && nextQty > product.stock) {
-      alert(`Only ${product.stock} units available in stock`);
+    if (currentVariant.stock !== undefined && nextQty > currentVariant.stock) {
+      alert(`Only ${currentVariant.stock} units available in stock`);
       return;
     }
     if (nextQty >= 5) {
@@ -81,9 +83,9 @@ const ProductCard = ({ product, index }) => {
   const handleDecrease = () => updateQuantity(variantCartItemId, qty - 1);
   const handleBulkConfirm = () => {
     let n = Math.min(99, Math.max(1, Number(bulkQty) || 1));
-    if (product.stock !== undefined && n > product.stock) {
-      n = product.stock;
-      alert(`Only ${product.stock} units available in stock`);
+    if (currentVariant.stock !== undefined && n > currentVariant.stock) {
+      n = currentVariant.stock;
+      alert(`Only ${currentVariant.stock} units available in stock`);
     }
     updateQuantity(variantCartItemId, n);
     setBulkOpen(false);
@@ -135,10 +137,7 @@ const ProductCard = ({ product, index }) => {
       </div>
 
       <div className="p-5">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-semibold text-primary-600 uppercase tracking-wider bg-primary-50 px-2 py-1 rounded">
-            Organic
-          </span>
+        <div className="flex items-center justify-end mb-2">
           <div className="flex items-center">
             <Star size={14} className="text-yellow-400 fill-current" />
             <span className="text-xs font-bold text-gray-700 ml-1">{product.rating}</span>
@@ -209,7 +208,7 @@ const ProductCard = ({ product, index }) => {
           >
             <Heart size={20} className={isInWishlist(product._id || product.id) ? "fill-primary-500 text-primary-500" : ""} />
           </button>
-          {product.stock <= 0 ? (
+          {currentVariant.stock <= 0 ? (
             <button
               disabled
               className="w-full h-[42px] flex items-center justify-center gap-2 bg-gray-400 text-white rounded font-bold uppercase tracking-wide cursor-not-allowed"
@@ -239,10 +238,9 @@ const ProductCard = ({ product, index }) => {
               </div>
               <button
                 onClick={handleIncrease}
-                disabled={product.stock !== undefined && qty >= product.stock}
                 className={`w-12 h-full flex items-center justify-center transition-colors ${
-                  product.stock !== undefined && qty >= product.stock
-                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  currentVariant.stock !== undefined && qty >= currentVariant.stock
+                    ? "bg-gray-300 text-gray-500 cursor-pointer"
                     : "bg-primary-500 text-white hover:bg-primary-600"
                 }`}
               >

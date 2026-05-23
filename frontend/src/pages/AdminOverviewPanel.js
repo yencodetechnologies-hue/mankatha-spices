@@ -248,17 +248,6 @@ const AdminOverviewPanel = () => {
                 <ArrowUpRight size={14} /> {kpis?.customers?.changePct ?? 0}% vs last month
               </p>
             </div>
-            <div className="overview-kpi-card">
-              <div className="overview-kpi-icon return">
-                <Undo2 size={22} strokeWidth={1.75} />
-              </div>
-              <p className="overview-kpi-label">Return Rate</p>
-              <p className="overview-kpi-value">{kpis?.returnRate?.value ?? 0}%</p>
-              <p className="overview-kpi-trend muted">
-                {kpis?.returnRate?.changePct >= 0 ? <ArrowUpRight size={14} /> : null}{" "}
-                {kpis?.returnRate?.changePct ?? 0}% pts vs last month
-              </p>
-            </div>
           </section>
 
           <section className="overview-charts-row">

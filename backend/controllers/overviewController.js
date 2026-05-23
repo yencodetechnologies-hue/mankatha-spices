@@ -16,12 +16,12 @@ function pctChange(current, previous) {
   return Math.round(((current - previous) / previous) * 1000) / 10;
 }
 
-/** Short Sri Lanka Rupee labels for dashboard KPIs (revenue). */
-function formatInShortLKR(n) {
+/** Short GBP labels for dashboard KPIs (revenue). */
+function formatInShortGBP(n) {
   const x = Number(n) || 0;
-  if (x >= 1000000) return `Rs.${(x / 1000000).toFixed(1)}M`;
-  if (x >= 1000) return `Rs.${(x / 1000).toFixed(0)}k`;
-  return `Rs.${Math.round(x)}`;
+  if (x >= 1000000) return `£${(x / 1000000).toFixed(1)}M`;
+  if (x >= 1000) return `£${(x / 1000).toFixed(0)}k`;
+  return `£${Math.round(x)}`;
 }
 
 /** Revenue: completed sales (not cancelled) */
@@ -153,7 +153,7 @@ const getOverview = async (req, res) => {
     const kpis = {
       totalRevenue: {
         value: revThis,
-        display: formatInShortLKR(revThis),
+        display: formatInShortGBP(revThis),
         changePct: pctChange(revThis, revLast),
       },
       totalOrders: {
@@ -178,7 +178,7 @@ const getOverview = async (req, res) => {
         month: MONTH_LABELS[d.getMonth()],
         year: d.getFullYear(),
         revenue: rev,
-        label: formatInShortLKR(rev),
+        label: formatInShortGBP(rev),
       };
     });
 

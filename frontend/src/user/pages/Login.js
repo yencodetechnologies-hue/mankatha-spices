@@ -36,6 +36,7 @@ const Login = () => {
     email: '',
     password: ''
   });
+  const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -243,7 +244,7 @@ const Login = () => {
       const email = formData.email.trim().toLowerCase();
       const password = formData.password;
       const { token, user: nextUser } = await authApi.login(email, password);
-      loginWithSession(token, nextUser);
+      loginWithSession(token, nextUser, rememberMe);
       redirectByRole(navigate, nextUser, fromPath);
     } catch (error) {
       const msg =
@@ -553,6 +554,8 @@ const Login = () => {
                 id="remember-me"
                 name="remember-me"
                 type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
                 className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
               />
               <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">

@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
-import { User, Mail, Phone, MapPin, Heart, Package, Settings, LogOut, Edit2, Save, X, Trash2 } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Heart, Package, Settings, LogOut, Edit2, Save, X, Trash2, Star } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useWishlist } from '../../contexts/WishlistContext';
 import { formatMoney } from '../../utils/formatMoney';
 import { orderApi } from '../../api/orderApi';
+import { authApi } from '../api/authApi';
 
 
 const Profile = () => {
@@ -15,6 +16,43 @@ const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState('profile');
   const [orders, setOrders] = useState([]);
+
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
+  const [passwordError, setPasswordError] = useState('');
+  const [passwordSuccess, setPasswordSuccess] = useState('');
+
+  const handlePreferenceChange = async (type, value) => {
+    try {
+      const res = await authApi.updatePreferences({ [type]: value });
+      if (res && res.user) updateUser({ ...user, ...res.user });
+    } catch (e) {
+      console.error("Failed to update preferences", e);
+    }
+  };
+
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    setPasswordError('');
+    setPasswordSuccess('');
+    if (passwordForm.newPassword.length < 6) {
+      return setPasswordError('New password must be at least 6 characters.');
+    }
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      return setPasswordError('New passwords do not match.');
+    }
+    try {
+      const res = await authApi.changePassword({
+        currentPassword: passwordForm.currentPassword,
+        newPassword: passwordForm.newPassword
+      });
+      setPasswordSuccess(res.message || 'Password changed successfully!');
+      setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      setTimeout(() => { setShowChangePassword(false); setPasswordSuccess(''); }, 2000);
+    } catch (err) {
+      setPasswordError(err.response?.data?.message || 'Failed to change password.');
+    }
+  };
 
   React.useEffect(() => {
     if (activeTab === 'orders') {
@@ -132,7 +170,9 @@ const Profile = () => {
             )}
             <div>
               <h4 className="font-medium text-lg">{user?.name}</h4>
-              <p className="text-gray-600">Member since January 2024</p>
+              <p className="text-gray-600">
+                Member since {new Date(user?.createdAt || Date.now()).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+              </p>
             </div>
           </div>
 
@@ -211,6 +251,38 @@ const Profile = () => {
     </div>
   );
 
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [reviewingItem, setReviewingItem] = useState(null);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewBody, setReviewBody] = useState("");
+  const [submittingReview, setSubmittingReview] = useState(false);
+
+  const openReviewModal = (item) => {
+    setReviewingItem(item);
+    setReviewRating(5);
+    setReviewBody("");
+    setReviewModalOpen(true);
+  };
+
+  const submitReview = async () => {
+    if (!reviewBody.trim()) return alert("Please write a review");
+    setSubmittingReview(true);
+    try {
+      const { reviewsApi } = require("../../api/reviewsApi");
+      await reviewsApi.createReview({
+        productName: reviewingItem.name,
+        rating: reviewRating,
+        body: reviewBody,
+      });
+      alert("Review submitted successfully!");
+      setReviewModalOpen(false);
+    } catch (e) {
+      alert("Failed to submit review");
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
+
   const renderOrdersTab = () => (
     <div className="space-y-6">
       {orders.length === 0 ? (
@@ -252,7 +324,7 @@ const Profile = () => {
               {/* Order items list */}
               <div className="divide-y divide-gray-100 px-6">
                 {(order.lineItems || order.items || []).map((item, idx) => (
-                  <div key={idx} className="py-4 flex items-center justify-between gap-4">
+                  <div key={idx} className="py-4 flex items-center justify-between gap-4 flex-wrap">
                     <div className="flex items-center gap-3">
                       {item.featured_image ? (
                         <img
@@ -270,14 +342,58 @@ const Profile = () => {
                         <p className="text-xs text-gray-500">Qty: {item.quantity} × {formatMoney(item.price)}</p>
                       </div>
                     </div>
-                    <span className="font-bold text-gray-800 text-sm">
-                      {formatMoney(item.price * item.quantity)}
-                    </span>
+                    <div className="flex items-center gap-4">
+                      <span className="font-bold text-gray-800 text-sm">
+                        {formatMoney(item.price * item.quantity)}
+                      </span>
+                      <button
+                        onClick={() => openReviewModal(item)}
+                        className="text-xs text-primary-600 hover:text-primary-700 font-medium border border-primary-200 hover:bg-primary-50 px-3 py-1.5 rounded-full transition-colors"
+                      >
+                        Write a Review
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Review Modal */}
+      {reviewModalOpen && reviewingItem && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 relative">
+            <button onClick={() => setReviewModalOpen(false)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+              <X size={20} />
+            </button>
+            <h2 className="text-xl font-bold mb-2">Rate & Review</h2>
+            <p className="text-gray-500 text-sm mb-6">How was the {reviewingItem.name}?</p>
+            
+            <div className="flex gap-2 mb-6 justify-center">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button key={star} onClick={() => setReviewRating(star)}>
+                  <Star size={32} className={`${star <= reviewRating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"} transition-colors hover:scale-110`} />
+                </button>
+              ))}
+            </div>
+
+            <textarea
+              value={reviewBody}
+              onChange={(e) => setReviewBody(e.target.value)}
+              placeholder="Write your experience with this product..."
+              className="w-full h-32 border border-gray-200 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 mb-4"
+            />
+
+            <button
+              onClick={submitReview}
+              disabled={submittingReview}
+              className="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 rounded-lg transition-colors"
+            >
+              {submittingReview ? "Submitting..." : "Submit Review"}
+            </button>
+          </div>
         </div>
       )}
     </div>
@@ -344,7 +460,12 @@ const Profile = () => {
               <p className="text-sm text-gray-600">Receive order updates and promotions</p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" defaultChecked className="sr-only peer" />
+              <input 
+                type="checkbox" 
+                checked={user?.emailNotifications !== false}
+                onChange={(e) => handlePreferenceChange('emailNotifications', e.target.checked)}
+                className="sr-only peer" 
+              />
               <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
             </label>
           </div>
@@ -354,7 +475,12 @@ const Profile = () => {
               <p className="text-sm text-gray-600">Get text messages for important updates</p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" className="sr-only peer" />
+              <input 
+                type="checkbox" 
+                checked={user?.smsNotifications === true}
+                onChange={(e) => handlePreferenceChange('smsNotifications', e.target.checked)}
+                className="sr-only peer" 
+              />
               <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
             </label>
           </div>
@@ -364,10 +490,52 @@ const Profile = () => {
       <div className="bg-white rounded-lg shadow-md p-6">
         <h3 className="text-lg font-semibold mb-4">Security</h3>
         <div className="space-y-4">
-          <button className="w-full text-left px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-            Change Password
-          </button>
-        
+          {!showChangePassword ? (
+            <button 
+              onClick={() => setShowChangePassword(true)}
+              className="w-full text-left px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+              Change Password
+            </button>
+          ) : (
+            <form onSubmit={handleChangePassword} className="border border-gray-200 rounded-lg p-4 space-y-3">
+              {passwordError && <p className="text-red-500 text-sm">{passwordError}</p>}
+              {passwordSuccess && <p className="text-green-500 text-sm">{passwordSuccess}</p>}
+              <div>
+                <label className="block text-sm font-medium mb-1">Current Password</label>
+                <input 
+                  type="password" 
+                  required
+                  value={passwordForm.currentPassword}
+                  onChange={e => setPasswordForm({...passwordForm, currentPassword: e.target.value})}
+                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500" 
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">New Password</label>
+                <input 
+                  type="password" 
+                  required
+                  value={passwordForm.newPassword}
+                  onChange={e => setPasswordForm({...passwordForm, newPassword: e.target.value})}
+                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500" 
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Confirm New Password</label>
+                <input 
+                  type="password" 
+                  required
+                  value={passwordForm.confirmPassword}
+                  onChange={e => setPasswordForm({...passwordForm, confirmPassword: e.target.value})}
+                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500" 
+                />
+              </div>
+              <div className="flex gap-2 pt-2">
+                <button type="submit" className="bg-primary-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-primary-700">Update</button>
+                <button type="button" onClick={() => setShowChangePassword(false)} className="px-4 py-2 border rounded-lg text-gray-600 hover:bg-gray-50">Cancel</button>
+              </div>
+            </form>
+          )}
         </div>
       </div>
 

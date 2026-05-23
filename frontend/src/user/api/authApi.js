@@ -6,7 +6,7 @@ const client = axios.create();
 
 client.interceptors.request.use((config) => {
   config.baseURL = getAdminApiBase();
-  const token = typeof localStorage !== "undefined" ? localStorage.getItem(AUTH_TOKEN_KEY) : null;
+  const token = typeof localStorage !== "undefined" ? (localStorage.getItem(AUTH_TOKEN_KEY) || sessionStorage.getItem(AUTH_TOKEN_KEY)) : null;
   if (token) {
     config.headers = config.headers || {};
     config.headers.Authorization = `Bearer ${token}`;
@@ -55,9 +55,18 @@ export const authApi = {
     return data;
   },
 
+  async changePassword(payload) {
+    const { data } = await client.post("auth/change-password", payload);
+    return data;
+  },
+
+  async updatePreferences(payload) {
+    const { data } = await client.put("auth/preferences", payload);
+    return data;
+  },
+
   async me() {
     const { data } = await client.get("auth/me");
     return data;
   },
 };
-

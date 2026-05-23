@@ -3,18 +3,13 @@ import { settingsApi } from "../api/settingsApi";
 
 const TABS = [
   { id: "general", label: "General" },
-  { id: "payments", label: "Payments" },
-  { id: "shipping", label: "Shipping" },
-  { id: "notifications", label: "Notifications" },
-  { id: "seo", label: "SEO" },
-  { id: "security", label: "Security" },
 ];
 
 const CURRENCY_OPTIONS = [
   { value: "INR", label: "INR (₹)" },
   { value: "USD", label: "USD ($)" },
   { value: "AED", label: "AED" },
-  { value: "LKR", label: "LKR (Rs.)" },
+  { value: "GBP", label: "GBP (£)" },
   { value: "EUR", label: "EUR (€)" },
 ];
 
@@ -24,85 +19,18 @@ const DEFAULT_FORM = {
   phone: "+91 44 2345 6789",
   currency: "INR",
   storeAddress: "23, Spice Market Road, Chennai 600001, Tamil Nadu",
-  newOrderAlerts: true,
-  lowStockWarnings: true,
-  customerReviewNotifications: false,
-  dailyRevenueReport: true,
-  showProductReviews: true,
-  enableWishlists: true,
-  whatsappChatButton: false,
 };
 
-const NOTIFICATION_ROWS = [
-  {
-    key: "newOrderAlerts",
-    title: "New Order Alerts",
-    description: "Receive email when new orders placed",
-  },
-  {
-    key: "lowStockWarnings",
-    title: "Low Stock Warnings",
-    description: "Alert when stock drops below minimum",
-  },
-  {
-    key: "customerReviewNotifications",
-    title: "Customer Reviews",
-    description: "Notify when new reviews submitted",
-  },
-  {
-    key: "dailyRevenueReport",
-    title: "Daily Revenue Report",
-    description: "Receive daily sales summary at 9 AM",
-  },
-];
 
-const DISPLAY_ROWS = [
-  {
-    key: "showProductReviews",
-    title: "Show Product Reviews",
-    description: "Display customer reviews on product pages",
-  },
-  {
-    key: "enableWishlists",
-    title: "Enable Wishlists",
-    description: "Allow customers to save products",
-  },
-  {
-    key: "whatsappChatButton",
-    title: "WhatsApp Chat Button",
-    description: "Show WhatsApp support button on site",
-  },
-];
-
-function ToggleSwitch({ checked, onChange, id }) {
-  return (
-    <button
-      type="button"
-      id={id}
-      role="switch"
-      aria-checked={checked}
-      className={`admin-switch${checked ? " admin-switch--on" : ""}`}
-      onClick={() => onChange(!checked)}
-    />
-  );
-}
 
 function mergeServerIntoForm(data) {
   if (!data) return { ...DEFAULT_FORM };
-  const b = (v, d) => (typeof v === "boolean" ? v : d);
   return {
     storeName: data.storeName ?? DEFAULT_FORM.storeName,
     contactEmail: data.contactEmail ?? DEFAULT_FORM.contactEmail,
     phone: data.phone ?? DEFAULT_FORM.phone,
     currency: data.currency ?? DEFAULT_FORM.currency,
     storeAddress: data.storeAddress ?? DEFAULT_FORM.storeAddress,
-    newOrderAlerts: b(data.newOrderAlerts, DEFAULT_FORM.newOrderAlerts),
-    lowStockWarnings: b(data.lowStockWarnings, DEFAULT_FORM.lowStockWarnings),
-    customerReviewNotifications: b(data.customerReviewNotifications, DEFAULT_FORM.customerReviewNotifications),
-    dailyRevenueReport: b(data.dailyRevenueReport, DEFAULT_FORM.dailyRevenueReport),
-    showProductReviews: b(data.showProductReviews, DEFAULT_FORM.showProductReviews),
-    enableWishlists: b(data.enableWishlists, DEFAULT_FORM.enableWishlists),
-    whatsappChatButton: b(data.whatsappChatButton, DEFAULT_FORM.whatsappChatButton),
   };
 }
 
@@ -186,23 +114,12 @@ const AdminSettingsPanel = () => {
       {saveOk ? <div className="settings-save-ok">Settings saved.</div> : null}
 
       <div className="settings-layout">
-        <nav className="settings-tab-nav" aria-label="Settings sections">
-          {TABS.map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              className={`settings-tab-btn${tab === t.id ? " settings-tab-btn--active" : ""}`}
-              onClick={() => setTab(t.id)}
-            >
-              {t.label}
-            </button>
-          ))}
-        </nav>
+
 
         <div className="settings-main">
           {loading ? (
             <div className="settings-card settings-loading">Loading settings…</div>
-          ) : tab === "general" ? (
+          ) : (
             <>
               <section className="settings-card">
                 <h3 className="settings-card-title">Store details</h3>
@@ -228,58 +145,14 @@ const AdminSettingsPanel = () => {
                     <label htmlFor="settings-phone">Phone</label>
                     <input id="settings-phone" value={form.phone} onChange={(e) => setField("phone", e.target.value)} />
                   </div>
-                  <div className="form-group">
-                    <label htmlFor="settings-currency">Currency</label>
-                    <select id="settings-currency" value={form.currency} onChange={(e) => setField("currency", e.target.value)}>
-                      {CURRENCY_OPTIONS.map((o) => (
-                        <option key={o.value} value={o.value}>
-                          {o.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                
                   <div className="form-group settings-span-2">
                     <label htmlFor="settings-address">Store address</label>
                     <input id="settings-address" value={form.storeAddress} onChange={(e) => setField("storeAddress", e.target.value)} />
                   </div>
                 </div>
               </section>
-
-              <section className="settings-card">
-                <h3 className="settings-card-title">Notifications</h3>
-                <ul className="settings-toggle-list">
-                  {NOTIFICATION_ROWS.map((row) => (
-                    <li key={row.key} className="settings-toggle-row">
-                      <div className="settings-toggle-copy">
-                        <span className="settings-toggle-title">{row.title}</span>
-                        <p className="settings-toggle-desc">{row.description}</p>
-                      </div>
-                      <ToggleSwitch checked={form[row.key]} onChange={(v) => setField(row.key, v)} id={`toggle-${row.key}`} />
-                    </li>
-                  ))}
-                </ul>
-              </section>
-
-              <section className="settings-card">
-                <h3 className="settings-card-title">Display settings</h3>
-                <ul className="settings-toggle-list">
-                  {DISPLAY_ROWS.map((row) => (
-                    <li key={row.key} className="settings-toggle-row">
-                      <div className="settings-toggle-copy">
-                        <span className="settings-toggle-title">{row.title}</span>
-                        <p className="settings-toggle-desc">{row.description}</p>
-                      </div>
-                      <ToggleSwitch checked={form[row.key]} onChange={(v) => setField(row.key, v)} id={`toggle-${row.key}`} />
-                    </li>
-                  ))}
-                </ul>
-              </section>
             </>
-          ) : (
-            <section className="settings-card settings-placeholder-card">
-              <h3 className="settings-card-title">{TABS.find((x) => x.id === tab)?.label}</h3>
-              <p className="settings-placeholder-text">This section is coming soon. Use <strong>General</strong> for store details and notification toggles.</p>
-            </section>
           )}
         </div>
       </div>

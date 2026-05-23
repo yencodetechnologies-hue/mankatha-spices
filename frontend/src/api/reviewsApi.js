@@ -31,4 +31,9 @@ export const reviewsApi = {
     const response = await axios.delete(`${base}/reviews/${encodeURIComponent(id)}`, withAuthHeaders());
     return response.data;
   },
+  createReview: async (payload) => {
+    const base = getAdminApiBase();
+    const response = await axios.post(`${base}/reviews`, payload, withAuthHeaders());
+    return response.data;
+  },
 };

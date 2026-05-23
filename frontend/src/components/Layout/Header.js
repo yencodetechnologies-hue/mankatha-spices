@@ -6,6 +6,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import categories from '../../data/categories.json';
 import { formatMoney } from '../../utils/formatMoney';
 import { categoryApi } from '../../api/categoryApi';
+import { notificationApi } from '../../api/notificationApi';
 import LocationModal from '../LocationModal';
 
 const slugify = (input) => {
@@ -62,61 +63,48 @@ const Header = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const [categoriesList, setCategoriesList] = useState([]);
 
-  // Notifications State
-  const defaultNotifications = [
-    {
-      id: 1,
-      title: "50% Off on Spices",
-      message: "Use code SPICE50 at checkout. Valid till tonight!",
-      time: "10 mins ago",
-      icon: "🎉",
-      color: "bg-orange-100",
-      read: false
-    },
-    {
-      id: 2,
-      title: "Order Delivered",
-      message: "Your order #ORD-1234 has been delivered successfully.",
-      time: "2 hours ago",
-      icon: "📦",
-      color: "bg-green-100",
-      read: false
-    },
-    {
-      id: 3,
-      title: "Rate your recent purchase",
-      message: "How was the Turmeric Powder? Leave a review to earn points.",
-      time: "Yesterday",
-      icon: "⭐",
-      color: "bg-blue-100",
-      read: false
-    }
-  ];
-
-  const [notifications, setNotifications] = useState(() => {
-    const saved = localStorage.getItem("appNotifications");
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        return defaultNotifications;
-      }
-    }
-    return defaultNotifications;
-  });
+  const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
-    localStorage.setItem("appNotifications", JSON.stringify(notifications));
-  }, [notifications]);
+    let cancelled = false;
+    async function loadNotifications() {
+      if (!isAuthenticated) {
+        setNotifications([]);
+        return;
+      }
+      try {
+        const data = await notificationApi.getNotifications();
+        if (!cancelled) {
+          setNotifications(data || []);
+        }
+      } catch (err) {
+        console.error("Failed to load notifications", err);
+      }
+    }
+    loadNotifications();
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuthenticated, user]);
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
-  const markAllAsRead = () => {
-    setNotifications(notifications.map(n => ({ ...n, read: true })));
+  const markAllAsRead = async () => {
+    try {
+      await notificationApi.markAllAsRead();
+      setNotifications(notifications.map(n => ({ ...n, read: true })));
+    } catch (err) {
+      console.error("Failed to mark all as read", err);
+    }
   };
 
-  const markAsRead = (id) => {
-    setNotifications(notifications.map(n => n.id === id ? { ...n, read: true } : n));
+  const markAsRead = async (id) => {
+    try {
+      await notificationApi.markAsRead(id);
+      setNotifications(notifications.map(n => (n._id || n.id) === id ? { ...n, read: true } : n));
+    } catch (err) {
+      console.error("Failed to mark as read", err);
+    }
   };
   
   const savedCity = localStorage.getItem("appCity");
@@ -403,8 +391,8 @@ const Header = () => {
                     <div className="max-h-[300px] overflow-y-auto">
                       {notifications.map(notif => (
                         <div 
-                          key={notif.id}
-                          onClick={() => markAsRead(notif.id)}
+                          key={notif._id || notif.id}
+                          onClick={() => markAsRead(notif._id || notif.id)}
                           className={`p-3 border-b border-gray-50 hover:bg-gray-50 transition-colors flex gap-3 cursor-pointer ${!notif.read ? 'bg-blue-50/30' : ''}`}
                         >
                           <div className={`${notif.color} p-2 rounded-full h-fit mt-1 opacity-${notif.read ? '60' : '100'}`}>

@@ -1,5 +1,5 @@
 const LOCALE_MAP = {
-  LKR: "en-LK",
+  GBP: "en-GB",
   INR: "en-IN",
   AED: "en-AE",
   USD: "en-US",
@@ -8,7 +8,7 @@ const LOCALE_MAP = {
 
 const EXCHANGE_RATES = {
   INR: 1,
-  LKR: 3.6, // approx rate
+  GBP: 0.01, // approx rate
   USD: 0.012,
   GBP: 0.0095,
   AED: 0.044

@@ -9,7 +9,7 @@ const orderRoutes = require("./routes/orderRoutes");
 const { getOverview } = require("./controllers/overviewController");
 const { getCustomers, getStats } = require("./controllers/customerController");
 const analyticsRoutes = require("./routes/analyticsRoutes");
-const { getReviewStats, getReviews, approveReview, deleteReview } = require("./controllers/reviewController");
+const { getReviewStats, getReviews, approveReview, deleteReview, createReview } = require("./controllers/reviewController");
 const { getInventory, postReorder, postBulkRestock } = require("./controllers/inventoryController");
 const { getCouponStats, getCoupons, createCoupon, updateCoupon, validateCoupon } = require("./controllers/couponController");
 const { getSettings, putSettings, patchSettings } = require("./controllers/settingsController");
@@ -61,7 +61,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/api/auth", authRoutes);
 /** Store settings — register early so nothing can shadow `/api/settings`. */
-app.get("/api/settings", ...adminOnly, getSettings);
+app.get("/api/settings", getSettings);
 app.put("/api/settings", ...adminOnly, putSettings);
 app.patch("/api/settings", ...adminOnly, patchSettings);
 const requestIp = require("request-ip");
@@ -126,6 +126,7 @@ app.get("/api/reviews", ...adminOnly, getReviews);
 app.patch("/api/reviews/:id/approve", ...adminOnly, approveReview);
 app.post("/api/reviews/:id/approve", ...adminOnly, approveReview);
 app.delete("/api/reviews/:id", ...adminOnly, deleteReview);
+app.post("/api/reviews", requireAuth, createReview);
 /** Inventory must register before `app.use("/api/products", …)` so these paths are not swallowed by the router. */
 app.get("/api/products/inventory", ...adminOnly, getInventory);
 app.post("/api/products/inventory/reorder/:id", ...adminOnly, postReorder);
@@ -135,12 +136,15 @@ app.use("/api/orders", orderRoutes);
 /** Register on `app` so these GET routes always match (same pattern as `/api/overview`). */
 app.get("/api/overview", ...adminOnly, getOverview);
 app.use("/api/analytics", analyticsRoutes);
+app.use("/api/billers", require("./routes/billerRoutes"));
 app.get("/api/customers/stats", ...adminOnly, getStats);
 app.get("/api/customers", ...adminOnly, getCustomers);
 app.use("/api/distributors", distributorRoutes);
 app.use("/api/categories", categoryRoutes);
 const serviceAreaRoutes = require("./routes/serviceAreaRoutes");
 app.use("/api/service-areas", serviceAreaRoutes);
+const notificationRoutes = require("./routes/notificationRoutes");
+app.use("/api/notifications", notificationRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: "Not found", path: req.path, method: req.method });

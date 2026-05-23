@@ -40,6 +40,7 @@ const BillerLayout = ({ children }) => {
               <li>
                 <NavLink
                   to="/biller/dashboard"
+                  onClick={() => setIsSidebarOpen(false)}
                   className={({ isActive }) => `admin-nav-link${isActive ? " active" : ""}`}
                 >
                   <LayoutDashboard size={18} strokeWidth={1.75} className="admin-nav-icon" aria-hidden />
@@ -49,30 +50,24 @@ const BillerLayout = ({ children }) => {
               <li>
                 <NavLink
                   to="/biller/orders"
+                  onClick={() => setIsSidebarOpen(false)}
                   className={({ isActive }) => `admin-nav-link${isActive ? " active" : ""}`}
                 >
                   <ShoppingCart size={18} strokeWidth={1.75} className="admin-nav-icon" aria-hidden />
-                  <span className="admin-nav-label">Billing Orders</span>
+                  <span className="admin-nav-label">Billing Lists</span>
                 </NavLink>
               </li>
               <li>
                 <NavLink
                   to="/biller/new-bill"
+                  onClick={() => setIsSidebarOpen(false)}
                   className={({ isActive }) => `admin-nav-link${isActive ? " active" : ""}`}
                 >
                   <Receipt size={18} strokeWidth={1.75} className="admin-nav-icon" aria-hidden />
                   <span className="admin-nav-label">New Bill</span>
                 </NavLink>
               </li>
-              <li>
-                <NavLink
-                  to="/biller/print"
-                  className={({ isActive }) => `admin-nav-link${isActive ? " active" : ""}`}
-                >
-                  <Printer size={18} strokeWidth={1.75} className="admin-nav-icon" aria-hidden />
-                  <span className="admin-nav-label">Print Bill</span>
-                </NavLink>
-              </li>
+
             </ul>
           </div>
         </nav>

@@ -18,6 +18,7 @@ import {
   Sliders,
   Menu,
   Store,
+  Receipt,
 } from "lucide-react";
 import { SIDEBAR_GROUPS } from "../constants";
 import { useAuth } from "../contexts/AuthContext";
@@ -38,6 +39,7 @@ const ICON_MAP = {
   category: Layers,
   banners: Image,
   sliders: Sliders,
+  new_bill: Receipt,
 };
 
 
@@ -79,6 +81,7 @@ const AdminLayout = ({ children }) => {
                       <NavLink
                         to={`/adminpanel/${item.path}`}
                         className={({ isActive }) => `admin-nav-link${isActive ? " active" : ""}`}
+                        onClick={() => setIsSidebarOpen(false)}
                       >
                         <Icon size={18} strokeWidth={1.75} className="admin-nav-icon" aria-hidden />
                         <span className="admin-nav-label">{item.label}</span>

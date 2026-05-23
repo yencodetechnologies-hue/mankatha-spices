@@ -2297,7 +2297,7 @@ th {
 
 .settings-layout {
   display: grid;
-  grid-template-columns: 200px 1fr;
+  grid-template-columns: 1fr;
   gap: 1.25rem;
   align-items: start;
 }
@@ -2865,6 +2865,18 @@ th {
 
   .admin-shell {
     grid-template-columns: 1fr;
+  }
+
+  .table-wrap, 
+  .orders-table-wrap, 
+  .reviews-table-wrap, 
+  .inv-table-wrap, 
+  .coupons-table-wrap,
+  .products-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+    display: block;
   }
 
   .admin-sidebar {

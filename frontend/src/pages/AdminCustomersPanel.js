@@ -1,9 +1,25 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Search } from "lucide-react";
 import { customerApi } from "../api/customerApi";
-import { formatMoneyWhole } from "../utils/formatMoney";
+import { formatMoneyWhole, formatMoney } from "../utils/formatMoney";
+
+import heroBlendedMasala from "../assets/hero_blended_masala.png";
+import heroOrganicSpices from "../assets/hero_organic_spices.png";
+import heroWholeSpices from "../assets/hero_whole_spices.png";
 
 const PAGE_SIZE = 8;
+
+const slugify = (input) => String(input || "").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+const getCategoryImg = (name) => {
+  const slug = slugify(name);
+  const images = {
+    "ground-spices": heroOrganicSpices,
+    "whole-spices": heroWholeSpices,
+    "blended-masalas": heroBlendedMasala,
+    "blended-masala": heroBlendedMasala,
+  };
+  return images[slug] || heroOrganicSpices;
+};
 
 const fmtJoined = (iso) =>
   new Intl.DateTimeFormat("en-LK", { month: "short", day: "numeric", year: "numeric" }).format(new Date(iso));
@@ -36,7 +52,6 @@ const AdminCustomersPanel = () => {
   const [pagination, setPagination] = useState({ total: 0, page: 1, pages: 1 });
   const [errorMessage, setErrorMessage] = useState("");
   const [search, setSearch] = useState("");
-  const [tierFilter, setTierFilter] = useState("All");
   const [cityFilter, setCityFilter] = useState("All");
   const [page, setPage] = useState(1);
 
@@ -65,7 +80,6 @@ const AdminCustomersPanel = () => {
       setErrorMessage("");
       const data = await customerApi.getCustomers({
         search,
-        tier: tierFilter,
         city: cityFilter,
         page,
         limit: PAGE_SIZE,
@@ -84,7 +98,7 @@ const AdminCustomersPanel = () => {
         setCustomers([]);
       }
     }
-  }, [search, tierFilter, cityFilter, page]);
+  }, [search, cityFilter, page]);
 
   useEffect(() => {
     loadStats().catch(() => setStats(null));
@@ -96,7 +110,7 @@ const AdminCustomersPanel = () => {
 
   useEffect(() => {
     setPage(1);
-  }, [search, tierFilter, cityFilter]);
+  }, [search, cityFilter]);
 
   const handleViewCustomer = async (customer) => {
     setSelectedCustomer(customer);
@@ -207,13 +221,6 @@ const AdminCustomersPanel = () => {
             />
           </div>
           <div className="customers-filters">
-            <select value={tierFilter} onChange={(e) => setTierFilter(e.target.value)} aria-label="Tier">
-              <option value="All">All Customers</option>
-              <option value="VIP">VIP</option>
-              <option value="Gold">Gold</option>
-              <option value="Regular">Regular</option>
-              <option value="New">New</option>
-            </select>
             <select value={cityFilter} onChange={(e) => setCityFilter(e.target.value)} aria-label="City">
               {cities.map((c) => (
                 <option key={c} value={c === "All Cities" ? "All" : c}>
@@ -344,12 +351,19 @@ const AdminCustomersPanel = () => {
                       </div>
                       
                       {o.lineItems && o.lineItems.length > 0 && (
-                        <div style={{ background: '#f9fafb', padding: '12px', borderRadius: '6px' }}>
+                        <div style={{ marginTop: '12px' }}>
                           <div style={{ fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase', color: '#9ca3af', marginBottom: '8px' }}>Items Purchased</div>
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                             {o.lineItems.map((item, idx) => (
-                              <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
-                                <span style={{ color: '#4b5563' }}>{item.quantity}x {item.name}</span>
+                              <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '16px', borderBottom: idx !== o.lineItems.length - 1 ? '1px solid #f3f4f6' : 'none', paddingBottom: idx !== o.lineItems.length - 1 ? '12px' : 0 }}>
+                                <div style={{ width: '48px', height: '48px', borderRadius: '8px', backgroundImage: `url(${getCategoryImg(item.category)})`, backgroundSize: 'cover', backgroundPosition: 'center', flexShrink: 0, backgroundColor: '#f3f4f6' }}></div>
+                                <div style={{ flex: 1 }}>
+                                  <div style={{ fontWeight: '600', color: '#111827', fontSize: '13px' }}>{item.name}</div>
+                                  <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '2px' }}>Qty: {item.quantity} x {formatMoney(item.price)}</div>
+                                </div>
+                                <div style={{ fontWeight: 'bold', color: '#111827', fontSize: '14px' }}>
+                                  {formatMoney((item.price || 0) * (item.quantity || 1))}
+                                </div>
                               </div>
                             ))}
                           </div>

@@ -11,8 +11,8 @@ const weightSchema = new mongoose.Schema(
 
 const pricingSchema = new mongoose.Schema(
   {
-    country: { type: String, required: true, enum: ["Sri Lanka", "India", "UAE", "USA"] },
-    currency: { type: String, required: true, enum: ["LKR", "INR", "AED", "USD"] },
+    country: { type: String, required: true, enum: ["United Kingdom", "India", "UAE", "USA"] },
+    currency: { type: String, required: true, enum: ["GBP", "INR", "AED", "USD"] },
     weights: { type: [weightSchema], default: [] },
   },
   { _id: false }

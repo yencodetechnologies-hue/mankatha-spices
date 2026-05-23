@@ -1,5 +1,5 @@
 export const COUNTRY_OPTIONS = [
-  { country: "Sri Lanka", currency: "LKR", symbol: "Rs." },
+  { country: "United Kingdom", currency: "GBP", symbol: "£" },
   { country: "India", currency: "INR", symbol: "\u20b9" },
   { country: "UAE", currency: "AED", symbol: "AED" },
   { country: "USA", currency: "USD", symbol: "$" },
@@ -21,8 +21,9 @@ export const SIDEBAR_GROUPS = [
     title: "MAIN",
     items: [
       { id: "overview", label: "Overview", path: "overview" },
+      { id: "billers", label: "Billers", path: "billers" },
       // { id: "distributors", label: "Vendors", path: "distributors" },
-      { id: "general", label: "General", path: "general" },
+      // { id: "general", label: "General", path: "general" },
       { id: "inventory", label: "Inventory", path: "inventory" },
       { id: "category", label: "Category", path: "category" },
       { id: "products", label: "Products", path: "products" },

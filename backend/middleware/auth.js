@@ -35,6 +35,24 @@ async function requireAuth(req, res, next) {
   }
 }
 
+async function optionalAuth(req, res, next) {
+  const header = req.headers.authorization;
+  if (!header || !header.startsWith("Bearer ")) {
+    return next();
+  }
+  const token = header.slice(7).trim();
+  try {
+    const decoded = jwt.verify(token, getJwtSecret());
+    const user = await User.findById(decoded.sub).select("-password").lean({ virtuals: false });
+    if (user && user.isActive) {
+      req.user = user;
+    }
+  } catch (err) {
+    // Ignore invalid tokens for optional auth
+  }
+  next();
+}
+
 function requireRoles(...roles) {
   return (req, res, next) => {
     if (!req.user) return res.status(401).json({ message: "Unauthorized" });
@@ -48,4 +66,4 @@ function requireRoles(...roles) {
   };
 }
 
-module.exports = { getJwtSecret, signToken, requireAuth, requireRoles };
+module.exports = { getJwtSecret, signToken, requireAuth, optionalAuth, requireRoles };

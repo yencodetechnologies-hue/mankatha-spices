@@ -3,6 +3,22 @@ import { Search } from "lucide-react";
 import { orderApi } from "../api/orderApi";
 import { formatMoney } from "../utils/formatMoney";
 
+import heroBlendedMasala from "../assets/hero_blended_masala.png";
+import heroOrganicSpices from "../assets/hero_organic_spices.png";
+import heroWholeSpices from "../assets/hero_whole_spices.png";
+
+const slugify = (input) => String(input || "").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+const getCategoryImg = (name) => {
+  const slug = slugify(name);
+  const images = {
+    "ground-spices": heroOrganicSpices,
+    "whole-spices": heroWholeSpices,
+    "blended-masalas": heroBlendedMasala,
+    "blended-masala": heroBlendedMasala,
+  };
+  return images[slug] || heroOrganicSpices;
+};
+
 const formatOrderDate = (iso) =>
   new Intl.DateTimeFormat("en-GB", { month: "short", day: "numeric" }).format(new Date(iso));
 
@@ -29,29 +45,37 @@ const toRow = (o) => ({
   avatarHue: hueFromName(o.customerName),
   itemCount: o.itemCount,
   total: o.total,
-  payment: o.payment,
-  status: o.status,
-  date: formatOrderDate(o.orderDate),
+  payment: o.payment || "Pending",
+  paymentMethod: o.paymentMethod || "N/A",
+  status: o.status || "Pending",
+  date: formatOrderDate(o.orderDate || o.createdAt),
   items: o.lineItems || [],
+  email: o.customerId ? o.customerId.email : "N/A",
+  phone: o.customerId ? o.customerId.phone : "N/A",
+  billerId: o.billerId,
+  billerName: o.billerName,
 });
 
 const paymentClass = (p) => {
   if (p === "Paid") return "order-pill payment-paid";
   if (p === "Pending") return "order-pill payment-pending";
+  if (p === "Awaiting Approval") return "order-pill payment-pending";
   return "order-pill payment-refunded";
 };
 
 const statusClass = (s) => {
   if (s === "Delivered") return "order-pill status-delivered";
-  if (s === "Processing") return "order-pill status-processing";
-  if (s === "Pending") return "order-pill status-pending";
+  if (s === "Shipped" || s === "Out for Delivery") return "order-pill status-processing";
+  if (s === "Processing" || s === "Ordered" || s === "Confirmed") return "order-pill status-processing";
+  if (s === "Pending" || s === "Awaiting Bank Transfer") return "order-pill status-pending";
   return "order-pill status-cancelled";
 };
 
 const statusDotClass = (s) => {
   if (s === "Delivered") return "order-status-dot dot-green";
-  if (s === "Processing") return "order-status-dot dot-blue";
-  if (s === "Pending") return "order-status-dot dot-amber";
+  if (s === "Shipped" || s === "Out for Delivery") return "order-status-dot dot-blue";
+  if (s === "Processing" || s === "Ordered" || s === "Confirmed") return "order-status-dot dot-blue";
+  if (s === "Pending" || s === "Awaiting Bank Transfer") return "order-status-dot dot-amber";
   return "order-status-dot dot-red";
 };
 
@@ -77,6 +101,7 @@ const AdminOrdersPanel = () => {
   const [statusFilter, setStatusFilter] = useState("All Status");
   const [periodFilter, setPeriodFilter] = useState("This Month");
   const [customerFilter, setCustomerFilter] = useState("All Customers");
+  const [sourceFilter, setSourceFilter] = useState("Walk-in Orders");
 
   const loadData = useCallback(async () => {
     // 1. Populate immediately from cache if available
@@ -136,6 +161,29 @@ const AdminOrdersPanel = () => {
     loadData();
   }, [loadData]);
 
+  const handleStatusChange = async (orderId, newStatus) => {
+    try {
+      // Optimistic update
+      setOrders(prev => prev.map(o => o.orderId === orderId ? { ...o, status: newStatus } : o));
+      await orderApi.updateOrderStatus(orderId, newStatus);
+      loadData();
+    } catch (err) {
+      alert("Failed to update status");
+      loadData(); // Revert on failure
+    }
+  };
+
+  const handlePaymentChange = async (orderId, newPayment) => {
+    try {
+      setOrders(prev => prev.map(o => o.orderId === orderId ? { ...o, payment: newPayment } : o));
+      await orderApi.updateOrderPayment(orderId, newPayment);
+      loadData();
+    } catch (err) {
+      alert("Failed to update payment status");
+      loadData();
+    }
+  };
+
   const rows = useMemo(() => orders.map(toRow), [orders]);
 
   const filtered = useMemo(() => {
@@ -148,16 +196,20 @@ const AdminOrdersPanel = () => {
         `#${o.id}`.toLowerCase().includes(q);
       const matchesStatus =
         statusFilter === "All Status" ||
-        (statusFilter === "Delivered" && o.status === "Delivered") ||
-        (statusFilter === "Processing" && o.status === "Processing") ||
-        (statusFilter === "Pending" && o.status === "Pending") ||
-        (statusFilter === "Cancelled" && o.status === "Cancelled");
+        (statusFilter === "Ordered" && o.status === "Ordered") ||
+        (statusFilter === "Shipped" && o.status === "Shipped") ||
+        (statusFilter === "Out for Delivery" && o.status === "Out for Delivery") ||
+        (statusFilter === "Delivered" && o.status === "Delivered");
       const matchesCustomer = 
         customerFilter === "All Customers" ||
         o.customer === customerFilter;
-      return matchesSearch && matchesStatus && matchesCustomer;
+      const matchesSource =
+        sourceFilter === "All Orders" ||
+        (sourceFilter === "Walk-in Orders" && o.billerId) ||
+        (sourceFilter === "Online Orders" && !o.billerId);
+      return matchesSearch && matchesStatus && matchesCustomer && matchesSource;
     });
-  }, [rows, search, statusFilter, customerFilter]);
+  }, [rows, search, statusFilter, customerFilter, sourceFilter]);
 
   const uniqueCustomers = useMemo(() => {
     const customers = new Set(rows.map(o => o.customer));
@@ -234,12 +286,18 @@ const AdminOrdersPanel = () => {
                 <option key={c} value={c}>{c}</option>
               ))}
             </select>
+            <select value={sourceFilter} onChange={(e) => setSourceFilter(e.target.value)} aria-label="Order source">
+              <option value="All Orders">All Orders</option>
+              <option value="Walk-in Orders">Walk-in Orders (Shop)</option>
+              <option value="Online Orders">Online Orders</option>
+            </select>
             <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} aria-label="Order status">
               <option>All Status</option>
+              <option>Confirmed</option>
+              <option>Ordered</option>
+              <option>Shipped</option>
+              <option>Out for Delivery</option>
               <option>Delivered</option>
-              <option>Processing</option>
-              <option>Pending</option>
-              <option>Cancelled</option>
             </select>
             <select value={periodFilter} onChange={(e) => setPeriodFilter(e.target.value)} aria-label="Time period">
               <option>This Month</option>
@@ -257,7 +315,8 @@ const AdminOrdersPanel = () => {
                   <th>Customer</th>
                   <th>Items</th>
                   <th>Total</th>
-                  <th>Payment</th>
+                  <th>Payment Status</th>
+                  <th>Pay Method</th>
                   <th>Status</th>
                   <th>Date</th>
                   <th>Action</th>
@@ -266,7 +325,7 @@ const AdminOrdersPanel = () => {
               <tbody>
                 {filtered.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="orders-empty-cell">
+                    <td colSpan={9} className="orders-empty-cell">
                       No orders for this period{search.trim() ? " matching your search" : ""}. Run{" "}
                       <code>npm run seed:orders</code> in the <code>backend</code> folder if the database is empty.
                     </td>
@@ -294,13 +353,36 @@ const AdminOrdersPanel = () => {
                       </td>
                       <td className="order-total-cell">{formatMoney(o.total)}</td>
                       <td>
-                        <span className={paymentClass(o.payment)}>{o.payment}</span>
+                        <select
+                          className={paymentClass(o.payment)}
+                          value={o.payment}
+                          onChange={(e) => handlePaymentChange(o.id, e.target.value)}
+                          style={{ appearance: "auto", cursor: "pointer" }}
+                        >
+                          <option value="Paid">Paid</option>
+                          <option value="Pending">Pending</option>
+                          <option value="Awaiting Approval">Awaiting Approval</option>
+                          <option value="Refunded">Refunded</option>
+                        </select>
                       </td>
                       <td>
-                        <span className={statusClass(o.status)}>
-                          <span className={statusDotClass(o.status)} />
-                          {o.status}
+                        <span className="text-[12px] font-semibold text-gray-700 bg-gray-100 px-2 py-1 rounded-md uppercase tracking-wide border border-gray-200">
+                          {o.paymentMethod || "N/A"}
                         </span>
+                      </td>
+                      <td>
+                        <select
+                          className={statusClass(o.status)}
+                          value={o.status}
+                          onChange={(e) => handleStatusChange(o.id, e.target.value)}
+                          style={{ appearance: "auto", cursor: "pointer" }}
+                        >
+                          <option value="Confirmed">Confirmed</option>
+                          <option value="Ordered">Ordered</option>
+                          <option value="Shipped">Shipped</option>
+                          <option value="Out for Delivery">Out for Delivery</option>
+                          <option value="Delivered">Delivered</option>
+                        </select>
                       </td>
                       <td>{o.date}</td>
                       <td>
@@ -327,33 +409,50 @@ const AdminOrdersPanel = () => {
               <button onClick={() => setSelectedOrder(null)} style={{ border: 'none', background: '#e1ecd0', cursor: 'pointer', fontSize: '14px', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#52720d' }}>✕</button>
             </div>
             
-            <div style={{ marginBottom: '20px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            <div style={{ marginBottom: '24px', display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: '16px', alignItems: 'start' }}>
               <div>
                 <span style={{ fontSize: '11px', textTransform: 'uppercase', color: '#6b7280', fontWeight: '600' }}>Customer</span>
                 <div style={{ fontWeight: '500', color: '#111827', marginTop: '4px' }}>{selectedOrder.customer}</div>
+                {(selectedOrder.email !== "N/A" || selectedOrder.phone !== "N/A") && (
+                  <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '6px', lineHeight: '1.4' }}>
+                    {selectedOrder.phone !== "N/A" && <div>{selectedOrder.phone}</div>}
+                    {selectedOrder.email !== "N/A" && <div style={{wordBreak: 'break-all'}}>{selectedOrder.email}</div>}
+                  </div>
+                )}
               </div>
               <div>
-                <span style={{ fontSize: '11px', textTransform: 'uppercase', color: '#6b7280', fontWeight: '600' }}>Status</span>
+                <span style={{ fontSize: '11px', textTransform: 'uppercase', color: '#6b7280', fontWeight: '600' }}>Order Status</span>
                 <div style={{ marginTop: '4px' }}><span className={statusClass(selectedOrder.status)} style={{ marginLeft: 0 }}>{selectedOrder.status}</span></div>
+              </div>
+              <div>
+                <span style={{ fontSize: '11px', textTransform: 'uppercase', color: '#6b7280', fontWeight: '600' }}>Payment Status</span>
+                <div style={{ marginTop: '4px' }}><span className={paymentClass(selectedOrder.payment)} style={{ marginLeft: 0 }}>{selectedOrder.payment}</span></div>
+              </div>
+              <div>
+                <span style={{ fontSize: '11px', textTransform: 'uppercase', color: '#6b7280', fontWeight: '600' }}>Payment Method</span>
+                <div style={{ fontWeight: '500', color: '#111827', marginTop: '4px' }}>{selectedOrder.paymentMethod}</div>
               </div>
             </div>
 
             <div style={{ flex: 1, overflowY: 'auto', marginBottom: '20px' }}>
               <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: 'bold', color: '#374151' }}>Purchased Items</h4>
               {selectedOrder.items && selectedOrder.items.length > 0 ? (
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   {selectedOrder.items.map((item, idx) => (
-                    <li key={idx} style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f3f4f6', padding: '12px 0', alignItems: 'center' }}>
-                      <div style={{ flex: 1, paddingRight: '16px' }}>
-                        <div style={{ fontWeight: '600', color: '#1f2937', fontSize: '14px', marginBottom: '4px' }}>{item.name}</div>
-                        <div style={{ fontSize: '12px', color: '#6b7280' }}>Qty: {item.quantity} × {formatMoney(item.price)}</div>
+                    <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', borderBottom: '1px solid #f3f4f6' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div style={{ width: '40px', height: '40px', borderRadius: '4px', backgroundColor: '#f3f4f6', backgroundImage: `url(${getCategoryImg(item.category)})`, backgroundSize: 'cover', backgroundPosition: 'center', flexShrink: 0 }}></div>
+                        <div>
+                          <div style={{ fontWeight: '600', color: '#1f2937', fontSize: '14px', lineHeight: '1.2' }}>{item.name}</div>
+                          <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '2px' }}>Qty: {item.quantity} x {formatMoney(item.price || 0)}</div>
+                        </div>
                       </div>
-                      <div style={{ fontWeight: '700', color: '#111827', fontSize: '14px' }}>
+                      <div style={{ fontWeight: '700', color: '#111827', fontSize: '15px' }}>
                         {formatMoney((item.price || 0) * (item.quantity || 1))}
                       </div>
-                    </li>
+                    </div>
                   ))}
-                </ul>
+                </div>
               ) : (
                 <div style={{ padding: '20px', textAlign: 'center', background: '#f9fafb', borderRadius: '8px', color: '#6b7280', fontSize: '14px' }}>
                   No item details found for this order.
