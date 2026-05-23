@@ -3,15 +3,13 @@ const LOCALE_MAP = {
   INR: "en-IN",
   AED: "en-AE",
   USD: "en-US",
-  GBP: "en-GB"
 };
 
 const EXCHANGE_RATES = {
   INR: 1,
-  GBP: 0.01, // approx rate
-  USD: 0.012,
   GBP: 0.0095,
-  AED: 0.044
+  USD: 0.012,
+  AED: 0.044,
 };
 
 export const APP_CURRENCY = localStorage.getItem("appCurrency") || "GBP";

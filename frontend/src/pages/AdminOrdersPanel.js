@@ -71,13 +71,7 @@ const statusClass = (s) => {
   return "order-pill status-cancelled";
 };
 
-const statusDotClass = (s) => {
-  if (s === "Delivered") return "order-status-dot dot-green";
-  if (s === "Shipped" || s === "Out for Delivery") return "order-status-dot dot-blue";
-  if (s === "Processing" || s === "Ordered" || s === "Confirmed") return "order-status-dot dot-blue";
-  if (s === "Pending" || s === "Awaiting Bank Transfer") return "order-status-dot dot-amber";
-  return "order-status-dot dot-red";
-};
+
 
 const PERIOD_API = {
   "This Month": "this-month",

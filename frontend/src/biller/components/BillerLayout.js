@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { LayoutDashboard, Receipt, ShoppingCart, LogOut, Printer, Menu } from "lucide-react";
+import { LayoutDashboard, Receipt, ShoppingCart, LogOut, Menu } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import MankathaBanner from "../../components/Brand/MankathaBanner";
 import "../../admin.css";

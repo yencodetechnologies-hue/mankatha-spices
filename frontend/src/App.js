@@ -42,7 +42,6 @@ import BillerPanelPage from './biller/pages/BillerPanelPage';
 import BillerDashboardPanel from './biller/pages/BillerDashboardPanel';
 import BillerNewBillPanel from './biller/pages/BillerNewBillPanel';
 import BillerOrdersPanel from './biller/pages/BillerOrdersPanel';
-import BillerPlaceholderPanel from './biller/pages/BillerPlaceholderPanel';
 import './index.css';
 
 const adminPlaceholderRoutes = SIDEBAR_GROUPS.flatMap((g) => g.items)

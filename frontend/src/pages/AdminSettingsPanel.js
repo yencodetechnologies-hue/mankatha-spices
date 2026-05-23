@@ -1,17 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { settingsApi } from "../api/settingsApi";
 
-const TABS = [
-  { id: "general", label: "General" },
-];
 
-const CURRENCY_OPTIONS = [
-  { value: "INR", label: "INR (₹)" },
-  { value: "USD", label: "USD ($)" },
-  { value: "AED", label: "AED" },
-  { value: "GBP", label: "GBP (£)" },
-  { value: "EUR", label: "EUR (€)" },
-];
 
 const DEFAULT_FORM = {
   storeName: "SpiceEmpire",
@@ -35,7 +25,6 @@ function mergeServerIntoForm(data) {
 }
 
 const AdminSettingsPanel = () => {
-  const [tab, setTab] = useState("general");
   const [form, setForm] = useState(() => ({ ...DEFAULT_FORM }));
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);

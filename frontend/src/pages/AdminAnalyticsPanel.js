@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Percent, CircleDollarSign, Eye, ShoppingCart, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { Percent, CircleDollarSign, ShoppingCart, ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { analyticsApi } from "../api/analyticsApi";
 const RANGE_OPTIONS = [
   { value: 7, label: "Last 7 Days" },
