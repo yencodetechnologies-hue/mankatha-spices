@@ -2,14 +2,11 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import {
   Receipt,
-  ShoppingCart,
   Printer,
   IndianRupee,
-  TrendingUp,
   Clock,
   CheckCircle2,
   AlertCircle,
-  FileText,
   RefreshCw,
   Loader2,
 } from "lucide-react";
@@ -52,37 +49,6 @@ const StatCard = ({ icon: Icon, label, value, sub, color, loading }) => (
   </div>
 );
 
-/* ─── status badge ─────────────────────────────────────────── */
-const statusBadge = (s) => {
-  const map = {
-    Delivered: "bg-green-50 text-green-700 border-green-200",
-    Paid:      "bg-green-50 text-green-700 border-green-200",
-    Processing:"bg-blue-50  text-blue-700  border-blue-200",
-    Pending:   "bg-amber-50 text-amber-700 border-amber-200",
-    "Awaiting Bank Transfer": "bg-amber-50 text-amber-700 border-amber-200",
-    "Awaiting Approval": "bg-amber-50 text-amber-700 border-amber-200",
-    Cancelled: "bg-red-50   text-red-700   border-red-200",
-  };
-  return `inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${map[s] ?? "bg-gray-50 text-gray-600 border-gray-200"}`;
-};
-
-/* ─── quick-action card ────────────────────────────────────── */
-const ActionCard = ({ icon: Icon, title, desc, color, onClick }) => (
-  <button
-    type="button"
-    onClick={onClick}
-    className="w-full text-left rounded-2xl border border-[#ede6dc] bg-[#fffefb] p-5 transition hover:border-primary-300 hover:shadow-md group"
-  >
-    <div
-      className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl"
-      style={{ background: `${color}18` }}
-    >
-      <Icon size={20} style={{ color }} className="transition group-hover:scale-110" />
-    </div>
-    <h3 className="font-semibold text-[#3d2f26]">{title}</h3>
-    <p className="mt-1 text-sm text-gray-500">{desc}</p>
-  </button>
-);
 
 /* ─── main component ───────────────────────────────────────── */
 const BillerDashboardPanel = () => {

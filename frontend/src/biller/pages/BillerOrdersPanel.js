@@ -12,13 +12,7 @@ const fmtDate = (iso) => {
   });
 };
 
-const statusStyle = (s) => {
-  if (s === "Delivered") return { background: "#dcfce7", color: "#166534" };
-  if (s === "Shipped" || s === "Out for Delivery") return { background: "#dbeafe", color: "#1d4ed8" };
-  if (s === "Processing" || s === "Confirmed" || s === "Ordered") return { background: "#fef3c7", color: "#92400e" };
-  if (s === "Cancelled") return { background: "#fee2e2", color: "#991b1b" };
-  return { background: "#f3f4f6", color: "#374151" };
-};
+
 
 const BillerOrdersPanel = () => {
   const [orders, setOrders] = useState([]);
@@ -54,25 +48,7 @@ const BillerOrdersPanel = () => {
     setTimeout(() => { window.print(); }, 100);
   };
 
-  const handleStatusChange = async (orderId, newStatus) => {
-    setOrders(prev => prev.map(o => o.orderId === orderId ? { ...o, status: newStatus } : o));
-    try {
-      await orderApi.updateOrderStatus(orderId, newStatus);
-    } catch (err) {
-      alert("Failed to update status");
-      load();
-    }
-  };
 
-  const handlePaymentChange = async (orderId, newPayment) => {
-    setOrders(prev => prev.map(o => o.orderId === orderId ? { ...o, payment: newPayment } : o));
-    try {
-      await orderApi.updateOrderPayment(orderId, newPayment);
-    } catch (err) {
-      alert("Failed to update payment");
-      load();
-    }
-  };
 
   return (
     <>
