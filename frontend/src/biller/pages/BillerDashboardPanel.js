@@ -9,6 +9,8 @@ import {
   AlertCircle,
   RefreshCw,
   Loader2,
+  Eye,
+  X
 } from "lucide-react";
 import { orderApi } from "../../api/orderApi";
 import { formatMoney } from "../../utils/formatMoney";
@@ -60,6 +62,7 @@ const BillerDashboardPanel = () => {
   const [error, setError]     = useState("");
   const [search, setSearch]   = useState("");
   const [printOrder, setPrintOrder] = useState(null);
+  const [viewOrder, setViewOrder] = useState(null);
 
   const handlePrint = (order) => {
     setPrintOrder(order);
@@ -222,17 +225,7 @@ const BillerDashboardPanel = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {loading ? (
-                Array.from({ length: 5 }).map((_, i) => (
-                  <tr key={i} className="animate-pulse">
-                    {Array.from({ length: 7 }).map((_, j) => (
-                      <td key={j} className="px-5 py-3">
-                        <div className="h-3 rounded bg-gray-200" />
-                      </td>
-                    ))}
-                  </tr>
-                ))
-              ) : filtered.length === 0 ? (
+              {loading ? null : filtered.length === 0 ? (
                 <tr>
                
                 </tr>
@@ -256,14 +249,24 @@ const BillerDashboardPanel = () => {
                       {fmtTime(o.orderDate || o.createdAt)}
                     </td>
                     <td className="px-5 py-3 text-right">
-                      <button
-                        type="button"
-                        onClick={() => handlePrint(o)}
-                        className="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-3 py-1 text-xs font-medium text-gray-600 hover:border-primary-300 hover:text-primary-700 transition"
-                      >
-                        <Printer size={12} />
-                        Print
-                      </button>
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setViewOrder(o)}
+                          className="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-3 py-1 text-xs font-medium text-gray-600 hover:border-primary-300 hover:text-primary-700 transition"
+                        >
+                          <Eye size={12} />
+                          View
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handlePrint(o)}
+                          className="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-3 py-1 text-xs font-medium text-gray-600 hover:border-primary-300 hover:text-primary-700 transition"
+                        >
+                          <Printer size={12} />
+                          Print
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -354,8 +357,62 @@ const BillerDashboardPanel = () => {
           <p className="italic text-xs">Pure spices, rich flavour, trusted quality.</p>
           <p className="mt-1 text-[10px] font-mono text-gray-400 uppercase">Visit again</p>
         </div>
-      </div>
+        </div>
+
     )}
+
+      {/* View Order Modal */}
+      {viewOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setViewOrder(null)}>
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
+            <div className="flex justify-between items-center p-4 border-b border-gray-100 bg-gray-50/50">
+              <h3 className="font-bold text-gray-800 text-lg">Order #{viewOrder.orderId}</h3>
+              <button onClick={() => setViewOrder(null)} className="p-1.5 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">
+                <X size={18} />
+              </button>
+            </div>
+            
+            <div className="p-5 overflow-y-auto">
+              <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
+                <div>
+                  <p className="text-gray-500 mb-1">Customer</p>
+                  <p className="font-medium text-gray-800">{viewOrder.customerName || "Walk-in Customer"}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500 mb-1">Date & Time</p>
+                  <p className="font-medium text-gray-800">{new Date(viewOrder.orderDate || viewOrder.createdAt).toLocaleString('en-IN')}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500 mb-1">Payment</p>
+                  <p className="font-medium text-green-600">{viewOrder.paymentMethod || "Cash"}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500 mb-1">Status</p>
+                  <p className="font-medium text-blue-600 capitalize">{viewOrder.status || "Completed"}</p>
+                </div>
+              </div>
+
+              <h4 className="font-bold text-sm text-gray-400 uppercase tracking-wider mb-3">Order Items</h4>
+              <div className="space-y-3 mb-6">
+                {viewOrder.lineItems?.map((item, idx) => (
+                  <div key={idx} className="flex justify-between items-center p-3 rounded-lg border border-gray-100 bg-gray-50">
+                    <div>
+                      <p className="font-medium text-gray-800 text-sm">{item.name}</p>
+                      <p className="text-xs text-gray-500 mt-0.5">Qty: {item.quantity}</p>
+                    </div>
+                    <p className="font-bold text-gray-800">{formatMoney((item.price || 0) * item.quantity)}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex justify-between items-center pt-4 border-t border-gray-200">
+                <span className="font-bold text-gray-600">Total Amount</span>
+                <span className="text-xl font-bold text-primary-600">{formatMoney(viewOrder.total)}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

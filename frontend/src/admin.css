@@ -2942,3 +2942,37 @@ th {
 .biller-sidebar.open {
   transform: translateX(0);
 }
+
+/* Mobile Card Tables */
+@media (max-width: 768px) {
+  table {
+    display: block;
+    width: 100%;
+  }
+  thead {
+    display: none;
+  }
+  tbody {
+    display: block;
+    width: 100%;
+  }
+  tr {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  td {
+    display: block;
+    text-align: left;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f3f4f6;
+  }
+  td:last-child {
+    border-bottom: none;
+  }
+}

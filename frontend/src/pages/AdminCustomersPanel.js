@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Search } from "lucide-react";
+import { Search, Trash2 } from "lucide-react";
 import { customerApi } from "../api/customerApi";
 import { formatMoneyWhole, formatMoney } from "../utils/formatMoney";
 
@@ -131,6 +131,17 @@ const AdminCustomersPanel = () => {
       console.error("Failed to load customer orders", err);
     } finally {
       setLoadingOrders(false);
+    }
+  };
+
+  const handleDeleteCustomer = async (id, name) => {
+    if (!window.confirm(`Are you sure you want to delete the customer "${name}"?`)) return;
+    try {
+      await customerApi.deleteCustomer(id);
+      setCustomers(customers.filter(c => c._id !== id));
+      loadStats().catch(() => {});
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to delete customer.");
     }
   };
 
@@ -272,9 +283,19 @@ const AdminCustomersPanel = () => {
                       <td>{c.orderCount}</td>
                       <td className="order-total-cell">{formatMoneyWhole(c.totalSpent)}</td>
                       <td>
-                        <button type="button" className="order-view-btn" onClick={() => handleViewCustomer(c)}>
-                          View Orders
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <button type="button" className="order-view-btn" onClick={() => handleViewCustomer(c)}>
+                            View Orders
+                          </button>
+                          <button 
+                            type="button" 
+                            className="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition"
+                            onClick={() => handleDeleteCustomer(c._id, c.name)}
+                            title="Delete Customer"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))

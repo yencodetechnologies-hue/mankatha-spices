@@ -96,6 +96,8 @@ const AdminOrdersPanel = () => {
   const [periodFilter, setPeriodFilter] = useState("This Month");
   const [customerFilter, setCustomerFilter] = useState("All Customers");
   const [sourceFilter, setSourceFilter] = useState("Walk-in Orders");
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
 
   const loadData = useCallback(async () => {
     // 1. Populate immediately from cache if available
@@ -210,6 +212,17 @@ const AdminOrdersPanel = () => {
     return ["All Customers", ...Array.from(customers).sort()];
   }, [rows]);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, statusFilter, customerFilter, sourceFilter, periodFilter]);
+
+  const paginatedOrders = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filtered.slice(start, start + pageSize);
+  }, [filtered, currentPage]);
+
+  const totalPages = Math.ceil(filtered.length / pageSize);
+
   const handleExport = () => {
     const header = ["Order ID", "Customer", "Items", "Total (£)", "Payment", "Status", "Date"];
     const rowsCsv = filtered.map((o) => [o.id, o.customer, o.itemCount, o.total, o.payment, o.status, o.date]);
@@ -227,7 +240,7 @@ const AdminOrdersPanel = () => {
     <>
       <div className="products-head orders-head">
         <div>
-          <h2>Online Billing</h2>
+          <h2>Online Orders</h2>
           <p>
             {stats.totalOrders.toLocaleString("en-GB")} total orders ·{" "}
             <span className="orders-pending-hint">{stats.pendingAction} pending action</span>
@@ -317,13 +330,13 @@ const AdminOrdersPanel = () => {
                 </tr>
               </thead>
               <tbody>
-                {filtered.length === 0 ? (
+                {paginatedOrders.length === 0 ? (
                   <tr>
                     <td colSpan={9} className="orders-empty-cell">
                     </td>
                   </tr>
                 ) : (
-                  filtered.map((o) => (
+                  paginatedOrders.map((o) => (
                     <tr key={o.id}>
                       <td>
                         <span className="order-id-link">#{o.id}</span>
@@ -387,6 +400,28 @@ const AdminOrdersPanel = () => {
                 )}
               </tbody>
             </table>
+            
+            {totalPages > 1 && (
+              <div className="flex justify-center items-center gap-4 p-4 border-t border-gray-100 bg-white rounded-b-xl">
+                <button 
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="px-3 py-1 text-sm border rounded hover:bg-gray-50 disabled:opacity-50"
+                >
+                  Previous
+                </button>
+                <span className="text-sm text-gray-600">
+                  Page {currentPage} of {totalPages}
+                </span>
+                <button 
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className="px-3 py-1 text-sm border rounded hover:bg-gray-50 disabled:opacity-50"
+                >
+                  Next
+                </button>
+              </div>
+            )}
           </div>
       </div>
 

@@ -49,11 +49,11 @@ function formatCompact(n) {
   return String(Math.round(x));
 }
 
-function formatInrShort(n) {
+function formatCurrencyShort(n) {
   const x = Number(n) || 0;
-  if (x >= 100000) return `₹${(x / 100000).toFixed(1)}L`;
-  if (x >= 1000) return `₹${(x / 1000).toFixed(1)}k`;
-  return `₹${Math.round(x)}`;
+  if (x >= 100000) return `£${(x / 100000).toFixed(1)}L`;
+  if (x >= 1000) return `£${(x / 1000).toFixed(1)}k`;
+  return `£${Math.round(x)}`;
 }
 
 async function countEvents(start, end, eventType) {
@@ -173,14 +173,14 @@ async function topProductsByRevenue(start, end, limit = 5) {
     rank: idx + 1,
     name,
     revenue,
-    revenueDisplay: formatInrShort(revenue),
+    revenueDisplay: formatCurrencyShort(revenue),
     unitSales: units[name] || 0,
     barPct: Math.round((revenue / maxRev) * 1000) / 10,
   }));
 }
 
 function periodHeading(start) {
-  return new Intl.DateTimeFormat("en-IN", { month: "long", year: "numeric" }).format(start);
+  return new Intl.DateTimeFormat("en-GB", { month: "long", year: "numeric" }).format(start);
 }
 
 const getAnalytics = async (req, res) => {
@@ -234,7 +234,7 @@ const getAnalytics = async (req, res) => {
         },
         avgOrderValue: {
           value: Math.round(ordCur.aov),
-          display: `₹${Math.round(ordCur.aov).toLocaleString("en-IN")}`,
+          display: `£${Math.round(ordCur.aov).toLocaleString("en-GB")}`,
           deltaAmount: Math.round(ordCur.aov - ordPrev.aov),
           positive: ordCur.aov >= ordPrev.aov,
         },

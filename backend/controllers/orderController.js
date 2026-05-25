@@ -102,7 +102,7 @@ const getStats = async (req, res) => {
 
 const createOrder = async (req, res) => {
   try {
-    const { customerName, email, phone, city, total, payment, paymentMethod, status, lineItems, itemCount, couponCode, discountAmount, isPOS } = req.body;
+    const { customerName, email, phone, city, total, payment, paymentMethod, status, lineItems, itemCount, couponCode, discountAmount, isPOS, password } = req.body;
     
     // Simple order ID generator
     const orderId = "SE" + Math.floor(1000 + Math.random() * 9000);
@@ -123,6 +123,18 @@ const createOrder = async (req, res) => {
       });
       if (user) {
         customerId = user._id;
+      } else if (password && email) {
+        const bcrypt = require("bcryptjs");
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+        const newUser = await User.create({
+          name: customerName || "Customer",
+          email: email.toLowerCase().trim(),
+          phone: phone || "",
+          password: hashedPassword,
+          role: "customer"
+        });
+        customerId = newUser._id;
       }
     }
 

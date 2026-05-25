@@ -95,4 +95,19 @@ const getStats = async (req, res) => {
   }
 };
 
-module.exports = { getCustomers, getStats, getCustomerStatsPayload };
+const deleteCustomer = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedCustomer = await Customer.findByIdAndDelete(id);
+    if (!deletedCustomer) {
+      return res.status(404).json({ message: "Customer not found" });
+    }
+    // Also delete the User account if it exists with this email? 
+    // Not strictly required for now, but usually they just want the CRM customer entry deleted.
+    res.json({ message: "Customer deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: err.message || "Failed to delete customer" });
+  }
+};
+
+module.exports = { getCustomers, getStats, getCustomerStatsPayload, deleteCustomer };

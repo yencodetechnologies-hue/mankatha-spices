@@ -18,19 +18,19 @@ const Footer = () => {
 
       {/* Main Footer Content */}
       <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Company Info */}
-          <div>
-            <div className="flex items-center space-x-2">
+          <div className="col-span-2 lg:col-span-1 flex flex-col md:items-start text-left">
+            <div className="flex items-center space-x-2 justify-start">
               <div className="w-10 h-10 bg-primary-500 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-xl">M</span>
               </div>
               <span className="text-2xl font-bold">Mankatha Spices</span>
             </div>
-            <p className="text-gray-300 mb-4">
+            <p className="text-gray-300 mb-4 mt-2">
               Your trusted marketplace for the freshest organic groceries and premium produce, delivered straight to your door.
             </p>
-            <div className="flex space-x-4">
+            <div className="flex space-x-4 justify-start">
               <a
                 href="https://www.facebook.com/"
                 target="_blank"
@@ -71,8 +71,8 @@ const Footer = () => {
           </div>
 
           {/* Quick Links */}
-          <div>
-            <h4 className="text-lg font-semibold mb-4">Quick Links</h4>
+          <div className="text-left">
+            <h4 className="text-lg font-semibold mb-4 text-white">Quick Links</h4>
             <ul className="space-y-2">
               <li>
                 <Link to="/about" className="text-gray-300 hover:text-white transition-colors">
@@ -88,8 +88,8 @@ const Footer = () => {
           </div>
 
           {/* Customer Service */}
-          <div>
-            <h4 className="text-lg font-semibold mb-4">Customer Service</h4>
+          <div className="text-left">
+            <h4 className="text-lg font-semibold mb-4 text-white">Customer Service</h4>
             <ul className="space-y-2">
               <li>
                 <Link to="/help" className="text-gray-300 hover:text-white transition-colors">
@@ -120,12 +120,12 @@ const Footer = () => {
           </div>
 
           {/* Contact Info */}
-          <div>
-            <h4 className="text-lg font-semibold mb-4">Contact Info</h4>
-            <div className="space-y-3">
-              <div className="flex items-center space-x-3">
-                <MapPin size={20} className="text-primary-400" />
-                <span className="text-gray-300">
+          <div className="col-span-2 lg:col-span-1 text-left flex flex-col md:items-start">
+            <h4 className="text-lg font-semibold mb-4 text-white">Contact Info</h4>
+            <div className="space-y-3 w-full max-w-sm">
+              <div className="flex items-center space-x-3 justify-start">
+                <MapPin size={20} className="text-primary-400 shrink-0" />
+                <span className="text-gray-300 text-sm">
                   {settings?.storeAddress || (
                     <>
                       123 Market Street<br />
@@ -134,13 +134,13 @@ const Footer = () => {
                   )}
                 </span>
               </div>
-              <div className="flex items-center space-x-3">
-                <Phone size={20} className="text-primary-400" />
-                <span className="text-gray-300">{settings?.phone || "+1-555-0123"}</span>
+              <div className="flex items-center space-x-3 justify-start">
+                <Phone size={20} className="text-primary-400 shrink-0" />
+                <span className="text-gray-300 text-sm">{settings?.phone || "+1-555-0123"}</span>
               </div>
-              <div className="flex items-center space-x-3">
-                <Mail size={20} className="text-primary-400" />
-                <span className="text-gray-300">{settings?.contactEmail || "info@neststore.com"}</span>
+              <div className="flex items-center space-x-3 justify-start">
+                <Mail size={20} className="text-primary-400 shrink-0" />
+                <span className="text-gray-300 text-sm">{settings?.contactEmail || "info@neststore.com"}</span>
               </div>
             </div>
           </div>
@@ -150,13 +150,12 @@ const Footer = () => {
       {/* Payment Methods */}
       <div className="border-t border-gray-800">
         <div className="container mx-auto px-4 py-6">
-          <div className="flex flex-col md:flex-row items-center justify-between">
+          <div className="flex flex-col md:flex-row items-center justify-between text-center md:text-left">
             <div className="mb-4 md:mb-0">
               <p className="text-gray-400 text-sm">
                 © {new Date().getFullYear()} {settings?.storeName || 'Mankatha Spices'}. All rights reserved.
               </p>
             </div>
-          
           </div>
         </div>
       </div>

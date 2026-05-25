@@ -42,4 +42,11 @@ export const customerApi = {
     }
   },
   getCachedStats: () => statsCache,
+  
+  deleteCustomer: async (id) => {
+    const response = await axios.delete(`${base()}/customers/${id}`, withAuthHeaders());
+    customersCache = null;
+    statsCache = null;
+    return response.data;
+  }
 };

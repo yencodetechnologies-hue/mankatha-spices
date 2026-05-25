@@ -1,37 +1,41 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, CreditCard, Truck, Tag, Trash2 } from 'lucide-react';
+import { ShoppingCart, CreditCard, Truck, Tag, Trash2, Eye, EyeOff } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { formatMoney } from '../../utils/formatMoney';
+import { authApi } from '../api/authApi';
 import { couponsApi } from '../../api/couponsApi';
 import { orderApi } from '../../api/orderApi';
 
 const Checkout = () => {
   const navigate = useNavigate();
   const { items, getCartTotal, clearCart, appliedCoupon, applyCoupon, removeCoupon, getDiscountAmount } = useCart();
-  const { user } = useAuth();
+  const { user, loginWithSession } = useAuth();
   
   const [couponCode, setCouponCode] = useState('');
   const [couponError, setCouponError] = useState('');
   const [applyingCoupon, setApplyingCoupon] = useState(false);
   const [placingOrder, setPlacingOrder] = useState(false);
   const [orderError, setOrderError] = useState('');
+  const [placedOrderDetails, setPlacedOrderDetails] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
   
   const savedAppCity = localStorage.getItem("appCity") || "";
   const savedAppPincode = localStorage.getItem("appPincode") || "";
   const regionName = savedAppCity.includes(',') ? savedAppCity.split(',').slice(1).join(',').trim() : savedAppCity;
 
   const [shippingInfo, setShippingInfo] = useState({
-    firstName: user?.name?.split(' ')[0] || '',
-    lastName: user?.name?.split(' ')[1] || '',
-    email: user?.email || '',
-    phone: user?.phone || '',
-    address: regionName || user?.addresses?.[0]?.address || '',
-    city: user?.addresses?.[0]?.city || '',
-    state: user?.addresses?.[0]?.state || '',
-    zipCode: savedAppPincode || user?.addresses?.[0]?.zip_code || '',
-    country: user?.addresses?.[0]?.country || 'United Kingdom'
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    password: '',
+    address: regionName || '',
+    city: '',
+    state: '',
+    zipCode: savedAppPincode || '',
+    country: 'United Kingdom'
   });
 
   const [paymentInfo, setPaymentInfo] = useState({
@@ -89,6 +93,7 @@ const Checkout = () => {
         customerName: `${shippingInfo.firstName} ${shippingInfo.lastName}`.trim(),
         email: shippingInfo.email,
         phone: shippingInfo.phone,
+        password: shippingInfo.password,
         city: shippingInfo.city,
         total: total,
         payment: paymentMethod === 'card' ? 'Paid' : 'Pending',
@@ -105,14 +110,18 @@ const Checkout = () => {
         }))
       };
 
-      await orderApi.createOrder(payload);
+      const response = await orderApi.createOrder(payload);
+      
+      setPlacedOrderDetails({
+        orderId: response?.orderId || 'PENDING',
+        items: [...items],
+        total: total,
+        customerName: payload.customerName
+      });
 
       setOrderPlaced(true);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       clearCart();
-      
-      setTimeout(() => {
-        navigate('/');
-      }, 3000);
     } catch (err) {
       setOrderError(err.response?.data?.message || 'Failed to place order. Please try again.');
     } finally {
@@ -120,21 +129,73 @@ const Checkout = () => {
     }
   };
 
-  if (orderPlaced) {
+  const handleAutoLogin = async () => {
+    if (user) {
+      navigate('/profile?tab=orders');
+      return;
+    }
+    if (shippingInfo.email && shippingInfo.password) {
+      try {
+        const { token, user: nextUser } = await authApi.login({ 
+          email: shippingInfo.email, 
+          password: shippingInfo.password 
+        });
+        loginWithSession(token, nextUser);
+        navigate('/profile?tab=orders');
+      } catch (err) {
+        // If auto-login fails, fallback to manual login page
+        navigate('/login', { state: { from: '/profile?tab=orders' } });
+      }
+    } else {
+      navigate('/login', { state: { from: '/profile?tab=orders' } });
+    }
+  };
+
+  if (orderPlaced && placedOrderDetails) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-3xl">✓</span>
+      <div className="min-h-screen bg-gray-50 py-12 px-4">
+        <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-md p-8">
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 text-green-600">
+              <span className="text-3xl">✓</span>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-800">Order Placed Successfully!</h2>
+            <p className="text-gray-500 mt-2">Order #{placedOrderDetails.orderId}</p>
           </div>
-          <h2 className="text-2xl font-bold mb-4">Order Placed Successfully!</h2>
-          <p className="text-gray-600 mb-6">Thank you for your order. You will be redirected to the homepage shortly.</p>
-          <Link
-            to="/"
-            className="inline-block bg-primary-500 hover:bg-primary-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
-          >
-            Go to Homepage
-          </Link>
+          
+          <div className="border-t border-gray-100 pt-6">
+            <h3 className="font-semibold text-lg mb-4">Order Details</h3>
+            <div className="space-y-4 mb-6">
+              {placedOrderDetails.items.map((item, idx) => (
+                <div key={idx} className="flex justify-between items-center text-sm">
+                  <div>
+                    <span className="font-medium text-gray-800">{item.name}</span>
+                    <span className="text-gray-500 ml-2">x {item.quantity}</span>
+                  </div>
+                  <span className="font-semibold text-gray-800">{formatMoney(item.price * item.quantity)}</span>
+                </div>
+              ))}
+            </div>
+            <div className="border-t border-gray-100 pt-4 flex justify-between items-center font-bold text-lg">
+              <span>Total Paid</span>
+              <span className="text-primary-600">{formatMoney(placedOrderDetails.total)}</span>
+            </div>
+          </div>
+          
+          <div className="mt-8 text-center flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              to="/products"
+              className="px-6 py-3 bg-white border border-gray-300 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+            >
+              Continue Shopping
+            </Link>
+            <button
+              onClick={handleAutoLogin}
+              className="px-6 py-3 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition-colors"
+            >
+              Login
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -225,6 +286,28 @@ const Checkout = () => {
                       required
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                     />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Password
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        name="password"
+                        value={shippingInfo.password}
+                        onChange={(e) => handleInputChange(e, 'shipping')}
+                        placeholder="To create an account"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                      >
+                        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                      </button>
+                    </div>
                   </div>
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-1">

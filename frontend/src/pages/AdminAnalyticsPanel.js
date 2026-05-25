@@ -119,7 +119,7 @@ const AdminAnalyticsPanel = () => {
             <p className={`analytics-kpi-trend${kpis.avgOrderValue.positive ? " good" : " bad"}`}>
               <TrendLine up={kpis.avgOrderValue.deltaAmount >= 0} />
               {kpis.avgOrderValue.deltaAmount >= 0 ? "+" : "−"}
-              ₹{Math.abs(kpis.avgOrderValue.deltaAmount).toLocaleString("en-IN")} vs prior period
+              £{Math.abs(kpis.avgOrderValue.deltaAmount).toLocaleString("en-GB")} vs prior period
             </p>
           </article>
           <article className="analytics-kpi-card">

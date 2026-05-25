@@ -131,8 +131,8 @@ const AdminBillersPanel = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-xl font-bold text-gray-900">Billing Orders</h2>
-          <p className="text-sm text-gray-500 mt-1">Manage staff accounts with access to the billing system.</p>
+          <h2 className="text-xl font-bold text-gray-900">Billers</h2>
+
         </div>
         <button
           onClick={openAddModal}

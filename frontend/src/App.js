@@ -20,7 +20,7 @@ import Contact from './user/pages/Contact';
 import AdminPanelPage from './pages/AdminPanelPage';
 import AdminProductsPanel from './pages/AdminProductsPanel';
 import AdminOrdersPanel from './pages/AdminOrdersPanel';
-import AdminPlaceholderPanel from './pages/AdminPlaceholderPanel';
+
 import AdminOverviewPanel from './pages/AdminOverviewPanel';
 import AdminCustomersPanel from './pages/AdminCustomersPanel';
 import AdminAnalyticsPanel from './pages/AdminAnalyticsPanel';
@@ -34,6 +34,7 @@ import AdminDistributorsPanel from './pages/AdminDistributorsPanel';
 import AdminGeneralPanel from './pages/AdminGeneralPanel';
 import AdminCategoryPanel from './pages/AdminCategoryPanel';
 import AdminBillersPanel from './pages/AdminBillersPanel';
+import AdminBillingOrdersPanel from './pages/AdminBillingOrdersPanel';
 import { SIDEBAR_GROUPS } from './constants';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
 import VendorPanelPage from './vendor/pages/VendorPanelPage';
@@ -44,32 +45,6 @@ import BillerDashboardPanel from './biller/pages/BillerDashboardPanel';
 import BillerNewBillPanel from './biller/pages/BillerNewBillPanel';
 import BillerOrdersPanel from './biller/pages/BillerOrdersPanel';
 import './index.css';
-
-const adminPlaceholderRoutes = SIDEBAR_GROUPS.flatMap((g) => g.items)
-  .filter(
-    (item) =>
-      item.path !== 'products' &&
-      item.path !== 'orders' &&
-      item.path !== 'overview' &&
-      item.path !== 'customers' &&
-      item.path !== 'analytics' &&
-      item.path !== 'inventory' &&
-      item.path !== 'reviews' &&
-      item.path !== 'coupons' &&
-      item.path !== 'distributors' &&
-      item.path !== 'general' &&
-      item.path !== 'settings' &&
-      item.path !== 'sliders' &&
-      item.path !== 'category' &&
-      item.path !== 'billers'
-  )
-  .map((item) => (
-    <Route
-      key={item.path}
-      path={item.path}
-      element={<AdminPlaceholderPanel title={item.label} />}
-    />
-  ));
 
 function AppContent() {
   const [notification, setNotification] = useState({
@@ -124,6 +99,7 @@ function AppContent() {
               <Route index element={<Navigate to="/adminpanel/overview" replace />} />
               <Route path="overview" element={<AdminOverviewPanel />} />
               <Route path="billers" element={<AdminBillersPanel />} />
+              <Route path="billing-orders" element={<AdminBillingOrdersPanel />} />
               <Route path="products" element={<AdminProductsPanel />} />
               <Route path="orders" element={<AdminOrdersPanel />} />
               <Route path="customers" element={<AdminCustomersPanel />} />
@@ -137,7 +113,6 @@ function AppContent() {
               <Route path="banners" element={<AdminBannersPanel />} />
               <Route path="sliders" element={<AdminSlidersPanel />} />
               <Route path="category" element={<AdminCategoryPanel />} />
-              {adminPlaceholderRoutes}
             </Route>
             <Route
               path="/vendor"

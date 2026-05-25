@@ -28,7 +28,7 @@ function redirectByRole(navigate, nextUser, fromPath) {
     navigate('/biller/dashboard', { replace: true });
     return;
   }
-  navigate(isSafeCustomerReturnPath(fromPath) ? fromPath : '/', { replace: true });
+  navigate(isSafeCustomerReturnPath(fromPath) ? fromPath : '/profile?tab=orders', { replace: true });
 }
 
 const Login = () => {

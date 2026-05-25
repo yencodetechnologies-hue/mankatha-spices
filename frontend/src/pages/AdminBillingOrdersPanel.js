@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Search, Printer, RefreshCw, ShoppingCart, Loader2, Eye, X } from "lucide-react";
-import { orderApi } from "../../api/orderApi";
-import { formatMoney } from "../../utils/formatMoney";
-import MankathaBanner from "../../components/Brand/MankathaBanner";
+import { orderApi } from "../api/orderApi";
+import { formatMoney } from "../utils/formatMoney";
+import MankathaBanner from "../components/Brand/MankathaBanner";
 
 const fmtDate = (iso) => {
   if (!iso) return "—";
@@ -14,11 +14,12 @@ const fmtDate = (iso) => {
 
 
 
-const BillerOrdersPanel = () => {
+const AdminBillingOrdersPanel = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
+  const [billerFilter, setBillerFilter] = useState("All Billers");
   const [printOrder, setPrintOrder] = useState(null);
   const [viewOrder, setViewOrder] = useState(null);
 
@@ -26,8 +27,9 @@ const BillerOrdersPanel = () => {
     setLoading(true);
     setError("");
     try {
-      const res = await orderApi.getBillerOrders({ limit: 200 });
-      setOrders(res.orders || []);
+      const res = await orderApi.getOrders({ period: "all" });
+      const billerOrders = (res.orders || []).filter(o => o.billerId || o.billerName || o.isPOS);
+      setOrders(billerOrders);
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to load billing orders.");
     } finally {
@@ -37,12 +39,15 @@ const BillerOrdersPanel = () => {
 
   useEffect(() => { load(); }, [load]);
 
-  const filtered = orders.filter(
-    (o) =>
-      !search ||
+  const uniqueBillers = Array.from(new Set(orders.map(o => o.billerName).filter(Boolean))).sort();
+
+  const filtered = orders.filter((o) => {
+    const matchesSearch = !search ||
       (o.orderId || "").toLowerCase().includes(search.toLowerCase()) ||
-      (o.customerName || "").toLowerCase().includes(search.toLowerCase())
-  );
+      (o.customerName || "").toLowerCase().includes(search.toLowerCase());
+    const matchesBiller = billerFilter === "All Billers" || o.billerName === billerFilter;
+    return matchesSearch && matchesBiller;
+  });
 
   const handlePrint = (order) => {
     setPrintOrder(order);
@@ -57,9 +62,9 @@ const BillerOrdersPanel = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h2 className="text-xl font-bold text-[#3d2f26]">My Billing Lists</h2>
+            <h2 className="text-xl font-bold text-[#3d2f26]">Billing Orders</h2>
             <p className="text-sm text-gray-500 mt-0.5">
-              {orders.length} total bill{orders.length !== 1 ? "s" : ""} placed by you
+              {filtered.length} total bill{filtered.length !== 1 ? "s" : ""}
             </p>
           </div>
           <button
@@ -80,6 +85,18 @@ const BillerOrdersPanel = () => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
+        </div>
+        <div className="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-xl bg-white w-full sm:max-w-xs shadow-sm">
+          <select 
+            className="flex-1 text-sm bg-transparent outline-none"
+            value={billerFilter} 
+            onChange={(e) => setBillerFilter(e.target.value)}
+          >
+            <option value="All Billers">All Billers</option>
+            {uniqueBillers.map(b => (
+              <option key={b} value={b}>{b}</option>
+            ))}
+          </select>
         </div>
 
         {error && (
@@ -127,7 +144,7 @@ const BillerOrdersPanel = () => {
                         {formatMoney(o.total)}
                       </td>
                       <td className="px-5 py-3">
-                        <span className="inline-flex items-center text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-[#dcfce7] text-[#166534]">
+                        <span className="inline-flex items-center w-max text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-[#dcfce7] text-[#166534]">
                           Paid
                         </span>
                       </td>
@@ -289,4 +306,4 @@ const BillerOrdersPanel = () => {
   );
 };
 
-export default BillerOrdersPanel;
+export default AdminBillingOrdersPanel;
