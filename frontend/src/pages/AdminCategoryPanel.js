@@ -154,7 +154,7 @@ const AdminCategoryPanel = () => {
         </button>
       </header>
 
-      {errorMessage && (
+      {errorMessage && !errorMessage.toLowerCase().includes("not found") && (
         <div className="status-error mb-4" role="alert">
           {errorMessage}
         </div>
@@ -253,7 +253,6 @@ const AdminCategoryPanel = () => {
                     <tr className="border-b border-[#ECEFF1] text-xs uppercase tracking-wide text-[#78909C]">
                       <th className="py-2.5 pr-4 font-semibold">SKU</th>
                       <th className="py-2.5 pr-4 font-semibold">Product Name</th>
-                      <th className="py-2.5 pr-4 font-semibold">Origin</th>
                       <th className="py-2.5 pr-4 font-semibold text-right">Stock</th>
                     </tr>
                   </thead>
@@ -262,7 +261,6 @@ const AdminCategoryPanel = () => {
                       <tr key={p._id} className="border-b border-[#F5F5F5] hover:bg-[#FAFAFA] text-[#37474F]">
                         <td className="py-3 pr-4 font-mono text-xs text-[#8c6239]">{p.sku}</td>
                         <td className="py-3 pr-4 font-medium">{p.name}</td>
-                        <td className="py-3 pr-4 text-xs text-[#78909C]">{p.origin}</td>
                         <td className={`py-3 pr-4 text-right font-semibold ${p.stock <= 0 ? "text-red-500" : "text-[#37474F]"}`}>
                           {p.stock}
                         </td>

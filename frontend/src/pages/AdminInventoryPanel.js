@@ -136,14 +136,14 @@ const AdminInventoryPanel = () => {
         </div>
       ) : null}
 
-      {errorMessage ? (
+      {errorMessage && !errorMessage.toLowerCase().includes("not found") && (
         <div className="status-error" role="alert">
           {errorMessage}
           <button type="button" className="overview-btn-primary overview-retry inv-retry" onClick={load}>
             Retry
           </button>
         </div>
-      ) : null}
+      )}
 
       {summary ? (
         <div className="inv-kpi-row">

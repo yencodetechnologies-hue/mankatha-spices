@@ -530,7 +530,7 @@ const Home = () => {
       const stored = localStorage.getItem("mankatha_sliders_v2");
       if (stored) {
         const parsed = JSON.parse(stored);
-        const activeSliders = parsed.filter(s => s.isActive === true);
+        const activeSliders = parsed.filter(s => s.isActive === true).sort((a,b) => (Number(a.order) || 99) - (Number(b.order) || 99));
         if (activeSliders.length > 0) {
           const mappedSlides = activeSliders.map(s => ({
             id: s.id,

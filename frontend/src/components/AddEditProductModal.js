@@ -10,6 +10,8 @@ const absoluteImage = (path) => {
   return `${origin}${path.startsWith("/") ? path : `/${path}`}`;
 };
 
+const generateBarcode = () => Math.floor(100000 + Math.random() * 900000).toString();
+
 const emptyProduct = {
   type: "general",
   name: "",
@@ -140,15 +142,16 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
             id: idx,
             weight: w.weight || "",
             price: w.price || "",
-            original_price: w.original_price || ""
+            original_price: w.original_price || "",
+            barcode: w.barcode || ""
           }))
         );
       } else {
         setCustomWeights([
-          { id: 1, weight: "100g", price: "", original_price: "" },
-          { id: 2, weight: "250g", price: "", original_price: "" },
-          { id: 3, weight: "500g", price: "", original_price: "" },
-          { id: 4, weight: "1kg", price: "", original_price: "" }
+          { id: 1, weight: "100g", price: "", original_price: "", barcode: generateBarcode() },
+          { id: 2, weight: "250g", price: "", original_price: "", barcode: generateBarcode() },
+          { id: 3, weight: "500g", price: "", original_price: "", barcode: generateBarcode() },
+          { id: 4, weight: "1kg", price: "", original_price: "", barcode: generateBarcode() }
         ]);
       }
     }
@@ -166,6 +169,7 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
         const item = {
           weight: w.weight.trim(),
           price: Number(w.price),
+          barcode: w.barcode?.trim() || "",
         };
         if (w.original_price && Number(w.original_price) > Number(w.price)) {
           item.original_price = Number(w.original_price);
@@ -377,7 +381,7 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
                         mg_g: ["100mg", "250mg", "500mg", "1g"]
                       };
                       const items = defaults[newSys] || defaults.g_kg;
-                      setCustomWeights(items.map((w, idx) => ({ id: idx, weight: w, price: "", original_price: "" })));
+                      setCustomWeights(items.map((w, idx) => ({ id: idx, weight: w, price: "", original_price: "", barcode: generateBarcode() })));
                     }}
                     style={{
                       width: "auto",
@@ -398,7 +402,7 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
                     onClick={() => {
                       setCustomWeights([
                         ...customWeights,
-                        { id: Date.now() + Math.random(), weight: "", price: "", original_price: "" }
+                        { id: Date.now() + Math.random(), weight: "", price: "", original_price: "", barcode: generateBarcode() }
                       ]);
                     }}
                     className="flex items-center gap-1 px-3 py-1.5 bg-primary-100 text-primary-700 rounded-lg hover:bg-primary-200 transition-colors text-xs font-semibold"
@@ -502,6 +506,28 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
                           min="0"
                         />
 
+
+                        {/* Barcode */}
+                        <input
+                          type="text"
+                          placeholder="Barcode"
+                          title="Barcode"
+                          value={w.barcode || ""}
+                          onChange={(e) => {
+                            const updated = [...customWeights];
+                            updated[index].barcode = e.target.value;
+                            setCustomWeights(updated);
+                          }}
+                          style={{
+                            flex: "1 1 120px",
+                            fontSize: "0.85rem",
+                            padding: "0.25rem 0.5rem",
+                            border: "1px solid #d7dce8",
+                            borderRadius: "4px",
+                            margin: 0
+                          }}
+                        />
+
                         {/* Delete Row Button */}
                         <button
                           type="button"
@@ -567,10 +593,7 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
               <input placeholder="e.g. Kashmir Valley Co." value={form.supplier} onChange={(e) => setField("supplier", e.target.value)} />
             </div>
 
-            <div className="form-group">
-              <label>Barcode / QR Code</label>
-              <input placeholder="e.g. 88010972..." value={form.barcode || ""} onChange={(e) => setField("barcode", e.target.value)} />
-            </div>
+
 
             </div>
 

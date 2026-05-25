@@ -164,7 +164,7 @@ const AdminCouponsPanel = () => {
         </button>
       </div>
 
-      {errorMessage && !modalOpen ? (
+      {errorMessage && !modalOpen && !errorMessage.toLowerCase().includes("not found") ? (
         <div className="status-error" role="alert">
           {errorMessage}
           <button type="button" className="overview-btn-primary overview-retry inv-retry" onClick={() => refresh()}>
@@ -231,7 +231,6 @@ const AdminCouponsPanel = () => {
         </div>
         {!loading && coupons.length === 0 ? (
           <p className="coupons-empty">
-            No coupons yet. Run <code>npm run seed:coupons</code> from the backend folder.
           </p>
         ) : null}
       </div>

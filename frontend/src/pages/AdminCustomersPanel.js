@@ -203,7 +203,7 @@ const AdminCustomersPanel = () => {
         </div>
       )}
 
-      {errorMessage && (
+      {errorMessage && !errorMessage.toLowerCase().includes("not found") && (
         <div className="status-error" role="alert">
           {errorMessage}
         </div>

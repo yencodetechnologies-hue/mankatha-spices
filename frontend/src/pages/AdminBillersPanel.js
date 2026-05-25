@@ -142,7 +142,7 @@ const AdminBillersPanel = () => {
         </button>
       </div>
 
-      {error && (
+      {error && !error.toLowerCase().includes("not found") && (
         <div className="p-4 bg-red-50 text-red-700 border border-red-200 rounded-lg flex items-center gap-2 text-sm">
           <ShieldAlert size={16} />
           {error}

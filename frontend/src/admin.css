@@ -374,7 +374,7 @@ th {
 }
 
 .modal-card {
-  width: min(920px, 94vw);
+  width: min(1080px, 96vw);
   max-height: 90vh;
   overflow-y: auto;
   background: #fffdf9;

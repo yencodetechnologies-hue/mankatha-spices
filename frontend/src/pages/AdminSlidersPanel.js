@@ -9,7 +9,7 @@ const AdminSlidersPanel = () => {
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [editingSlider, setEditingSlider] = useState(null);
-  const [formData, setFormData] = useState({ title: "", imageUrl: "", link: "", isActive: true });
+  const [formData, setFormData] = useState({ title: "", imageUrl: "", link: "", isActive: true, order: 1 });
 
   useEffect(() => {
     const saved = localStorage.getItem("mankatha_sliders_v2");
@@ -39,7 +39,7 @@ const AdminSlidersPanel = () => {
       setFormData(slider);
     } else {
       setEditingSlider(null);
-      setFormData({ title: "", imageUrl: "", isActive: true });
+      setFormData({ title: "", imageUrl: "", isActive: true, order: sliders.length + 1 });
     }
     setShowModal(true);
   };
@@ -63,7 +63,7 @@ const AdminSlidersPanel = () => {
     }
   };
 
-  const filtered = sliders.filter(s => s.title.toLowerCase().includes(search.toLowerCase()));
+  const filtered = sliders.filter(s => s.title.toLowerCase().includes(search.toLowerCase())).sort((a,b) => (Number(a.order) || 99) - (Number(b.order) || 99));
 
   return (
     <>
@@ -96,6 +96,7 @@ const AdminSlidersPanel = () => {
               <tr>
                 <th>Image</th>
                 <th>Title</th>
+                <th>Order</th>
                 <th>Status</th>
                 <th>Action</th>
               </tr>
@@ -112,6 +113,7 @@ const AdminSlidersPanel = () => {
                       <img src={s.imageUrl} alt={s.title} style={{ width: '60px', height: '40px', objectFit: 'cover', borderRadius: '4px' }} />
                     </td>
                     <td style={{ fontWeight: '600' }}>{s.title}</td>
+                    <td>{s.order || '-'}</td>
                     <td>
                       <span className={`order-pill ${s.isActive ? 'status-delivered' : 'status-cancelled'}`}>
                         {s.isActive ? 'Active' : 'Inactive'}
@@ -152,6 +154,17 @@ const AdminSlidersPanel = () => {
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db' }}
                   placeholder="e.g. Summer Spice Sale"
+                />
+              </div>
+              
+              <div>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>Display Order</label>
+                <input 
+                  type="number" 
+                  value={formData.order || ''}
+                  onChange={(e) => setFormData({ ...formData, order: e.target.value })}
+                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db' }}
+                  placeholder="e.g. 1"
                 />
               </div>
 

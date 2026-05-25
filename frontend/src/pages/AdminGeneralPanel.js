@@ -269,9 +269,9 @@ const AdminGeneralPanel = () => {
           {success}
         </div>
       ) : null}
-      {error ? (
+      {error && !error.toLowerCase().includes("not found") && (
         <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</div>
-      ) : null}
+      )}
 
       <form
         onSubmit={onSubmit}
