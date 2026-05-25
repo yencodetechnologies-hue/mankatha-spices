@@ -35,6 +35,9 @@ const AdminCouponsPanel = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [form, setForm] = useState(emptyForm());
   const [saving, setSaving] = useState(false);
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 10;
 
   const loadCoupons = useCallback(async () => {
     try {
@@ -152,6 +155,14 @@ const AdminCouponsPanel = () => {
 
   const activeLabel = stats != null ? `${stats.activeCount} active coupon codes` : "Loading…";
 
+  const filteredCoupons = coupons.filter((c) =>
+    c.code?.toLowerCase().includes(search.toLowerCase()) ||
+    c.typeLabel?.toLowerCase().includes(search.toLowerCase()) ||
+    c.status?.toLowerCase().includes(search.toLowerCase())
+  );
+  const totalPages = Math.max(1, Math.ceil(filteredCoupons.length / PAGE_SIZE));
+  const paginated = filteredCoupons.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
   return (
     <div className="admin-coupons">
       <div className="products-head coupons-head">
@@ -159,9 +170,21 @@ const AdminCouponsPanel = () => {
           <h2>Coupons</h2>
           <p>{activeLabel}</p>
         </div>
-        <button type="button" className="top-add-btn" onClick={openCreate}>
-          + Create Coupon
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ position: 'relative' }}>
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+              placeholder="Search coupons..."
+              style={{ paddingLeft: '36px', paddingRight: '12px', paddingTop: '8px', paddingBottom: '8px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '14px', width: '200px', outline: 'none' }}
+            />
+            <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af', fontSize: '16px' }}>🔍</span>
+          </div>
+          <button type="button" className="top-add-btn" onClick={openCreate}>
+            + Create Coupon
+          </button>
+        </div>
       </div>
 
       {errorMessage && !modalOpen && !errorMessage.toLowerCase().includes("not found") ? (
@@ -191,7 +214,7 @@ const AdminCouponsPanel = () => {
               </tr>
             </thead>
             <tbody>
-              {coupons.map((c) => {
+              {paginated.map((c) => {
                 const expired = c.status === "expired";
                 return (
                   <tr key={c.id}>
@@ -229,10 +252,33 @@ const AdminCouponsPanel = () => {
             </tbody>
           </table>
         </div>
-        {!loading && coupons.length === 0 ? (
-          <p className="coupons-empty">
-          </p>
+        {!loading && filteredCoupons.length === 0 ? (
+          <p className="coupons-empty">{search ? `No coupons found for "${search}"` : 'No coupons yet.'}</p>
         ) : null}
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', borderTop: '1px solid #f0f0f0' }}>
+            <span style={{ fontSize: '13px', color: '#6b7280' }}>
+              Showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, filteredCoupons.length)} of {filteredCoupons.length}
+            </span>
+            <div style={{ display: 'flex', gap: '4px' }}>
+              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
+                style={{ padding: '4px 10px', border: '1px solid #e0e0e0', borderRadius: '6px', background: 'white', cursor: page === 1 ? 'not-allowed' : 'pointer', opacity: page === 1 ? 0.4 : 1 }}>
+                ‹
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((pg) => (
+                <button key={pg} onClick={() => setPage(pg)}
+                  style={{ padding: '4px 10px', border: '1px solid #e0e0e0', borderRadius: '6px', background: pg === page ? '#16a34a' : 'white', color: pg === page ? 'white' : '#374151', cursor: 'pointer', fontWeight: pg === page ? 600 : 400 }}>
+                  {pg}
+                </button>
+              ))}
+              <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
+                style={{ padding: '4px 10px', border: '1px solid #e0e0e0', borderRadius: '6px', background: 'white', cursor: page === totalPages ? 'not-allowed' : 'pointer', opacity: page === totalPages ? 0.4 : 1 }}>
+                ›
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {modalOpen ? (

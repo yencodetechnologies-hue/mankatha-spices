@@ -102,7 +102,7 @@ const getStats = async (req, res) => {
 
 const createOrder = async (req, res) => {
   try {
-    const { customerName, email, phone, city, total, payment, paymentMethod, status, lineItems, itemCount, couponCode, discountAmount, isPOS, password } = req.body;
+    const { customerName, email, phone, city, address, state, zipCode, country, total, payment, paymentMethod, status, lineItems, itemCount, couponCode, discountAmount, isPOS, password } = req.body;
     
     // Simple order ID generator
     const orderId = "SE" + Math.floor(1000 + Math.random() * 9000);
@@ -160,6 +160,13 @@ const createOrder = async (req, res) => {
       customerId,
       couponCode,
       discountAmount,
+      shippingAddress: {
+        address,
+        city,
+        state,
+        zipCode,
+        country
+      },
       isPOS: Boolean(isPOS)
     });
 

@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Plus, Edit2, Trash2, X, ShieldAlert, Eye, EyeOff } from "lucide-react";
+import { Plus, Edit2, Trash2, X, ShieldAlert, Eye, EyeOff, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { billerApi } from "../api/billerApi";
 
 const AdminBillersPanel = () => {
   const [billers, setBillers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 8;
 
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("add"); // "add" or "edit"
@@ -127,20 +130,39 @@ const AdminBillersPanel = () => {
     }
   };
 
+  const filtered = billers.filter((b) =>
+    b.name?.toLowerCase().includes(search.toLowerCase()) ||
+    b.email?.toLowerCase().includes(search.toLowerCase()) ||
+    b.phone?.includes(search)
+  );
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="text-xl font-bold text-gray-900">Billers</h2>
-
         </div>
-        <button
-          onClick={openAddModal}
-          className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition font-medium text-sm shadow-sm"
-        >
-          <Plus size={16} />
-          Add Biller
-        </button>
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <div className="relative flex-1 sm:w-64">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+              placeholder="Search billers..."
+              className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none"
+            />
+          </div>
+          <button
+            onClick={openAddModal}
+            className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition font-medium text-sm shadow-sm whitespace-nowrap"
+          >
+            <Plus size={16} />
+            Add Biller
+          </button>
+        </div>
       </div>
 
       {error && !error.toLowerCase().includes("not found") && (
@@ -173,14 +195,14 @@ const AdminBillersPanel = () => {
                     </div>
                   </td>
                 </tr>
-              ) : billers.length === 0 ? (
+              ) : filtered.length === 0 ? (
                 <tr>
                   <td colSpan="6" className="px-6 py-12 text-center text-gray-400">
-                    No billers found. Click "+ Add Biller" to create one.
+                    {search ? `No billers found for "${search}"` : 'No billers found. Click "+ Add Biller" to create one.'}
                   </td>
                 </tr>
               ) : (
-                billers.map((biller) => (
+                paginated.map((biller) => (
                   <tr key={biller._id} className="hover:bg-gray-50/50 transition">
                     <td className="px-6 py-4 font-medium text-gray-900">
                       {biller.name}
@@ -233,6 +255,42 @@ const AdminBillersPanel = () => {
           </table>
         </div>
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between px-2">
+          <p className="text-sm text-gray-500">
+            Showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length} billers
+          </p>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="p-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
+            >
+              <ChevronLeft size={16} />
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pg) => (
+              <button
+                key={pg}
+                onClick={() => setPage(pg)}
+                className={`w-8 h-8 rounded-lg text-sm font-medium transition ${
+                  pg === page ? 'bg-primary-600 text-white shadow-sm' : 'border border-gray-200 text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                {pg}
+              </button>
+            ))}
+            <button
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              className="p-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
+            >
+              <ChevronRight size={16} />
+            </button>
+          </div>
+        </div>
+      )}
 
       {modalOpen && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
@@ -291,7 +349,7 @@ const AdminBillersPanel = () => {
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Password {modalMode === "add" ? "*" : "(leave blank to keep current)"}
+                    Password {modalMode === "add" ? "*" : ""}
                   </label>
                   <div className="relative">
                     <input

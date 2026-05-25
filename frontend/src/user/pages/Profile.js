@@ -18,6 +18,14 @@ const Profile = () => {
   const initialTab = searchParams.get('tab') || 'profile';
 
   const [activeTab, setActiveTab] = useState(initialTab);
+
+  React.useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab) {
+      setActiveTab(tab);
+    }
+  }, [location.search]);
+
   const [orders, setOrders] = useState([]);
 
   const [showChangePassword, setShowChangePassword] = useState(false);
@@ -255,6 +263,7 @@ const Profile = () => {
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewBody, setReviewBody] = useState("");
   const [submittingReview, setSubmittingReview] = useState(false);
+  const [reviewToast, setReviewToast] = useState(null); // { type: 'success'|'error', msg }
 
   const openReviewModal = (item) => {
     setReviewingItem(item);
@@ -264,7 +273,11 @@ const Profile = () => {
   };
 
   const submitReview = async () => {
-    if (!reviewBody.trim()) return alert("Please write a review");
+    if (!reviewBody.trim()) {
+      setReviewToast({ type: 'error', msg: 'Please write a review' });
+      setTimeout(() => setReviewToast(null), 3000);
+      return;
+    }
     setSubmittingReview(true);
     try {
       const { reviewsApi } = require("../../api/reviewsApi");
@@ -273,129 +286,164 @@ const Profile = () => {
         rating: reviewRating,
         body: reviewBody,
       });
-      alert("Review submitted successfully!");
       setReviewModalOpen(false);
+      setReviewToast({ type: 'success', msg: 'Review submitted successfully!' });
+      setTimeout(() => setReviewToast(null), 3000);
     } catch (e) {
-      alert("Failed to submit review");
+      setReviewToast({ type: 'error', msg: 'Failed to submit review' });
+      setTimeout(() => setReviewToast(null), 3000);
     } finally {
       setSubmittingReview(false);
     }
   };
 
   const renderOrdersTab = () => (
-    <div className="space-y-6">
-      {orders.length === 0 ? (
-        <div className="bg-white rounded-lg shadow-md p-8 text-center">
-          <Package className="mx-auto text-gray-300 mb-4" size={48} />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No Orders Yet</h3>
-          <p className="text-gray-500">You haven't placed any orders with us yet.</p>
-          <Link to="/products" className="inline-block mt-4 px-6 py-2 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-colors">
-            Start Shopping
-          </Link>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {orders.map((order) => (
-            <div key={order.id} className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-100">
-              {/* Order summary header */}
-              <div className="bg-gray-50 px-6 py-4 border-b border-gray-100 flex flex-wrap justify-between items-center gap-4">
-                <div className="flex items-center gap-4">
-                  <div>
-                    <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">Order ID</p>
-                    <p className="font-bold text-gray-800 text-sm">{order.orderId || order.id}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">Date Placed</p>
-                    <p className="font-semibold text-gray-700 text-sm">
-                      {order.orderDate ? new Date(order.orderDate).toLocaleDateString() : order.date}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">Total Amount</p>
-                    <p className="font-bold text-primary-600 text-sm">{formatMoney(order.total)}</p>
-                  </div>
-                </div>
-                <div>
-                  {getStatusBadge(order.status)}
-                </div>
-              </div>
-
-              {/* Order items list */}
-              <div className="divide-y divide-gray-100 px-6">
-                {(order.lineItems || order.items || []).map((item, idx) => (
-                  <div key={idx} className="py-4 flex items-center justify-between gap-4 flex-wrap">
-                    <div className="flex items-center gap-3">
-                      {item.featured_image ? (
-                        <img
-                          src={item.featured_image}
-                          alt={item.name}
-                          className="w-12 h-12 object-cover rounded border"
-                        />
-                      ) : (
-                        <div className="w-12 h-12 bg-gray-100 rounded flex items-center justify-center text-gray-400 text-xs">
-                          📦
-                        </div>
-                      )}
+    <>
+      <div className="space-y-6">
+        {orders.length === 0 ? (
+          <div className="bg-white rounded-lg shadow-md p-8 text-center">
+            <Package className="mx-auto text-gray-300 mb-4" size={48} />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No Orders Yet</h3>
+            <p className="text-gray-500">You haven't placed any orders with us yet.</p>
+            <Link to="/products" className="inline-block mt-4 px-6 py-2 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-colors">
+              Start Shopping
+            </Link>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {orders.map((order) => (
+              <div key={order.id} className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-100">
+                {/* Order summary header */}
+                <div className="bg-gray-50 px-6 py-4 border-b border-gray-100">
+                  <div className="flex flex-wrap justify-between items-start gap-4">
+                    <div className="flex items-center gap-4 flex-wrap">
                       <div>
-                        <h4 className="font-semibold text-gray-800 text-sm">{item.name}</h4>
-                        <p className="text-xs text-gray-500">Qty: {item.quantity} × {formatMoney(item.price)}</p>
+                        <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">Order ID</p>
+                        <p className="font-bold text-gray-800 text-sm">{order.orderId || order.id}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">Date Placed</p>
+                        <p className="font-semibold text-gray-700 text-sm">
+                          {order.orderDate ? new Date(order.orderDate).toLocaleDateString() : order.date}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">Total Amount</p>
+                        <p className="font-bold text-primary-600 text-sm">{formatMoney(order.total)}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-4">
-                      <span className="font-bold text-gray-800 text-sm">
-                        {formatMoney(item.price * item.quantity)}
-                      </span>
-                      <button
-                        onClick={() => openReviewModal(item)}
-                        className="text-xs text-primary-600 hover:text-primary-700 font-medium border border-primary-200 hover:bg-primary-50 px-3 py-1.5 rounded-full transition-colors"
-                      >
-                        Write a Review
-                      </button>
+                    <div>
+                      {getStatusBadge(order.status)}
                     </div>
                   </div>
+                  {/* Delivery Address */}
+                  {(order.shippingAddress || order.address || order.deliveryAddress) && (
+                    <div className="mt-3 pt-3 border-t border-gray-200 flex items-start gap-2">
+                      <span className="text-gray-400 mt-0.5">📍</span>
+                      <div>
+                        <p className="text-xs text-gray-500 font-medium uppercase tracking-wider mb-0.5">Delivery Address</p>
+                        <p className="text-sm text-gray-700">
+                          {(() => {
+                            const addr = order.shippingAddress || order.address || order.deliveryAddress;
+                            if (typeof addr === 'string') return addr;
+                            return [addr.name, addr.line1 || addr.street, addr.line2, addr.city, addr.state, addr.pincode || addr.zip, addr.country]
+                              .filter(Boolean).join(', ');
+                          })()}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Order items list */}
+                <div className="divide-y divide-gray-100 px-6">
+                  {(order.lineItems || order.items || []).map((item, idx) => (
+                    <div key={idx} className="py-4 flex items-center justify-between gap-4 flex-wrap">
+                      <div className="flex items-center gap-3">
+                        {item.featured_image ? (
+                          <img
+                            src={item.featured_image}
+                            alt={item.name}
+                            className="w-12 h-12 object-cover rounded border"
+                          />
+                        ) : (
+                          <div className="w-12 h-12 bg-gray-100 rounded flex items-center justify-center text-gray-400 text-xs">
+                            📦
+                          </div>
+                        )}
+                        <div>
+                          <h4 className="font-semibold text-gray-800 text-sm">{item.name}</h4>
+                          <p className="text-xs text-gray-500">Qty: {item.quantity} × {formatMoney(item.price)}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <span className="font-bold text-gray-800 text-sm">
+                          {formatMoney(item.price * item.quantity)}
+                        </span>
+                        <button
+                          onClick={() => openReviewModal(item)}
+                          className="text-xs text-primary-600 hover:text-primary-700 font-medium border border-primary-200 hover:bg-primary-50 px-3 py-1.5 rounded-full transition-colors"
+                        >
+                          Write a Review
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Review Modal */}
+        {reviewModalOpen && reviewingItem && (
+          <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 relative">
+              <button onClick={() => setReviewModalOpen(false)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+                <X size={20} />
+              </button>
+              <h2 className="text-xl font-bold mb-2">Rate & Review</h2>
+              <p className="text-gray-500 text-sm mb-6">How was the {reviewingItem.name}?</p>
+              
+              <div className="flex gap-2 mb-6 justify-center">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button key={star} onClick={() => setReviewRating(star)}>
+                    <Star size={32} className={`${star <= reviewRating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"} transition-colors hover:scale-110`} />
+                  </button>
                 ))}
               </div>
+
+              <textarea
+                value={reviewBody}
+                onChange={(e) => setReviewBody(e.target.value)}
+                placeholder="Write your experience with this product..."
+                className="w-full h-32 border border-gray-200 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 mb-4"
+              />
+
+              <button
+                onClick={submitReview}
+                disabled={submittingReview}
+                className="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 rounded-lg transition-colors"
+              >
+                {submittingReview ? "Submitting..." : "Submit Review"}
+              </button>
             </div>
-          ))}
-        </div>
-      )}
-
-      {/* Review Modal */}
-      {reviewModalOpen && reviewingItem && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 relative">
-            <button onClick={() => setReviewModalOpen(false)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
-              <X size={20} />
-            </button>
-            <h2 className="text-xl font-bold mb-2">Rate & Review</h2>
-            <p className="text-gray-500 text-sm mb-6">How was the {reviewingItem.name}?</p>
-            
-            <div className="flex gap-2 mb-6 justify-center">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <button key={star} onClick={() => setReviewRating(star)}>
-                  <Star size={32} className={`${star <= reviewRating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"} transition-colors hover:scale-110`} />
-                </button>
-              ))}
-            </div>
-
-            <textarea
-              value={reviewBody}
-              onChange={(e) => setReviewBody(e.target.value)}
-              placeholder="Write your experience with this product..."
-              className="w-full h-32 border border-gray-200 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 mb-4"
-            />
-
-            <button
-              onClick={submitReview}
-              disabled={submittingReview}
-              className="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 rounded-lg transition-colors"
-            >
-              {submittingReview ? "Submitting..." : "Submit Review"}
-            </button>
           </div>
+        )}
+      </div>
+
+      {/* Toast Notification */}
+      {reviewToast && (
+        <div
+          className={`fixed bottom-6 right-6 z-[9999] flex items-center gap-3 px-5 py-3.5 rounded-xl shadow-2xl text-white text-sm font-medium ${
+            reviewToast.type === 'success' ? 'bg-green-600' : 'bg-red-500'
+          }`}
+        >
+          <span>{reviewToast.type === 'success' ? '✅' : '❌'}</span>
+          {reviewToast.msg}
         </div>
       )}
-    </div>
+    </>
   );
 
   const renderWishlistTab = () => (

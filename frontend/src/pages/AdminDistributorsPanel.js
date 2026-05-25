@@ -14,6 +14,9 @@ import {
   Building2,
   Edit2,
   Trash2,
+  Search,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { distributorApi } from "../api/distributorApi";
 
@@ -114,6 +117,9 @@ const AdminDistributorsPanel = () => {
   const [success, setSuccess] = useState("");
   const [list, setList] = useState([]);
   const [loadingList, setLoadingList] = useState(true);
+  const [vendorSearch, setVendorSearch] = useState("");
+  const [vendorPage, setVendorPage] = useState(1);
+  const VENDOR_PAGE_SIZE = 10;
 
   const refreshId = useCallback(async () => {
     try {
@@ -253,7 +259,14 @@ const AdminDistributorsPanel = () => {
     }
   };
 
-  const tableRows = useMemo(() => list.slice(0, 12), [list]);
+  const filteredVendors = useMemo(() => list.filter((d) =>
+    d.companyName?.toLowerCase().includes(vendorSearch.toLowerCase()) ||
+    d.areaCity?.toLowerCase().includes(vendorSearch.toLowerCase()) ||
+    d.distributorId?.toLowerCase().includes(vendorSearch.toLowerCase()) ||
+    d.contactPersonName?.toLowerCase().includes(vendorSearch.toLowerCase())
+  ), [list, vendorSearch]);
+  const vendorTotalPages = Math.max(1, Math.ceil(filteredVendors.length / VENDOR_PAGE_SIZE));
+  const tableRows = filteredVendors.slice((vendorPage - 1) * VENDOR_PAGE_SIZE, vendorPage * VENDOR_PAGE_SIZE);
 
 return (
   <div className="distributors-page mx-auto max-w-6xl">
@@ -470,11 +483,23 @@ return (
     </form>
 
     <section className="mt-10 rounded-2xl border border-[#f0e8dc] bg-white p-6 shadow-sm">
-      <h3 className="mb-4 text-base font-semibold text-[#263238]">Recent vendors</h3>
+      <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <h3 className="text-base font-semibold text-[#263238]">Vendors ({filteredVendors.length})</h3>
+        <div className="relative w-full sm:w-64">
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#90A4AE]" />
+          <input
+            type="text"
+            value={vendorSearch}
+            onChange={(e) => { setVendorSearch(e.target.value); setVendorPage(1); }}
+            placeholder="Search vendors..."
+            className="w-full pl-9 pr-4 py-2 border border-[#ede6dc] rounded-lg text-sm text-[#263238] outline-none focus:border-[#d4a017] focus:ring-1 focus:ring-[#d4a017]/40"
+          />
+        </div>
+      </div>
       {loadingList ? (
         <p className="text-sm text-[#78909C]">Loading…</p>
-      ) : tableRows.length === 0 ? (
-        <p className="text-sm text-[#78909C]"></p>
+      ) : filteredVendors.length === 0 ? (
+        <p className="text-sm text-[#78909C]">{vendorSearch ? `No vendors found for "${vendorSearch}"` : 'No vendors yet.'}</p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full min-w-[640px] text-left text-sm">
@@ -530,6 +555,42 @@ return (
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* Pagination */}
+      {vendorTotalPages > 1 && (
+        <div className="mt-4 flex items-center justify-between">
+          <p className="text-xs text-[#78909C]">
+            Showing {(vendorPage - 1) * VENDOR_PAGE_SIZE + 1}–{Math.min(vendorPage * VENDOR_PAGE_SIZE, filteredVendors.length)} of {filteredVendors.length}
+          </p>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setVendorPage(p => Math.max(1, p - 1))}
+              disabled={vendorPage === 1}
+              className="p-1.5 rounded border border-[#ede6dc] text-[#78909C] hover:bg-[#faf7f2] disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <ChevronLeft size={14} />
+            </button>
+            {Array.from({ length: vendorTotalPages }, (_, i) => i + 1).map((pg) => (
+              <button
+                key={pg}
+                onClick={() => setVendorPage(pg)}
+                className={`w-7 h-7 rounded text-xs font-medium ${
+                  pg === vendorPage ? 'bg-[#d4a017] text-white' : 'border border-[#ede6dc] text-[#78909C] hover:bg-[#faf7f2]'
+                }`}
+              >
+                {pg}
+              </button>
+            ))}
+            <button
+              onClick={() => setVendorPage(p => Math.min(vendorTotalPages, p + 1))}
+              disabled={vendorPage === vendorTotalPages}
+              className="p-1.5 rounded border border-[#ede6dc] text-[#78909C] hover:bg-[#faf7f2] disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <ChevronRight size={14} />
+            </button>
+          </div>
         </div>
       )}
     </section>

@@ -45,6 +45,13 @@ const orderSchema = new mongoose.Schema({
   couponCode: { type: String, trim: true },
   discountAmount: { type: Number, default: 0, min: 0 },
   isPOS: { type: Boolean, default: false },
+  shippingAddress: {
+    address: { type: String, trim: true },
+    city: { type: String, trim: true },
+    state: { type: String, trim: true },
+    zipCode: { type: String, trim: true },
+    country: { type: String, trim: true },
+  },
   orderDate: { type: Date, default: Date.now },
   createdAt: { type: Date, default: Date.now },
 });

@@ -51,6 +51,9 @@ const AdminInventoryPanel = () => {
   const [bulkBusy, setBulkBusy] = useState(false);
   const [showRestockModal, setShowRestockModal] = useState(false);
   const [restockForm, setRestockForm] = useState({ productId: "", qty: "" });
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 10;
 
   const origin = getBackendOrigin();
   const readOnlyInventory = data?._meta?.source === "products-fallback";
@@ -88,6 +91,12 @@ const AdminInventoryPanel = () => {
   };
 
 
+  const filteredItems = items.filter((row) =>
+    row.name?.toLowerCase().includes(search.toLowerCase()) ||
+    row.supplier?.toLowerCase().includes(search.toLowerCase())
+  );
+  const totalPages = Math.max(1, Math.ceil(filteredItems.length / PAGE_SIZE));
+  const paginated = filteredItems.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
     <div className="admin-inventory">
@@ -105,22 +114,34 @@ const AdminInventoryPanel = () => {
             )}
           </p>
         </div>
-        <button
-          type="button"
-          className="top-add-btn"
-          disabled={readOnlyInventory}
-          onClick={() => {
-            if (readOnlyInventory) {
-              setToast("Restart the backend to enable restock.");
-              return;
-            }
-            setShowRestockModal(true);
-            setRestockForm({ productId: items[0]?.id || "", qty: items[0]?.reorderQty || 50 });
-          }}
-          title={readOnlyInventory ? "Restart the backend with the latest server.js to log restock orders." : undefined}
-        >
-          + Place Restock Order
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ position: 'relative' }}>
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+              placeholder="Search products..."
+              style={{ paddingLeft: '36px', paddingRight: '12px', paddingTop: '8px', paddingBottom: '8px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '14px', width: '200px', outline: 'none' }}
+            />
+            <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af', fontSize: '16px' }}>🔍</span>
+          </div>
+          <button
+            type="button"
+            className="top-add-btn"
+            disabled={readOnlyInventory}
+            onClick={() => {
+              if (readOnlyInventory) {
+                setToast("Restart the backend to enable restock.");
+                return;
+              }
+              setShowRestockModal(true);
+              setRestockForm({ productId: items[0]?.id || "", qty: items[0]?.reorderQty || 50 });
+            }}
+            title={readOnlyInventory ? "Restart the backend with the latest server.js to log restock orders." : undefined}
+          >
+            + Place Restock Order
+          </button>
+        </div>
       </div>
 
       {readOnlyInventory ? (
@@ -180,7 +201,7 @@ const AdminInventoryPanel = () => {
                 </tr>
               </thead>
               <tbody>
-                {items.map((row) => {
+                {paginated.map((row) => {
                   const src = imageSrc(row.image);
                   return (
                     <tr key={row.id}>
@@ -259,7 +280,31 @@ const AdminInventoryPanel = () => {
               </tbody>
             </table>
           </div>
-          {items.length === 0 ? <p className="inv-empty"></p> : null}
+          {filteredItems.length === 0 ? <p className="inv-empty">{search ? `No products found for "${search}"` : ''}</p> : null}
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', borderTop: '1px solid #f0f0f0' }}>
+              <span style={{ fontSize: '13px', color: '#6b7280' }}>
+                Showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, filteredItems.length)} of {filteredItems.length}
+              </span>
+              <div style={{ display: 'flex', gap: '4px' }}>
+                <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
+                  style={{ padding: '4px 10px', border: '1px solid #e0e0e0', borderRadius: '6px', background: 'white', cursor: page === 1 ? 'not-allowed' : 'pointer', opacity: page === 1 ? 0.4 : 1 }}>
+                  ‹
+                </button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((pg) => (
+                  <button key={pg} onClick={() => setPage(pg)}
+                    style={{ padding: '4px 10px', border: '1px solid #e0e0e0', borderRadius: '6px', background: pg === page ? '#16a34a' : 'white', color: pg === page ? 'white' : '#374151', cursor: 'pointer', fontWeight: pg === page ? 600 : 400 }}>
+                    {pg}
+                  </button>
+                ))}
+                <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
+                  style={{ padding: '4px 10px', border: '1px solid #e0e0e0', borderRadius: '6px', background: 'white', cursor: page === totalPages ? 'not-allowed' : 'pointer', opacity: page === totalPages ? 0.4 : 1 }}>
+                  ›
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       ) : null}
 

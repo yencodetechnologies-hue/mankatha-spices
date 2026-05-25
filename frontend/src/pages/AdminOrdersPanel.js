@@ -95,7 +95,7 @@ const AdminOrdersPanel = () => {
   const [statusFilter, setStatusFilter] = useState("All Status");
   const [periodFilter, setPeriodFilter] = useState("This Month");
   const [customerFilter, setCustomerFilter] = useState("All Customers");
-  const [sourceFilter, setSourceFilter] = useState("Walk-in Orders");
+  const [sourceFilter, setSourceFilter] = useState("Online Orders");
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
 
