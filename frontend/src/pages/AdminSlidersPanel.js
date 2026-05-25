@@ -96,7 +96,7 @@ const AdminSlidersPanel = () => {
               <tr>
                 <th>Image</th>
                 <th>Title</th>
-                <th>Order</th>
+
                 <th>Status</th>
                 <th>Action</th>
               </tr>
@@ -113,7 +113,7 @@ const AdminSlidersPanel = () => {
                       <img src={s.imageUrl} alt={s.title} style={{ width: '60px', height: '40px', objectFit: 'cover', borderRadius: '4px' }} />
                     </td>
                     <td style={{ fontWeight: '600' }}>{s.title}</td>
-                    <td>{s.order || '-'}</td>
+
                     <td>
                       <span className={`order-pill ${s.isActive ? 'status-delivered' : 'status-cancelled'}`}>
                         {s.isActive ? 'Active' : 'Inactive'}

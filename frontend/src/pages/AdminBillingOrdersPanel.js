@@ -39,6 +39,12 @@ const AdminBillingOrdersPanel = () => {
 
   useEffect(() => { load(); }, [load]);
 
+  // Safety timeout: stop loading after 8s even if API hangs
+  useEffect(() => {
+    const t = setTimeout(() => setLoading(false), 8000);
+    return () => clearTimeout(t);
+  }, []);
+
   const uniqueBillers = Array.from(new Set(orders.map(o => o.billerName).filter(Boolean))).sort();
 
   const filtered = orders.filter((o) => {

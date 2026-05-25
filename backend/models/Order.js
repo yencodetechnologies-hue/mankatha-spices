@@ -32,6 +32,9 @@ const orderSchema = new mongoose.Schema({
     enum: ["Cash", "Card", "Bank Transfer", "UPI"],
     default: "Cash",
   },
+  slipUrl: { type: String, trim: true },
+  userBankName: { type: String, trim: true },
+  transactionRef: { type: String, trim: true },
   status: {
     type: String,
     enum: ["Ordered", "Confirmed", "Delivered", "Processing", "Pending", "Shipped", "Out for Delivery", "Awaiting Bank Transfer", "Cancelled"],

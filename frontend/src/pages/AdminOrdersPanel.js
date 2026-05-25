@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { Search } from "lucide-react";
 import { orderApi } from "../api/orderApi";
 import { formatMoney } from "../utils/formatMoney";
+import { getBackendOrigin } from "../api/adminApiBase";
 
 import heroBlendedMasala from "../assets/hero_blended_masala.png";
 import heroOrganicSpices from "../assets/hero_organic_spices.png";
@@ -54,6 +55,9 @@ const toRow = (o) => ({
   phone: o.customerId ? o.customerId.phone : "N/A",
   billerId: o.billerId,
   billerName: o.billerName,
+  slipUrl: o.slipUrl,
+  userBankName: o.userBankName,
+  transactionRef: o.transactionRef,
 });
 
 const paymentClass = (p) => {
@@ -460,6 +464,27 @@ const AdminOrdersPanel = () => {
                 <div style={{ fontWeight: '500', color: '#111827', marginTop: '4px' }}>{selectedOrder.paymentMethod}</div>
               </div>
             </div>
+
+            {selectedOrder.paymentMethod === 'Bank Transfer' && (selectedOrder.userBankName || selectedOrder.transactionRef || selectedOrder.slipUrl) && (
+              <div style={{ marginBottom: '24px', padding: '12px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '13px' }}>
+                <h4 style={{ margin: '0 0 8px 0', fontSize: '12px', textTransform: 'uppercase', color: '#64748b', fontWeight: '700' }}>Bank Transfer Details</h4>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                  {selectedOrder.userBankName && (
+                    <div><span style={{ color: '#64748b' }}>Bank:</span> <span style={{ fontWeight: '600' }}>{selectedOrder.userBankName}</span></div>
+                  )}
+                  {selectedOrder.transactionRef && (
+                    <div><span style={{ color: '#64748b' }}>Ref:</span> <span style={{ fontWeight: '600' }}>{selectedOrder.transactionRef}</span></div>
+                  )}
+                  {selectedOrder.slipUrl && (
+                    <div style={{ gridColumn: '1 / -1', marginTop: '4px' }}>
+                      <a href={selectedOrder.slipUrl?.startsWith('http') ? selectedOrder.slipUrl : `${getBackendOrigin()}${selectedOrder.slipUrl?.startsWith('/') ? '' : '/'}${selectedOrder.slipUrl}`} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#2563eb', textDecoration: 'none', fontWeight: '500', padding: '4px 8px', background: '#eff6ff', borderRadius: '4px', border: '1px solid #bfdbfe' }}>
+                        View Passbook
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             <div style={{ flex: 1, overflowY: 'auto', marginBottom: '20px' }}>
               <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: 'bold', color: '#374151' }}>Purchased Items</h4>

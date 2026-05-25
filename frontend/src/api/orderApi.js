@@ -59,6 +59,15 @@ export const orderApi = {
     return response.data;
   },
 
+  uploadFile: async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    const response = await client.post("upload", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return response.data;
+  },
+
   getBillerOrders: async (params = {}) => {
     const response = await client.get("orders/biller-orders", { params });
     return response.data;

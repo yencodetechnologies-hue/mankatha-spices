@@ -146,6 +146,14 @@ app.use("/api/service-areas", serviceAreaRoutes);
 const notificationRoutes = require("./routes/notificationRoutes");
 app.use("/api/notifications", notificationRoutes);
 
+const upload = require("./middleware/upload");
+app.post("/api/upload", upload.single("file"), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ message: "No file uploaded" });
+  }
+  res.json({ url: `/uploads/${req.file.filename}` });
+});
+
 app.use((req, res) => {
   res.status(404).json({ message: "Not found", path: req.path, method: req.method });
 });

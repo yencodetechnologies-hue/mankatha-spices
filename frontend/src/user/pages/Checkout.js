@@ -89,6 +89,12 @@ const Checkout = () => {
     setOrderError('');
 
     try {
+      let slipUrl = undefined;
+      if (paymentMethod === 'bank' && bankInfo.slipFile) {
+        const uploadRes = await orderApi.uploadFile(bankInfo.slipFile);
+        slipUrl = uploadRes.url;
+      }
+
       const payload = {
         customerName: `${shippingInfo.firstName} ${shippingInfo.lastName}`.trim(),
         email: shippingInfo.email,
@@ -111,7 +117,10 @@ const Checkout = () => {
           price: item.price,
           quantity: item.quantity,
           category: item.category || 'Whole Spices'
-        }))
+        })),
+        slipUrl: slipUrl,
+        userBankName: paymentMethod === 'bank' ? bankInfo.userBankName : undefined,
+        transactionRef: paymentMethod === 'bank' ? bankInfo.transactionRef : undefined
       };
 
       const response = await orderApi.createOrder(payload);
@@ -540,7 +549,7 @@ const Checkout = () => {
                             accept="image/*,.pdf"
                             onChange={(e) => {
                               if (e.target.files && e.target.files[0]) {
-                                setBankInfo(prev => ({ ...prev, slipFileName: e.target.files[0].name }));
+                                setBankInfo(prev => ({ ...prev, slipFileName: e.target.files[0].name, slipFile: e.target.files[0] }));
                               }
                             }}
                             required={paymentMethod === 'bank'}

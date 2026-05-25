@@ -208,9 +208,6 @@ const AdminOverviewPanel = () => {
         <div className="overview-fail-state" role="alert">
           <p className="overview-fail-title">Couldn&apos;t load dashboard data</p>
           <p className="overview-fail-msg">{errorMessage}</p>
-          <p className="overview-fail-hint">
-            After the API responds at <code>/api/overview</code>, click <strong>Try again</strong>.
-          </p>
           <button type="button" className="overview-btn-primary overview-retry" onClick={load}>
             Try again
           </button>

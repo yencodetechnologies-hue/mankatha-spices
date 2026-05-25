@@ -102,7 +102,7 @@ const getStats = async (req, res) => {
 
 const createOrder = async (req, res) => {
   try {
-    const { customerName, email, phone, city, address, state, zipCode, country, total, payment, paymentMethod, status, lineItems, itemCount, couponCode, discountAmount, isPOS, password } = req.body;
+    const { customerName, email, phone, city, address, state, zipCode, country, total, payment, paymentMethod, status, lineItems, itemCount, couponCode, discountAmount, isPOS, password, slipUrl, userBankName, transactionRef } = req.body;
     
     // Simple order ID generator
     const orderId = "SE" + Math.floor(1000 + Math.random() * 9000);
@@ -167,7 +167,10 @@ const createOrder = async (req, res) => {
         zipCode,
         country
       },
-      isPOS: Boolean(isPOS)
+      isPOS: Boolean(isPOS),
+      slipUrl,
+      userBankName,
+      transactionRef
     });
 
     // Upsert Customer Analytics Record if email is provided

@@ -259,7 +259,7 @@ const AdminCustomersPanel = () => {
                 {customers.length === 0 ? (
                   <tr>
                     <td colSpan={8} className="orders-empty-cell">
-                      No customers found. Run <code>npm run seed:customers</code> in the <code>backend</code> folder.
+                      No customers found.
                     </td>
                   </tr>
                 ) : (

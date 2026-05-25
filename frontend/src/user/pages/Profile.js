@@ -20,7 +20,8 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState(initialTab);
 
   React.useEffect(() => {
-    const tab = searchParams.get('tab');
+    const params = new URLSearchParams(location.search);
+    const tab = params.get('tab');
     if (tab) {
       setActiveTab(tab);
     }
@@ -121,7 +122,8 @@ const Profile = () => {
       pending: { bg: 'bg-gray-100', text: 'text-gray-800', label: 'Pending' }
     };
     
-    const config = statusConfig[status] || statusConfig.pending;
+    const normalizedStatus = typeof status === 'string' ? status.toLowerCase() : 'pending';
+    const config = statusConfig[normalizedStatus] || statusConfig.pending;
     return (
       <span className={`px-2 py-1 rounded-full text-xs font-medium ${config.bg} ${config.text}`}>
         {config.label}
@@ -380,12 +382,14 @@ const Profile = () => {
                         <span className="font-bold text-gray-800 text-sm">
                           {formatMoney(item.price * item.quantity)}
                         </span>
-                        <button
-                          onClick={() => openReviewModal(item)}
-                          className="text-xs text-primary-600 hover:text-primary-700 font-medium border border-primary-200 hover:bg-primary-50 px-3 py-1.5 rounded-full transition-colors"
-                        >
-                          Write a Review
-                        </button>
+                        {typeof order.status === 'string' && order.status.toLowerCase() === 'delivered' && (
+                          <button
+                            onClick={() => openReviewModal(item)}
+                            className="text-xs text-primary-600 hover:text-primary-700 font-medium border border-primary-200 hover:bg-primary-50 px-3 py-1.5 rounded-full transition-colors"
+                          >
+                            Write a Review
+                          </button>
+                        )}
                       </div>
                     </div>
                   ))}

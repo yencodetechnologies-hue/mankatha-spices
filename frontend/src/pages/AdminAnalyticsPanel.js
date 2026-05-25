@@ -84,10 +84,6 @@ const AdminAnalyticsPanel = () => {
         <div className="overview-fail-state" role="alert">
           <h3 className="overview-fail-title">Could not load analytics</h3>
           <p className="overview-fail-msg">{errorMessage}</p>
-          <p className="overview-fail-hint">
-            After starting MongoDB and the API, run{" "}
-            <code>cd backend &amp;&amp; npm run seed:analytics</code> to create sample traffic data.
-          </p>
           <button type="button" className="overview-btn-primary overview-retry" onClick={load}>
             Retry
           </button>
