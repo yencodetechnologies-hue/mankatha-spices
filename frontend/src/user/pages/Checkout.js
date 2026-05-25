@@ -181,7 +181,6 @@ const Checkout = () => {
               <span className="text-primary-600">{formatMoney(placedOrderDetails.total)}</span>
             </div>
           </div>
-          
           <div className="mt-8 text-center flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               to="/products"
@@ -193,7 +192,7 @@ const Checkout = () => {
               onClick={handleAutoLogin}
               className="px-6 py-3 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition-colors"
             >
-              Login
+              Login to Dashboard
             </button>
           </div>
         </div>
@@ -298,6 +297,7 @@ const Checkout = () => {
                         value={shippingInfo.password}
                         onChange={(e) => handleInputChange(e, 'shipping')}
                         placeholder="To create an account"
+                        required
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                       />
                       <button

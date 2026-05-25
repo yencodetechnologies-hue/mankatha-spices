@@ -424,6 +424,12 @@ const Home = () => {
   const [showPromoPopup, setShowPromoPopup] = useState(false);
 
   useEffect(() => {
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+    window.scrollTo(0, 0);
+    setTimeout(() => window.scrollTo(0, 0), 50);
+
     let cancelled = false;
     async function loadCats() {
       try {
