@@ -119,9 +119,12 @@ const Profile = () => {
       delivered: { bg: 'bg-green-100', text: 'text-green-800', label: 'Delivered' },
       processing: { bg: 'bg-blue-100', text: 'text-blue-800', label: 'Processing' },
       shipped: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: 'Shipped' },
-      pending: { bg: 'bg-gray-100', text: 'text-gray-800', label: 'Pending' }
+      pending: { bg: 'bg-gray-100', text: 'text-gray-800', label: 'Pending' },
+      confirmed: { bg: 'bg-blue-100', text: 'text-blue-800', label: 'Confirmed' },
+      ordered: { bg: 'bg-indigo-100', text: 'text-indigo-800', label: 'Ordered' },
+      'out for delivery': { bg: 'bg-orange-100', text: 'text-orange-800', label: 'Out for Delivery' },
+      cancelled: { bg: 'bg-red-100', text: 'text-red-800', label: 'Cancelled' },
     };
-    
     const normalizedStatus = typeof status === 'string' ? status.toLowerCase() : 'pending';
     const config = statusConfig[normalizedStatus] || statusConfig.pending;
     return (
@@ -129,6 +132,15 @@ const Profile = () => {
         {config.label}
       </span>
     );
+  };
+
+  const getPaymentBadge = (payment) => {
+    if (!payment) return null;
+    const p = payment.toLowerCase();
+    if (p === 'paid') return <span className="px-2 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">💳 Paid</span>;
+    if (p === 'awaiting approval') return <span className="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">⏳ Awaiting Approval</span>;
+    if (p === 'refunded') return <span className="px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">↩ Refunded</span>;
+    return <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">🕐 {payment}</span>;
   };
 
   const renderProfileTab = () => (
@@ -334,8 +346,9 @@ const Profile = () => {
                         <p className="font-bold text-primary-600 text-sm">{formatMoney(order.total)}</p>
                       </div>
                     </div>
-                    <div>
+                    <div className="flex items-center gap-2 flex-wrap">
                       {getStatusBadge(order.status)}
+                      {order.payment && getPaymentBadge(order.payment)}
                     </div>
                   </div>
                   {/* Delivery Address */}
@@ -382,7 +395,7 @@ const Profile = () => {
                         <span className="font-bold text-gray-800 text-sm">
                           {formatMoney(item.price * item.quantity)}
                         </span>
-                        {typeof order.status === 'string' && order.status.toLowerCase() === 'delivered' && (
+                        {order.status === 'Delivered' && (
                           <button
                             onClick={() => openReviewModal(item)}
                             className="text-xs text-primary-600 hover:text-primary-700 font-medium border border-primary-200 hover:bg-primary-50 px-3 py-1.5 rounded-full transition-colors"
