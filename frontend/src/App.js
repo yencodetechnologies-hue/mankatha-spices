@@ -35,7 +35,6 @@ import AdminGeneralPanel from './pages/AdminGeneralPanel';
 import AdminCategoryPanel from './pages/AdminCategoryPanel';
 import AdminBillersPanel from './pages/AdminBillersPanel';
 import AdminBillingOrdersPanel from './pages/AdminBillingOrdersPanel';
-import { SIDEBAR_GROUPS } from './constants';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
 import VendorPanelPage from './vendor/pages/VendorPanelPage';
 import VendorDashboardPanel from './vendor/pages/VendorDashboardPanel';

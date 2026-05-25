@@ -216,8 +216,8 @@ const Header = () => {
             console.error("Geocoding error", err);
           }
           
-          // Only open the Location Modal IF they have allowed permission
-          setLocationModalOpen(true);
+          // Do NOT open the Location Modal after successfully getting location
+          // setLocationModalOpen(true);
         },
         (err) => {
           console.warn("Location permission denied", err);
