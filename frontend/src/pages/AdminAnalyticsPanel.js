@@ -177,7 +177,7 @@ const AdminAnalyticsPanel = () => {
             <div>
               <h3 className="analytics-card-title">Traffic sources</h3>
               {trafficSources.length === 0 ? (
-                <p className="analytics-empty">No pageview data. Run backend seed:analytics.</p>
+                <p className="analytics-empty"></p>
               ) : (
                 <ul className="analytics-traffic-list">
                   {trafficSources.map((t) => (
@@ -201,7 +201,7 @@ const AdminAnalyticsPanel = () => {
             <div className="analytics-cities-block">
               <h3 className="analytics-card-title">Top cities</h3>
               {topCities.length === 0 ? (
-                <p className="analytics-empty">No city data in pageviews.</p>
+                <p className="analytics-empty"></p>
               ) : (
                 <ul className="analytics-city-list">
                   {topCities.map((c) => (

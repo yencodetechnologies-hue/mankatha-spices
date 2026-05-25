@@ -227,7 +227,7 @@ const AdminOrdersPanel = () => {
     <>
       <div className="products-head orders-head">
         <div>
-          <h2>Orders</h2>
+          <h2>Online Billing</h2>
           <p>
             {stats.totalOrders.toLocaleString("en-GB")} total orders ·{" "}
             <span className="orders-pending-hint">{stats.pendingAction} pending action</span>
@@ -320,8 +320,6 @@ const AdminOrdersPanel = () => {
                 {filtered.length === 0 ? (
                   <tr>
                     <td colSpan={9} className="orders-empty-cell">
-                    
-                      <code>npm run seed:orders</code> in the <code>backend</code> folder if the database is empty.
                     </td>
                   </tr>
                 ) : (

@@ -244,7 +244,7 @@ const AdminCategoryPanel = () => {
             {categoryProducts.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 text-center text-[#78909C]">
                 <Package size={48} strokeWidth={1.5} className="mb-3 text-[#B0BEC5]" />
-                <p className="text-sm">No products in this category yet.</p>
+                <p className="text-sm"></p>
               </div>
             ) : (
               <div className="overflow-x-auto">

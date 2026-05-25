@@ -474,7 +474,7 @@ return (
       {loadingList ? (
         <p className="text-sm text-[#78909C]">Loading…</p>
       ) : tableRows.length === 0 ? (
-        <p className="text-sm text-[#78909C]">No vendors yet.</p>
+        <p className="text-sm text-[#78909C]"></p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full min-w-[640px] text-left text-sm">

@@ -206,7 +206,7 @@ const AdminReviewsPanel = () => {
           </table>
         </div>
         {!loading && reviews.length === 0 ? (
-          <p className="reviews-empty">No reviews yet. Run <code>npm run seed:reviews</code> from the backend folder.</p>
+          <p className="reviews-empty"></p>
         ) : null}
       </div>
     </div>

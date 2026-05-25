@@ -259,7 +259,7 @@ const AdminInventoryPanel = () => {
               </tbody>
             </table>
           </div>
-          {items.length === 0 ? <p className="inv-empty">No products yet. Add products under Products.</p> : null}
+          {items.length === 0 ? <p className="inv-empty"></p> : null}
         </div>
       ) : null}
 

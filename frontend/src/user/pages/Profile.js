@@ -288,7 +288,7 @@ const Profile = () => {
       {orders.length === 0 ? (
         <div className="bg-white rounded-lg shadow-md p-8 text-center">
           <Package className="mx-auto text-gray-300 mb-4" size={48} />
-          {/* <h3 className="text-lg font-medium text-gray-900 mb-2">No Orders Yet</h3> */}
+          <h3 className="text-lg font-medium text-gray-900 mb-2">No Orders Yet</h3>
           <p className="text-gray-500">You haven't placed any orders with us yet.</p>
           <Link to="/products" className="inline-block mt-4 px-6 py-2 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-colors">
             Start Shopping

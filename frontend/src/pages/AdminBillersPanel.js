@@ -130,7 +130,7 @@ const AdminBillersPanel = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-xl font-bold text-gray-900">Biller Management</h2>
+          <h2 className="text-xl font-bold text-gray-900">Billing Orders</h2>
           <p className="text-sm text-gray-500 mt-1">Manage staff accounts with access to the billing system.</p>
         </div>
         <button
@@ -175,7 +175,7 @@ const AdminBillersPanel = () => {
               ) : billers.length === 0 ? (
                 <tr>
                   <td colSpan="6" className="px-6 py-12 text-center text-gray-400">
-                    <p>No billers found. Add a biller to get started.</p>
+                    
                   </td>
                 </tr>
               ) : (

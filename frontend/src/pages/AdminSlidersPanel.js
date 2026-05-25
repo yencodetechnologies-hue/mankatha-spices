@@ -103,7 +103,7 @@ const AdminSlidersPanel = () => {
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="orders-empty-cell">No sliders found.</td>
+                  <td colSpan={4} className="orders-empty-cell"></td>
                 </tr>
               ) : (
                 filtered.map((s) => (
