@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Search, Trash2 } from "lucide-react";
+import { Search } from "lucide-react";
 import { customerApi } from "../api/customerApi";
 import { formatMoneyWhole, formatMoney } from "../utils/formatMoney";
 

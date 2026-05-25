@@ -14,7 +14,6 @@ const AnimatedInput = forwardRef(({
 }, ref) => {
   const [isFocused, setIsFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [hasValue, setHasValue] = useState(false);
 
   const handleFocus = (e) => {
     setIsFocused(true);
