@@ -1,45 +1,80 @@
-script: |
-  set -e
+name: Backend CI/CD
 
-  echo "🚀 Connected to VPS"
+on:
+  push:
+    branches:
+      - main
 
-  cd ~/mankathaspeices/mankatha-spices/backend || exit 1
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-  echo "📂 Current directory:"
-  pwd
+    defaults:
+      run:
+        working-directory: backend
 
-  echo "📂 Git status:"
-  git status
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-  echo "📥 Pulling latest code..."
-  git fetch origin
-  git reset --hard origin/main
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
 
-  echo "📦 Checking Node..."
-  node -v || true
+      - name: Install Dependencies
+        run: npm install
 
-  echo "⚙️ Loading Node via NVM..."
-  export NVM_DIR="$HOME/.nvm"
-  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+      - name: Run Tests
+        run: npm test || echo "No tests"
 
-  nvm use 20
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
 
-  echo "📦 Installing dependencies..."
-  npm install
+    steps:
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v0.1.10
 
-  echo "🗄️ Running seed..."
-  npm run seed:users || true
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-  echo "🚀 Restarting PM2..."
+          script: |
+            set -e
 
-  pm2 describe mankatha-backend > /dev/null
+            echo "🚀 Connected to VPS"
 
-  if [ $? -eq 0 ]; then
-    pm2 restart mankatha-backend
-  else
-    pm2 start server.js --name mankatha-backend
-  fi
+            cd ~/manakathaspices/mankatha-spices/backend
 
-  pm2 save
+            echo "📂 Current directory:"
+            pwd
 
-  echo "✅ Deployment completed"
+            echo "📥 Updating source..."
+            git fetch origin
+            git reset --hard origin/main
+
+            echo "⚙️ Loading NVM..."
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+
+            nvm use 20
+
+            echo "📦 Installing packages..."
+            npm install
+
+            echo "🗄️ Running seed..."
+            npm run seed:users || true
+
+            echo "🚀 Restarting PM2..."
+
+            if pm2 describe mankathaspices-api > /dev/null; then
+              pm2 restart mankathaspices-api
+            else
+              pm2 start server.js --name mankathaspices-api
+            fi
+
+            pm2 save
+
+            echo "✅ Deployment successful"
