@@ -287,13 +287,13 @@ const AdminCustomersPanel = () => {
                           <button type="button" className="order-view-btn" onClick={() => handleViewCustomer(c)}>
                             View Orders
                           </button>
-                          <button 
-                            type="button" 
-                            className="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition"
+                          <button
+                            type="button"
                             onClick={() => handleDeleteCustomer(c._id, c.name)}
+                            style={{ background: '#fee2e2', color: '#dc2626', border: '1px solid #fca5a5', borderRadius: '6px', padding: '4px 10px', cursor: 'pointer', fontWeight: '600', fontSize: '12px' }}
                             title="Delete Customer"
                           >
-                            <Trash2 size={16} />
+                            Delete
                           </button>
                         </div>
                       </td>

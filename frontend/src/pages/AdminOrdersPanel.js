@@ -310,11 +310,6 @@ const AdminOrdersPanel = () => {
                 <option key={c} value={c}>{c}</option>
               ))}
             </select>
-            <select value={sourceFilter} onChange={(e) => setSourceFilter(e.target.value)} aria-label="Order source">
-              <option value="All Orders">All Orders</option>
-              <option value="Walk-in Orders">Walk-in Orders (Shop)</option>
-              <option value="Online Orders">Online Orders</option>
-            </select>
             <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} aria-label="Order status">
               <option>All Status</option>
               <option>Confirmed</option>

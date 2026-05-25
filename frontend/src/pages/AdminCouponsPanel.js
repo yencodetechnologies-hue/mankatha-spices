@@ -122,6 +122,16 @@ const AdminCouponsPanel = () => {
 
   const setField = (k, v) => setForm((prev) => ({ ...prev, [k]: v }));
 
+  const handleDeleteCoupon = async (id, code) => {
+    if (!window.confirm(`Delete coupon "${code}"? This cannot be undone.`)) return;
+    try {
+      await couponsApi.deleteCoupon(id);
+      refresh();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to delete coupon');
+    }
+  };
+
   const submit = async (e) => {
     e.preventDefault();
     try {
@@ -236,15 +246,24 @@ const AdminCouponsPanel = () => {
                       </span>
                     </td>
                     <td>
-                      {expired ? (
-                        <button type="button" className="coupons-btn-renew" onClick={() => openRenew(c)}>
-                          Renew
+                      <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                        {expired ? (
+                          <button type="button" className="coupons-btn-renew" onClick={() => openRenew(c)}>
+                            Renew
+                          </button>
+                        ) : (
+                          <button type="button" className="coupons-btn-edit" onClick={() => openEdit(c)}>
+                            Edit
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteCoupon(c.id, c.code)}
+                          style={{ background: '#fee2e2', color: '#dc2626', border: '1px solid #fca5a5', borderRadius: '6px', padding: '4px 10px', cursor: 'pointer', fontWeight: '600', fontSize: '12px' }}
+                        >
+                          Delete
                         </button>
-                      ) : (
-                        <button type="button" className="coupons-btn-edit" onClick={() => openEdit(c)}>
-                          Edit
-                        </button>
-                      )}
+                      </div>
                     </td>
                   </tr>
                 );

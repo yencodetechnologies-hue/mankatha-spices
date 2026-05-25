@@ -26,6 +26,14 @@ export const couponsApi = {
     );
     return response.data;
   },
+  deleteCoupon: async (id) => {
+    const base = getAdminApiBase();
+    const response = await axios.delete(
+      `${base}/coupons/${encodeURIComponent(id)}`,
+      withAuthHeaders()
+    );
+    return response.data;
+  },
   validateCoupon: async (code, cartTotal) => {
     // Note: No auth headers needed for validation
     const base = getAdminApiBase(); 

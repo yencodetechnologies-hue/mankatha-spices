@@ -11,7 +11,7 @@ const { getCustomers, getStats } = require("./controllers/customerController");
 const analyticsRoutes = require("./routes/analyticsRoutes");
 const { getReviewStats, getReviews, approveReview, deleteReview, createReview } = require("./controllers/reviewController");
 const { getInventory, postReorder, postBulkRestock } = require("./controllers/inventoryController");
-const { getCouponStats, getCoupons, createCoupon, updateCoupon, validateCoupon } = require("./controllers/couponController");
+const { getCouponStats, getCoupons, createCoupon, updateCoupon, validateCoupon, deleteCoupon } = require("./controllers/couponController");
 const { getSettings, putSettings, patchSettings } = require("./controllers/settingsController");
 const authRoutes = require("./routes/authRoutes");
 const { requireAuth, requireRoles } = require("./middleware/auth");
@@ -120,6 +120,7 @@ app.get("/api/coupons/stats", ...adminOnly, getCouponStats);
 app.get("/api/coupons", ...adminOnly, getCoupons);
 app.post("/api/coupons", ...adminOnly, createCoupon);
 app.put("/api/coupons/:id", ...adminOnly, updateCoupon);
+app.delete("/api/coupons/:id", ...adminOnly, deleteCoupon);
 /** Reviews on `app` (same pattern as `/api/overview`) so routes always match after restart. */
 app.get("/api/reviews/stats", ...adminOnly, getReviewStats);
 app.get("/api/reviews", ...adminOnly, getReviews);

@@ -188,4 +188,16 @@ const validateCoupon = async (req, res) => {
   }
 };
 
-module.exports = { getCouponStats, getCoupons, createCoupon, updateCoupon, validateCoupon };
+const deleteCoupon = async (req, res) => {
+  try {
+    const coupon = await Coupon.findByIdAndDelete(req.params.id);
+    if (!coupon) {
+      return res.status(404).json({ message: "Coupon not found" });
+    }
+    return res.json({ message: "Coupon deleted", id: req.params.id });
+  } catch (err) {
+    return res.status(500).json({ message: err.message || "Delete failed" });
+  }
+};
+
+module.exports = { getCouponStats, getCoupons, createCoupon, updateCoupon, validateCoupon, deleteCoupon };
