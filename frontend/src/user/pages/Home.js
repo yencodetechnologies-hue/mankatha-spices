@@ -616,7 +616,7 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-slate-50/30">
       {/* Hero Slider with Parallax */}
-      <section className="relative overflow-hidden h-[600px]">
+      <section className="relative overflow-hidden h-[450px] sm:h-[500px] md:h-[600px]">
         <div className="relative h-full">
           {/* Decorative Elements */}
           <div className="absolute top-20 left-[10%] w-64 h-64 bg-primary-200/20 rounded-full blur-3xl animate-pulse" />
