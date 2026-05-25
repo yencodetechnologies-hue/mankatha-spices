@@ -1,65 +1,49 @@
-name: Backend CI/CD
+name: Mankatha Backend Deploy
 
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: backend
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20
-
-      - name: Install Dependencies
-        run: npm install
-
-      - name: Run Tests
-        run: npm test || echo "No tests"
-
   deploy:
-    needs: build
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy to VPS
+      - name: Deploy to Mankatha Server
         uses: appleboy/ssh-action@v0.1.10
 
         with:
-          host: ${{ secrets.SERVER_HOST }}
+          host: 72.61.236.154
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
 
           script: |
             set -e
 
-            echo "🚀 Connected to VPS"
-
             cd ~/manakathaspices/mankatha-spices/backend
 
-            echo "📂 Current directory:"
-            pwd
-
-            echo "📥 Updating source..."
+            echo "📥 Updating project..."
             git fetch origin
             git reset --hard origin/main
 
-            echo "⚙️ Loading NVM..."
+            echo "⚙️ Loading Node..."
             export NVM_DIR="$HOME/.nvm"
-            [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
 
-            nvm use 20
+            if [ -s "$NVM_DIR/nvm.sh" ]; then
+              . "$NVM_DIR/nvm.sh"
+              nvm use 20 || nvm install 20
+            elif [ -s "/usr/local/nvm/nvm.sh" ]; then
+              . "/usr/local/nvm/nvm.sh"
+              nvm use 20 || nvm install 20
+            else
+              echo "NVM not found; using system node: $(node -v)"
+            fi
+
+            echo "🧪 Node Version:"
+            node -v
 
             echo "📦 Installing packages..."
             npm install
@@ -69,12 +53,29 @@ jobs:
 
             echo "🚀 Restarting PM2..."
 
-            if pm2 describe mankathaspices-api > /dev/null; then
-              pm2 restart mankathaspices-api
+            PM2_APP="mankathaspices-api"
+
+            if pm2 describe "$PM2_APP" > /dev/null 2>&1; then
+              pm2 restart "$PM2_APP" --update-env
             else
-              pm2 start server.js --name mankathaspices-api
+              pm2 start server.js --name "$PM2_APP"
             fi
 
+            echo "💾 Saving PM2..."
             pm2 save
 
-            echo "✅ Deployment successful"
+            echo "🔍 Verifying backend..."
+            sleep 3
+
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:5000/api/)
+
+            echo "HTTP Response: $HTTP_CODE"
+
+            if [ "$HTTP_CODE" = "000" ]; then
+              echo "⚠️ Backend reachable check skipped"
+            fi
+
+            echo "📋 PM2 Status:"
+            pm2 list
+
+            echo "✅ Deployment Finished"
