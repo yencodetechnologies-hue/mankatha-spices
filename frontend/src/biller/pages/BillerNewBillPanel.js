@@ -381,6 +381,10 @@ const BillerNewBillPanel = () => {
   const handleCheckoutClick = (e) => {
     e.preventDefault();
     if (cart.length === 0) return;
+    if (!customerName.trim() || !customerPhone.trim()) {
+      alert("Customer Name and Phone Number are mandatory.");
+      return;
+    }
     setShowCheckout(true);
   };
 
@@ -658,22 +662,24 @@ const BillerNewBillPanel = () => {
           <form onSubmit={handleCheckoutClick} className="space-y-4">
             <div>
               <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">
-                Customer Name (Optional)
+                Customer Name *
               </label>
               <input
                 type="text"
                 value={customerName}
                 onChange={(e) => setCustomerName(e.target.value)}
+                required
                 placeholder="Walk-in Customer"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 mb-3"
               />
               <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">
-                Customer Phone (Optional)
+                Customer Phone *
               </label>
               <input
                 type="text"
                 value={customerPhone}
                 onChange={(e) => setCustomerPhone(e.target.value)}
+                required
                 placeholder="+91-XXXXXXXXXX"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
@@ -725,21 +731,23 @@ const BillerNewBillPanel = () => {
 
               <div className="mb-6 grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Customer Name</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Customer Name *</label>
                   <input
                     type="text"
                     value={customerName}
                     onChange={(e) => setCustomerName(e.target.value)}
+                    required
                     placeholder="Walk-in Customer"
                     className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-[#3d2f26] font-medium focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white transition"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Phone No.</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Phone No. *</label>
                   <input
                     type="text"
                     value={customerPhone}
                     onChange={(e) => setCustomerPhone(e.target.value)}
+                    required
                     placeholder="+91-XXXXXXXXXX"
                     className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-[#3d2f26] font-medium focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white transition"
                   />

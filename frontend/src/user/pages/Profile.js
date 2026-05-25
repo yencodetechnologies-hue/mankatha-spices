@@ -22,14 +22,7 @@ const Profile = () => {
   const [passwordError, setPasswordError] = useState('');
   const [passwordSuccess, setPasswordSuccess] = useState('');
 
-  const handlePreferenceChange = async (type, value) => {
-    try {
-      const res = await authApi.updatePreferences({ [type]: value });
-      if (res && res.user) updateUser({ ...user, ...res.user });
-    } catch (e) {
-      console.error("Failed to update preferences", e);
-    }
-  };
+
 
   const handleChangePassword = async (e) => {
     e.preventDefault();
@@ -451,41 +444,6 @@ const Profile = () => {
 
   const renderSettingsTab = () => (
     <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h3 className="text-lg font-semibold mb-4">Preferences</h3>
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium">Email Notifications</p>
-              <p className="text-sm text-gray-600">Receive order updates and promotions</p>
-            </div>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input 
-                type="checkbox" 
-                checked={user?.emailNotifications !== false}
-                onChange={(e) => handlePreferenceChange('emailNotifications', e.target.checked)}
-                className="sr-only peer" 
-              />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
-            </label>
-          </div>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium">SMS Notifications</p>
-              <p className="text-sm text-gray-600">Get text messages for important updates</p>
-            </div>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input 
-                type="checkbox" 
-                checked={user?.smsNotifications === true}
-                onChange={(e) => handlePreferenceChange('smsNotifications', e.target.checked)}
-                className="sr-only peer" 
-              />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
-            </label>
-          </div>
-        </div>
-      </div>
 
       <div className="bg-white rounded-lg shadow-md p-6">
         <h3 className="text-lg font-semibold mb-4">Security</h3>
