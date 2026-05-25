@@ -346,9 +346,7 @@ const AdminCustomersPanel = () => {
             </div>
 
             <div style={{ flex: 1, overflowY: 'auto' }}>
-              {loadingOrders ? (
-                <div style={{ padding: '40px', textAlign: 'center', color: '#6b7280' }}>Loading orders...</div>
-              ) : customerOrders.length === 0 ? (
+              {loadingOrders ? null : customerOrders.length === 0 ? (
                 <div style={{ padding: '40px', textAlign: 'center', background: '#f9fafb', borderRadius: '8px', color: '#6b7280' }}>
                 </div>
               ) : (

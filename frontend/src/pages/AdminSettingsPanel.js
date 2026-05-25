@@ -104,9 +104,7 @@ const AdminSettingsPanel = () => {
 
 
         <div className="settings-main">
-          {loading ? (
-            <div className="settings-card settings-loading">Loading settings…</div>
-          ) : (
+          {loading ? null : (
             <>
               <section className="settings-card">
                 <h3 className="settings-card-title">Store details</h3>

@@ -95,6 +95,7 @@ const AdminOrdersPanel = () => {
   });
   const [errorMessage, setErrorMessage] = useState("");
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [viewSlip, setViewSlip] = useState(null);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All Status");
   const [periodFilter, setPeriodFilter] = useState("This Month");
@@ -477,9 +478,9 @@ const AdminOrdersPanel = () => {
                   )}
                   {selectedOrder.slipUrl && (
                     <div style={{ gridColumn: '1 / -1', marginTop: '4px' }}>
-                      <a href={selectedOrder.slipUrl?.startsWith('http') ? selectedOrder.slipUrl : `${getBackendOrigin()}${selectedOrder.slipUrl?.startsWith('/') ? '' : '/'}${selectedOrder.slipUrl}`} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#2563eb', textDecoration: 'none', fontWeight: '500', padding: '4px 8px', background: '#eff6ff', borderRadius: '4px', border: '1px solid #bfdbfe' }}>
+                      <button type="button" onClick={() => setViewSlip(selectedOrder.slipUrl?.startsWith('http') ? selectedOrder.slipUrl : `${getBackendOrigin()}${selectedOrder.slipUrl?.startsWith('/') ? '' : '/'}${selectedOrder.slipUrl}`)} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#2563eb', textDecoration: 'none', fontWeight: '500', padding: '4px 8px', background: '#eff6ff', borderRadius: '4px', border: '1px solid #bfdbfe', cursor: 'pointer' }}>
                         View Passbook
-                      </a>
+                      </button>
                     </div>
                   )}
                 </div>
@@ -515,6 +516,16 @@ const AdminOrdersPanel = () => {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', background: '#f9fafb', borderRadius: '8px', fontWeight: 'bold', fontSize: '16px', color: '#111827' }}>
               <span>Total Amount</span>
               <span style={{ fontSize: '18px', color: '#059669' }}>{formatMoney(selectedOrder.total)}</span>
+            </div>
+          </div>
+        </div>
+      )}
+      {viewSlip && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 10000, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setViewSlip(null)}>
+          <div style={{ position: 'relative', background: '#fff', borderRadius: '8px', padding: '8px', maxWidth: '90%', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }} onClick={e => e.stopPropagation()}>
+            <button onClick={() => setViewSlip(null)} style={{ position: 'absolute', top: '-16px', right: '-16px', border: 'none', background: '#fff', cursor: 'pointer', fontSize: '16px', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#333', boxShadow: '0 2px 8px rgba(0,0,0,0.2)', zIndex: 2 }}>✕</button>
+            <div style={{ overflow: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <img src={viewSlip} alt="Passbook/Slip" style={{ maxWidth: '100%', maxHeight: 'calc(90vh - 16px)', objectFit: 'contain' }} />
             </div>
           </div>
         </div>

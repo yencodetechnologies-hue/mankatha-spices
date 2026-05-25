@@ -496,9 +496,7 @@ return (
           />
         </div>
       </div>
-      {loadingList ? (
-        <p className="text-sm text-[#78909C]">Loading…</p>
-      ) : filteredVendors.length === 0 ? (
+      {loadingList ? null : filteredVendors.length === 0 ? (
         <p className="text-sm text-[#78909C]">{vendorSearch ? `No vendors found for "${vendorSearch}"` : 'No vendors yet.'}</p>
       ) : (
         <div className="overflow-x-auto">

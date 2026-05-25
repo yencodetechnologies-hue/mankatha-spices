@@ -149,10 +149,10 @@ const Checkout = () => {
     }
     if (shippingInfo.email && shippingInfo.password) {
       try {
-        const { token, user: nextUser } = await authApi.login({ 
-          email: shippingInfo.email, 
-          password: shippingInfo.password 
-        });
+        const { token, user: nextUser } = await authApi.login(
+          shippingInfo.email,
+          shippingInfo.password
+        );
         loginWithSession(token, nextUser);
         navigate('/profile?tab=orders');
       } catch (err) {

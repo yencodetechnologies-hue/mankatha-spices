@@ -196,7 +196,7 @@ const AdminCouponsPanel = () => {
         </div>
       ) : null}
 
-      {loading && !coupons.length ? <p className="analytics-loading">Loading coupons…</p> : null}
+      {loading && !coupons.length ? null : null}
 
       <div className="coupons-table-card">
         <div className="coupons-table-wrap">

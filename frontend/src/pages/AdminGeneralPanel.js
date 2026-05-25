@@ -471,9 +471,7 @@ const AdminGeneralPanel = () => {
 
       <section className="mt-10 rounded-2xl border border-[#f0e8dc] bg-white p-6 shadow-sm">
         <h3 className="mb-4 text-base font-semibold text-[#263238]">Recent generals</h3>
-        {loadingList ? (
-          <p className="text-sm text-[#78909C]">Loading…</p>
-        ) : tableRows.length === 0 ? (
+        {loadingList ? null : tableRows.length === 0 ? (
           <p className="text-sm text-[#78909C]"></p>
         ) : (
           <div className="overflow-x-auto">
