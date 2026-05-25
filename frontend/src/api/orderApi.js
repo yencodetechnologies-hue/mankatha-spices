@@ -72,4 +72,11 @@ export const orderApi = {
     const response = await client.get("orders/biller-orders", { params });
     return response.data;
   },
+
+  deleteOrder: async (id) => {
+    const response = await client.delete(`orders/${id}`);
+    ordersCache = null;
+    statsCache = null;
+    return response.data;
+  },
 };

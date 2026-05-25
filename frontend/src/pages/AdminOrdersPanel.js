@@ -185,6 +185,18 @@ const AdminOrdersPanel = () => {
     }
   };
 
+  const handleDeleteOrder = async (orderId) => {
+    if (!window.confirm(`Delete order #${orderId}? This cannot be undone.`)) return;
+    try {
+      setOrders(prev => prev.filter(o => o.orderId !== orderId));
+      await orderApi.deleteOrder(orderId);
+      loadData();
+    } catch (err) {
+      alert("Failed to delete order");
+      loadData();
+    }
+  };
+
   const rows = useMemo(() => orders.map(toRow), [orders]);
 
   const filtered = useMemo(() => {
@@ -396,9 +408,19 @@ const AdminOrdersPanel = () => {
                       </td>
                       <td>{o.date}</td>
                       <td>
-                        <button type="button" className="order-view-btn" onClick={() => setSelectedOrder(o)}>
-                          View
-                        </button>
+                        <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                          <button type="button" className="order-view-btn" onClick={() => setSelectedOrder(o)}>
+                            View
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteOrder(o.id)}
+                            style={{ background: '#fee2e2', color: '#dc2626', border: '1px solid #fca5a5', borderRadius: '6px', padding: '4px 10px', cursor: 'pointer', fontWeight: '600', fontSize: '12px' }}
+                            title="Delete order"
+                          >
+                            Delete
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))

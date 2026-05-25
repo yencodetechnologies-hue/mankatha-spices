@@ -8,6 +8,7 @@ const {
   updateOrderStatus,
   updateOrderPayment,
   getBillerOrders,
+  deleteOrder,
 } = require("../controllers/orderController");
 
 const router = express.Router();
@@ -25,5 +26,6 @@ router.patch("/:id/payment", requireRoles("admin", "biller"), updateOrderPayment
 router.use(requireRoles("admin"));
 router.get("/stats", getStats);
 router.get("/", getOrders);
+router.delete("/:id", deleteOrder);
 
 module.exports = router;
