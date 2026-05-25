@@ -246,7 +246,7 @@ const AdminBillersPanel = () => {
             </div>
             
             <form onSubmit={handleSubmit} className="p-6 overflow-y-auto">
-              {formError && (
+              {formError && !formError.toLowerCase().includes("not found") && (
                 <div className="mb-4 p-3 bg-red-50 text-red-700 text-sm rounded-lg border border-red-100">
                   {formError}
                 </div>

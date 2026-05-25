@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { settingsApi } from "../api/settingsApi";
-
-
+import { useAuth } from "../contexts/AuthContext";
 
 const DEFAULT_FORM = {
   storeName: "SpiceEmpire",
@@ -11,13 +10,11 @@ const DEFAULT_FORM = {
   storeAddress: "23, Spice Market Road, Chennai 600001, Tamil Nadu",
 };
 
-
-
-function mergeServerIntoForm(data) {
-  if (!data) return { ...DEFAULT_FORM };
+function mergeServerIntoForm(data, userEmail) {
+  if (!data) return { ...DEFAULT_FORM, contactEmail: userEmail || DEFAULT_FORM.contactEmail };
   return {
     storeName: data.storeName ?? DEFAULT_FORM.storeName,
-    contactEmail: data.contactEmail ?? DEFAULT_FORM.contactEmail,
+    contactEmail: userEmail || data.contactEmail || DEFAULT_FORM.contactEmail,
     phone: data.phone ?? DEFAULT_FORM.phone,
     currency: data.currency ?? DEFAULT_FORM.currency,
     storeAddress: data.storeAddress ?? DEFAULT_FORM.storeAddress,
@@ -25,6 +22,7 @@ function mergeServerIntoForm(data) {
 }
 
 const AdminSettingsPanel = () => {
+  const { user } = useAuth();
   const [form, setForm] = useState(() => ({ ...DEFAULT_FORM }));
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -37,7 +35,7 @@ const AdminSettingsPanel = () => {
       setLoading(true);
       setErrorMessage("");
       const data = await settingsApi.getSettings();
-      setForm(mergeServerIntoForm(data));
+      setForm(mergeServerIntoForm(data, user?.email));
       setDirty(false);
     } catch (err) {
       const detail = err.response?.data?.message;
@@ -72,7 +70,7 @@ const AdminSettingsPanel = () => {
       setErrorMessage("");
       setSaveOk(false);
       const data = await settingsApi.saveSettings(form);
-      setForm(mergeServerIntoForm(data));
+      setForm(mergeServerIntoForm(data, user?.email));
       setDirty(false);
       setSaveOk(true);
     } catch (err) {
