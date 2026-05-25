@@ -1,99 +1,45 @@
-name: Backend CI/CD
+script: |
+  set -e
 
-on:
-  push:
-    branches:
-      - main
+  echo "🚀 Connected to VPS"
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
+  cd ~/mankathaspeices/mankatha-spices/backend || exit 1
 
-    defaults:
-      run:
-        working-directory: backend
+  echo "📂 Current directory:"
+  pwd
 
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
+  echo "📂 Git status:"
+  git status
 
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20
+  echo "📥 Pulling latest code..."
+  git fetch origin
+  git reset --hard origin/main
 
-      - name: Install Dependencies
-        run: npm install
+  echo "📦 Checking Node..."
+  node -v || true
 
-      - name: Run Tests
-        run: npm test || echo "No tests"
+  echo "⚙️ Loading Node via NVM..."
+  export NVM_DIR="$HOME/.nvm"
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
+  nvm use 20
 
-    steps:
-      - name: Deploy to VPS
-        uses: appleboy/ssh-action@v0.1.10
+  echo "📦 Installing dependencies..."
+  npm install
 
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: root
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+  echo "🗄️ Running seed..."
+  npm run seed:users || true
 
-          script: |
-            cd ~/mankathaspeices/mankatha-spices/backend
+  echo "🚀 Restarting PM2..."
 
-            echo "📥 Pulling latest code..."
-            git reset --hard
-            git pull origin main
+  pm2 describe mankatha-backend > /dev/null
 
-            echo "⚙️ Loading Node via NVM..."
-            export NVM_DIR="$HOME/.nvm"
-            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+  if [ $? -eq 0 ]; then
+    pm2 restart mankatha-backend
+  else
+    pm2 start server.js --name mankatha-backend
+  fi
 
-            nvm use 20
+  pm2 save
 
-            echo "📦 Installing dependencies..."
-            npm install
-
-            echo "🗄️ Seeding database..."
-            npm run seed:users
-
-            echo "🌐 Writing production app-config.js..."
-            cat > ~/mankathaspeices/mankatha-spices/frontend/public/app-config.js << 'APPCFG'
-            window.__APP_CONFIG__ = {
-              API_BASE_URL: "https://mankathaspi.octosofttechnologies.in",
-            };
-            APPCFG
-
-            echo "🚀 Restarting PM2..."
-
-            pm2 describe mankatha-backend > /dev/null
-
-            if [ $? -eq 0 ]; then
-              pm2 restart mankatha-backend
-            else
-              pm2 start server.js --name mankatha-backend
-            fi
-
-            pm2 save
-
-            echo "=== DIAGNOSTIC REPORT ==="
-            echo "🔍 PM2 Status:"
-            pm2 list
-            echo "🔍 Active Listening Ports (TCP):"
-            ss -lntp || netstat -lntp || true
-            echo "🔍 Nginx Config files:"
-            ls -l /etc/nginx/sites-enabled/ || true
-            echo "🔍 Nginx Configuration contents:"
-            cat /etc/nginx/sites-enabled/* || true
-            echo "🔍 Backend .env contents (excluding MONGO_URI and secrets):"
-            if [ -f .env ]; then
-              grep -v -E "MONGO_URI|SECRET|KEY|PASSWORD" .env || true
-            else
-              echo ".env not found"
-            fi
-            echo "========================="
-
-            echo "✅ Deployment completed"
+  echo "✅ Deployment completed"
