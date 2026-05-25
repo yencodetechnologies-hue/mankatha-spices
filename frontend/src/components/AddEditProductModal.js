@@ -143,7 +143,7 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
             weight: w.weight || "",
             price: w.price || "",
             original_price: w.original_price || "",
-            barcode: w.barcode || ""
+            barcode: w.barcode || generateBarcode()
           }))
         );
       } else {

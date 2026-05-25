@@ -163,7 +163,7 @@ const ProductCard = ({ product, index }) => {
                 )}
               </div>
               <div className="flex flex-col text-center">
-                <span className="text-[11px] text-gray-800 mb-0.5">DMart</span>
+                <span className="text-[11px] text-gray-800 mb-0.5">Mankatha</span>
                 <span className="font-bold text-[17px] text-gray-900 leading-none">{formatMoney(currentPrice)}</span>
               </div>
             </div>
