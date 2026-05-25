@@ -150,7 +150,7 @@ const AdminAnalyticsPanel = () => {
           <section className="analytics-card">
             <h3 className="analytics-card-title">Top products by revenue</h3>
             {topProducts.length === 0 ? (
-              <p className="analytics-empty">No orders in this range. Seed orders or widen the date range.</p>
+              <p className="analytics-empty"></p>
             ) : (
               <ul className="analytics-product-list">
                 {topProducts.map((p) => (

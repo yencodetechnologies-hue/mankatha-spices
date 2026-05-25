@@ -320,7 +320,7 @@ const AdminOrdersPanel = () => {
                 {filtered.length === 0 ? (
                   <tr>
                     <td colSpan={9} className="orders-empty-cell">
-                      No orders for this period{search.trim() ? " matching your search" : ""}. Run{" "}
+                    
                       <code>npm run seed:orders</code> in the <code>backend</code> folder if the database is empty.
                     </td>
                   </tr>

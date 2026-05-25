@@ -116,7 +116,7 @@ const BillerOrdersPanel = () => {
                   <tr>
                     <td colSpan={7} className="px-5 py-12 text-center text-gray-400">
                       <ShoppingCart size={32} className="mx-auto mb-2 text-gray-300" />
-                      <p>{search ? "No orders match your search." : "No bills placed yet. Go to New Bill to create one."}</p>
+                     
                     </td>
                   </tr>
                 ) : (

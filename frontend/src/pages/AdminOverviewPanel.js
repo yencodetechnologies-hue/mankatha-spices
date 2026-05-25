@@ -314,7 +314,7 @@ const AdminOverviewPanel = () => {
                   {recentOrders.length === 0 ? (
                     <tr>
                       <td colSpan={6} className="orders-empty-cell">
-                        No orders yet. Seed the database from the backend (<code>npm run seed:orders</code>).
+                       
                       </td>
                     </tr>
                   ) : (

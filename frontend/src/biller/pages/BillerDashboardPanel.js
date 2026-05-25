@@ -234,11 +234,7 @@ const BillerDashboardPanel = () => {
                 ))
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-14 text-center text-gray-400">
-                    {search
-                      ? "No orders match your search."
-                      : "No orders found. Once customers place orders they'll appear here."}
-                  </td>
+               
                 </tr>
               ) : (
                 filtered.map((o) => (

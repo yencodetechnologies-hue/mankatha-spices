@@ -329,7 +329,6 @@ const AdminCustomersPanel = () => {
                 <div style={{ padding: '40px', textAlign: 'center', color: '#6b7280' }}>Loading orders...</div>
               ) : customerOrders.length === 0 ? (
                 <div style={{ padding: '40px', textAlign: 'center', background: '#f9fafb', borderRadius: '8px', color: '#6b7280' }}>
-                  No orders found for this customer.
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
