@@ -7,13 +7,7 @@ const RANGE_OPTIONS = [
   { value: 90, label: "Last 90 Days" },
 ];
 
-const TRAFFIC_COLORS = {
-  organic: "#ea580c",
-  social: "#166534",
-  direct: "#2563eb",
-  email: "#a855f7",
-  referral: "#dc2626",
-};
+
 
 function formatRelativeUpdated(iso) {
   const t = new Date(iso).getTime();
@@ -56,8 +50,6 @@ const AdminAnalyticsPanel = () => {
 
   const kpis = data?.kpis;
   const topProducts = data?.topProducts || [];
-  const trafficSources = data?.trafficSources || [];
-  const topCities = data?.topCities || [];
 
   return (
     <div className="admin-analytics">
