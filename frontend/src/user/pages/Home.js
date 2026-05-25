@@ -732,7 +732,7 @@ const Home = () => {
           />
           
           {/* Modal Content */}
-          <div className="relative z-10 w-full max-w-3xl bg-transparent rounded-3xl overflow-hidden shadow-2xl transform transition-all scale-100 animate-scale-up">
+          <div className="relative z-10 w-fit mx-auto max-w-3xl bg-transparent rounded-3xl overflow-hidden shadow-2xl transform transition-all scale-100 animate-scale-up">
             <button 
               onClick={closePromoPopup}
               className="absolute top-4 right-4 z-50 bg-black/50 hover:bg-black/80 text-white w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md transition-colors"
@@ -743,7 +743,7 @@ const Home = () => {
               <img 
                 src={promoBanner.imageUrl} 
                 alt={promoBanner.title || "Promotional Banner"} 
-                className="w-full h-auto object-contain max-h-[80vh] rounded-3xl"
+                className="w-auto h-auto max-w-full max-h-[80vh] rounded-3xl object-contain"
               />
             </Link>
           </div>
