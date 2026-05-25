@@ -52,7 +52,7 @@ const AdminSettingsPanel = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [user?.email]);
 
   useEffect(() => {
     load();
