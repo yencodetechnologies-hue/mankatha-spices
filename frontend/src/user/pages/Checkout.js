@@ -18,15 +18,19 @@ const Checkout = () => {
   const [placingOrder, setPlacingOrder] = useState(false);
   const [orderError, setOrderError] = useState('');
   
+  const savedAppCity = localStorage.getItem("appCity") || "";
+  const savedAppPincode = localStorage.getItem("appPincode") || "";
+  const regionName = savedAppCity.includes(',') ? savedAppCity.split(',').slice(1).join(',').trim() : savedAppCity;
+
   const [shippingInfo, setShippingInfo] = useState({
     firstName: user?.name?.split(' ')[0] || '',
     lastName: user?.name?.split(' ')[1] || '',
     email: user?.email || '',
     phone: user?.phone || '',
-    address: user?.addresses?.[0]?.address || '',
+    address: regionName || user?.addresses?.[0]?.address || '',
     city: user?.addresses?.[0]?.city || '',
     state: user?.addresses?.[0]?.state || '',
-    zipCode: user?.addresses?.[0]?.zip_code || '',
+    zipCode: savedAppPincode || user?.addresses?.[0]?.zip_code || '',
     country: user?.addresses?.[0]?.country || 'United Kingdom'
   });
 
