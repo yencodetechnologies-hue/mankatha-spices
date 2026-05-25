@@ -36,6 +36,9 @@ function runtimeApiBase() {
  */
 export function getAdminApiBase() {
   let base = runtimeApiBase() || process.env.REACT_APP_API_BASE_URL;
+  if (process.env.NODE_ENV !== "development") {
+    base = "https://backend-o897ardqa-irin-07s-projects.vercel.app";
+  }
   if (!base) {
     if (process.env.NODE_ENV === "development") {
       base = "http://localhost:9876";
@@ -56,7 +59,10 @@ export function getAdminApiBase() {
 
 /** Origin for `/uploads/...` and other non-proxied static paths from the Express server. */
 export function getBackendOrigin() {
-  const raw = runtimeApiBase() || process.env.REACT_APP_API_BASE_URL;
+  let raw = runtimeApiBase() || process.env.REACT_APP_API_BASE_URL;
+  if (process.env.NODE_ENV !== "development") {
+    raw = "https://backend-o897ardqa-irin-07s-projects.vercel.app";
+  }
   if (raw && /^https?:\/\//i.test(raw)) {
     try {
       const u = new URL(raw.replace(/\/$/, ""));
