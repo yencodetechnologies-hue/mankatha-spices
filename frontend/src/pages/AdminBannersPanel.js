@@ -116,7 +116,7 @@ const AdminBannersPanel = () => {
                 )}
                 
                 {/* Index Badge */}
-                <div className="absolute top-3 left-3 bg-indigo-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold shadow-md">
+                <div className="absolute top-3 left-3 bg-[#6b9312] text-white rounded-full w-8 h-8 flex items-center justify-center font-bold shadow-md">
                   {index + 1}
                 </div>
 
@@ -214,9 +214,9 @@ const AdminBannersPanel = () => {
                     style={{ 
                       padding: '6px 16px', 
                       borderRadius: '6px', 
-                      border: formData.imageType === 'upload' ? '1px solid #7c3aed' : '1px solid #e5e7eb',
-                      background: formData.imageType === 'upload' ? '#f5f3ff' : '#fff',
-                      color: formData.imageType === 'upload' ? '#7c3aed' : '#374151',
+                      border: formData.imageType === 'upload' ? '1px solid #6b9312' : '1px solid #e5e7eb',
+                      background: formData.imageType === 'upload' ? '#f7fde8' : '#fff',
+                      color: formData.imageType === 'upload' ? '#6b9312' : '#374151',
                       fontWeight: '600',
                       fontSize: '14px',
                       cursor: 'pointer'
@@ -229,9 +229,9 @@ const AdminBannersPanel = () => {
                     style={{ 
                       padding: '6px 16px', 
                       borderRadius: '6px', 
-                      border: formData.imageType === 'url' ? '1px solid #7c3aed' : '1px solid #e5e7eb',
-                      background: formData.imageType === 'url' ? '#f5f3ff' : '#fff',
-                      color: formData.imageType === 'url' ? '#7c3aed' : '#111827',
+                      border: formData.imageType === 'url' ? '1px solid #6b9312' : '1px solid #e5e7eb',
+                      background: formData.imageType === 'url' ? '#f7fde8' : '#fff',
+                      color: formData.imageType === 'url' ? '#6b9312' : '#111827',
                       fontWeight: 'bold',
                       fontSize: '14px',
                       cursor: 'pointer'
@@ -286,7 +286,7 @@ const AdminBannersPanel = () => {
               </button>
               <button 
                 onClick={handleSave}
-                style={{ padding: '8px 16px', background: '#6366f1', border: 'none', borderRadius: '6px', color: '#fff', fontWeight: '600', fontSize: '14px', cursor: 'pointer' }}
+                style={{ padding: '8px 16px', background: '#6b9312', border: 'none', borderRadius: '6px', color: '#fff', fontWeight: '600', fontSize: '14px', cursor: 'pointer' }}
               >
                 Add banner
               </button>

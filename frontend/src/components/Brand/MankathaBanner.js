@@ -16,7 +16,7 @@ const MankathaBanner = ({ variant = "hero", className = "" }) => {
         alt="Mankatha Spices — Pure spices, rich flavour, trusted quality"
         className={
           isStrip
-            ? "w-full max-h-40 object-cover object-center sm:max-h-48"
+            ? "w-full max-h-40 object-contain object-center sm:max-h-48"
             : "w-full max-h-[min(420px,55vh)] object-contain object-center sm:max-h-[480px]"
         }
         loading="lazy"

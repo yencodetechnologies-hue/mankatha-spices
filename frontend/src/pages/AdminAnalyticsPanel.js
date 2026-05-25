@@ -173,47 +173,6 @@ const AdminAnalyticsPanel = () => {
             )}
           </section>
 
-          <section className="analytics-card analytics-card-split">
-            <div>
-              <h3 className="analytics-card-title">Traffic sources</h3>
-              {trafficSources.length === 0 ? (
-                <p className="analytics-empty"></p>
-              ) : (
-                <ul className="analytics-traffic-list">
-                  {trafficSources.map((t) => (
-                    <li key={t.key} className="analytics-traffic-row">
-                      <span className="analytics-traffic-label">{t.label}</span>
-                      <div className="analytics-traffic-bar-wrap">
-                        <div
-                          className="analytics-traffic-bar"
-                          style={{
-                            width: `${Math.min(100, t.percent)}%`,
-                            background: TRAFFIC_COLORS[t.key] || "#78716c",
-                          }}
-                        />
-                      </div>
-                      <span className="analytics-traffic-pct">{t.percent}%</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-            <div className="analytics-cities-block">
-              <h3 className="analytics-card-title">Top cities</h3>
-              {topCities.length === 0 ? (
-                <p className="analytics-empty"></p>
-              ) : (
-                <ul className="analytics-city-list">
-                  {topCities.map((c) => (
-                    <li key={c.city}>
-                      <span>{c.city}</span>
-                      <span className="analytics-city-pct">{c.percent}%</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </section>
         </div>
       ) : null}
     </div>
