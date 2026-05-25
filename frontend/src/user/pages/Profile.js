@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
-import { User, Mail, Phone, MapPin, Heart, Package, Settings, LogOut, Edit2, Save, X, Trash2, Star } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Heart, Package, Settings, LogOut, Edit2, Save, X, Trash2, Star, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useWishlist } from '../../contexts/WishlistContext';
 import { formatMoney } from '../../utils/formatMoney';
@@ -21,6 +21,9 @@ const Profile = () => {
   const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
   const [passwordError, setPasswordError] = useState('');
   const [passwordSuccess, setPasswordSuccess] = useState('');
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
 
 
@@ -458,35 +461,62 @@ const Profile = () => {
             <form onSubmit={handleChangePassword} className="border border-gray-200 rounded-lg p-4 space-y-3">
               {passwordError && <p className="text-red-500 text-sm">{passwordError}</p>}
               {passwordSuccess && <p className="text-green-500 text-sm">{passwordSuccess}</p>}
-              <div>
+              <div className="relative">
                 <label className="block text-sm font-medium mb-1">Current Password</label>
-                <input 
-                  type="password" 
-                  required
-                  value={passwordForm.currentPassword}
-                  onChange={e => setPasswordForm({...passwordForm, currentPassword: e.target.value})}
-                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500" 
-                />
+                <div className="relative">
+                  <input 
+                    type={showCurrentPassword ? "text" : "password"}
+                    required
+                    value={passwordForm.currentPassword}
+                    onChange={e => setPasswordForm({...passwordForm, currentPassword: e.target.value})}
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 pr-10" 
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                    onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                  >
+                    {showCurrentPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
               </div>
-              <div>
+              <div className="relative">
                 <label className="block text-sm font-medium mb-1">New Password</label>
-                <input 
-                  type="password" 
-                  required
-                  value={passwordForm.newPassword}
-                  onChange={e => setPasswordForm({...passwordForm, newPassword: e.target.value})}
-                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500" 
-                />
+                <div className="relative">
+                  <input 
+                    type={showNewPassword ? "text" : "password"}
+                    required
+                    value={passwordForm.newPassword}
+                    onChange={e => setPasswordForm({...passwordForm, newPassword: e.target.value})}
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 pr-10" 
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                  >
+                    {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
               </div>
-              <div>
+              <div className="relative">
                 <label className="block text-sm font-medium mb-1">Confirm New Password</label>
-                <input 
-                  type="password" 
-                  required
-                  value={passwordForm.confirmPassword}
-                  onChange={e => setPasswordForm({...passwordForm, confirmPassword: e.target.value})}
-                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500" 
-                />
+                <div className="relative">
+                  <input 
+                    type={showConfirmPassword ? "text" : "password"}
+                    required
+                    value={passwordForm.confirmPassword}
+                    onChange={e => setPasswordForm({...passwordForm, confirmPassword: e.target.value})}
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 pr-10" 
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  >
+                    {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
               </div>
               <div className="flex gap-2 pt-2">
                 <button type="submit" className="bg-primary-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-primary-700">Update</button>
