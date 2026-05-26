@@ -114,7 +114,7 @@ const AdminInventoryPanel = () => {
             )}
           </p>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
           <div style={{ position: 'relative' }}>
             <input
               type="text"
