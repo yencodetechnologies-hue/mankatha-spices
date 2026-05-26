@@ -512,30 +512,30 @@ const Header = () => {
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
           <div className="md:hidden border-t border-gray-200 bg-white shadow-lg max-h-[80vh] overflow-y-auto">
-            <div className="container mx-auto px-4 py-4 space-y-5">
+            <div className="container mx-auto px-3 py-3 space-y-3">
               {/* Account Links */}
-              <div className="mb-4">
-                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">My Account</span>
+              <div>
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1.5">My Account</span>
                 {isAuthenticated ? (
-                  <div className="space-y-1 bg-gray-50 p-3 rounded-lg border border-gray-100">
-                    <div className="text-sm font-bold text-primary-600 mb-2 border-b border-gray-200 pb-2">
+                  <div className="space-y-0.5 bg-gray-50 p-2.5 rounded-lg border border-gray-100">
+                    <div className="text-xs font-bold text-primary-600 mb-1.5 border-b border-gray-200 pb-1.5">
                       {user?.name}
                     </div>
                     {user?.role === 'admin' && (
-                      <Link to="/adminpanel/overview" className="block text-gray-700 hover:text-primary-600 py-1.5 font-medium text-sm" onClick={() => setIsMobileMenuOpen(false)}>Admin Panel</Link>
+                      <Link to="/adminpanel/overview" className="block text-gray-700 hover:text-primary-600 py-1 font-medium text-xs" onClick={() => setIsMobileMenuOpen(false)}>Admin Panel</Link>
                     )}
                     {user?.role === 'vendor' && (
-                      <Link to="/vendor/dashboard" className="block text-gray-700 hover:text-primary-600 py-1.5 font-medium text-sm" onClick={() => setIsMobileMenuOpen(false)}>Vendor Portal</Link>
+                      <Link to="/vendor/dashboard" className="block text-gray-700 hover:text-primary-600 py-1 font-medium text-xs" onClick={() => setIsMobileMenuOpen(false)}>Vendor Portal</Link>
                     )}
-                    <Link to="/profile" className="block text-gray-700 hover:text-primary-600 py-1.5 font-medium text-sm" onClick={() => setIsMobileMenuOpen(false)}>My Profile</Link>
-                    <button onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }} className="block text-red-600 hover:underline py-1.5 font-medium text-left w-full text-sm">Logout</button>
+                    <Link to="/profile" className="block text-gray-700 hover:text-primary-600 py-1 font-medium text-xs" onClick={() => setIsMobileMenuOpen(false)}>My Profile</Link>
+                    <button onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }} className="block text-red-600 hover:underline py-1 font-medium text-left w-full text-xs">Logout</button>
                   </div>
                 ) : (
                   <div className="flex gap-2">
-                    <Link to="/login" className="flex-1 bg-white border-2 border-primary-600 text-primary-600 text-center py-2.5 rounded font-bold hover:bg-green-50 transition-colors" onClick={() => setIsMobileMenuOpen(false)}>
+                    <Link to="/login" className="flex-1 bg-white border-2 border-primary-600 text-primary-600 text-center py-1.5 rounded-lg font-bold text-sm hover:bg-green-50 transition-colors" onClick={() => setIsMobileMenuOpen(false)}>
                       Sign In
                     </Link>
-                    <Link to="/register" className="flex-1 bg-primary-600 text-white text-center py-2.5 rounded font-bold hover:bg-primary-700 transition-colors border-2 border-primary-600" onClick={() => setIsMobileMenuOpen(false)}>
+                    <Link to="/register" className="flex-1 bg-primary-600 text-white text-center py-1.5 rounded-lg font-bold text-sm hover:bg-primary-700 transition-colors border-2 border-primary-600" onClick={() => setIsMobileMenuOpen(false)}>
                       Register
                     </Link>
                   </div>
@@ -544,17 +544,17 @@ const Header = () => {
 
               {/* Categories */}
               <div>
-                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">Categories</span>
-                <div className="grid grid-cols-2 gap-2">
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1.5">Categories</span>
+                <div className="grid grid-cols-3 gap-1.5">
                   {categoriesList.map((category) => (
                     <Link
                       key={category.id}
                       to={`/products?category=${encodeURIComponent(category.slug)}`}
-                      className="flex items-center space-x-2 text-sm text-gray-700 hover:text-primary-600 p-2.5 rounded border border-gray-100 bg-gray-50 font-medium"
+                      className="flex flex-col items-center text-center gap-1 text-xs text-gray-700 hover:text-primary-600 p-2 rounded-lg border border-gray-100 bg-gray-50 font-medium"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
-                      <span className="text-lg">{category.icon}</span>
-                      <span className="truncate">{category.name}</span>
+                      <span className="text-base">{category.icon}</span>
+                      <span className="truncate w-full text-[10px] leading-tight">{category.name}</span>
                     </Link>
                   ))}
                 </div>

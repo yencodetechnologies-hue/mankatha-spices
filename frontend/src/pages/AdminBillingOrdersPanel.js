@@ -12,8 +12,6 @@ const fmtDate = (iso) => {
   });
 };
 
-
-
 const AdminBillingOrdersPanel = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -53,7 +51,7 @@ const AdminBillingOrdersPanel = () => {
       (o.customerName || "").toLowerCase().includes(search.toLowerCase());
     const matchesBiller = billerFilter === "All Billers" || o.billerName === billerFilter;
     return matchesSearch && matchesBiller;
-  });
+  }).sort((a, b) => new Date(b.orderDate || b.createdAt) - new Date(a.orderDate || a.createdAt));
 
   const handlePrint = (order) => {
     setPrintOrder(order);
@@ -225,24 +223,22 @@ const AdminBillingOrdersPanel = () => {
             )}
           </div>
 
-          <table className="w-full text-sm mb-4">
-            <thead>
-              <tr className="text-left border-b border-[#91521f] text-[#91521f]">
-                <th className="font-bold pb-1 w-1/2 uppercase tracking-wide text-xs">Item</th>
-                <th className="font-bold pb-1 text-center w-1/6 uppercase tracking-wide text-xs">Qty</th>
-                <th className="font-bold pb-1 text-right w-1/3 uppercase tracking-wide text-xs">Price</th>
-              </tr>
-            </thead>
-            <tbody className="text-[#3d2f26]">
+          <div className="mb-4">
+            <h3 className="font-bold text-[#91521f] text-sm uppercase tracking-wider mb-2 border-b border-[#91521f] pb-1">Order Items</h3>
+            <div className="space-y-3">
               {printOrder.lineItems?.map((item, idx) => (
-                <tr key={idx} className="border-b border-gray-100 last:border-0">
-                  <td className="py-2 pr-2 font-medium">{item.name}</td>
-                  <td className="py-2 text-center font-bold">{item.quantity}</td>
-                  <td className="py-2 text-right font-bold">{formatMoney((item.price || 0) * item.quantity)}</td>
-                </tr>
+                <div key={idx} className="flex justify-between items-center p-3 border border-gray-100 rounded-lg bg-white shadow-sm">
+                  <div>
+                    <div className="font-bold text-[#3d2f26] text-sm">{item.name}</div>
+                    <div className="text-gray-500 text-xs mt-1">Qty: {item.quantity}</div>
+                  </div>
+                  <div className="font-bold text-lg text-[#3d2f26]">
+                    {formatMoney((item.price || 0) * item.quantity)}
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
+            </div>
+          </div>
 
           <div className="flex justify-between items-center font-bold text-lg border-t border-[#91521f] pt-3 mb-4 text-[#91521f]">
             <span className="uppercase tracking-wide">Total Amount:</span>

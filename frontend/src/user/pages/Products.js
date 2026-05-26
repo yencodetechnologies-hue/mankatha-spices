@@ -126,154 +126,154 @@ const ProductCard = ({ product }) => {
   };
 
   return (
-    <div className="product-card bg-white rounded-xl shadow-lg hover:shadow-2xl overflow-hidden group relative">
-      {/* Dietary Badge — state-based tooltip */}
+    <div className="product-card bg-white rounded-xl shadow-md hover:shadow-xl overflow-hidden group relative">
+      {/* Dietary Badge */}
       <div
-        className="absolute top-4 right-4 z-20"
+        className="absolute top-2 right-2 z-20"
         onMouseEnter={() => setShowDietTip(true)}
         onMouseLeave={() => setShowDietTip(false)}
         style={{ cursor: 'default' }}
       >
         {product.dietaryPreference === 'non-vegetarian' ? (
-          <div className="w-5 h-5 border-2 border-[#792C23] flex items-center justify-center bg-white rounded-sm shadow-sm">
-            <div className="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-b-[6px] border-b-[#792C23] mt-[1px]"></div>
+          <div className="w-4 h-4 border-2 border-[#792C23] flex items-center justify-center bg-white rounded-sm shadow-sm">
+            <div className="w-0 h-0 border-l-[3px] border-l-transparent border-r-[3px] border-r-transparent border-b-[5px] border-b-[#792C23]"></div>
           </div>
         ) : (
-          <div className="w-5 h-5 border-2 border-primary-500 flex items-center justify-center bg-white rounded-sm shadow-sm">
-            <div className="w-2.5 h-2.5 bg-primary-500 rounded-full"></div>
+          <div className="w-4 h-4 border-2 border-primary-500 flex items-center justify-center bg-white rounded-sm shadow-sm">
+            <div className="w-2 h-2 bg-primary-500 rounded-full"></div>
           </div>
         )}
         {showDietTip && (
           <div style={{
             position: 'absolute', top: '100%', right: 0, marginTop: '4px',
-            background: '#1f2937', color: '#fff', fontSize: '11px',
-            padding: '3px 8px', borderRadius: '5px', whiteSpace: 'nowrap',
+            background: '#1f2937', color: '#fff', fontSize: '10px',
+            padding: '2px 6px', borderRadius: '4px', whiteSpace: 'nowrap',
             boxShadow: '0 4px 12px rgba(0,0,0,0.2)', pointerEvents: 'none', zIndex: 50
           }}>
-            {product.dietaryPreference === 'non-vegetarian' ? 'Non Vegetarian' : 'Vegetarian'}
+            {product.dietaryPreference === 'non-vegetarian' ? 'Non Veg' : 'Veg'}
           </div>
         )}
       </div>
 
       {/* Image */}
-      <div className="relative image-zoom h-48 cursor-pointer" onClick={() => window.location.href = `/product/${product.slug}`}>
+      <div className="relative image-zoom h-32 md:h-48 cursor-pointer" onClick={() => window.location.href = `/product/${product.slug}`}>
         <img src={product.featured_image} alt={product.name} className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
       </div>
 
       {/* Info */}
-      <div className="p-4">
+      <div className="p-2.5 md:p-4">
         <h3
-          className="font-semibold text-gray-800 mb-2 hover:text-primary-600 transition-colors line-clamp-2 cursor-pointer"
+          className="font-semibold text-gray-800 text-xs md:text-sm mb-1 md:mb-2 hover:text-primary-600 transition-colors line-clamp-2 cursor-pointer leading-tight"
           onClick={() => window.location.href = `/product/${product.slug}`}
         >
           {product.name}
         </h3>
 
         {/* Rating */}
-        <div className="flex items-center mb-3">
+        <div className="flex items-center mb-2">
           <div className="flex items-center">
             {[...Array(5)].map((_, i) => (
-              <Star key={i} size={14} className={i < Math.floor(product.rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'} />
+              <Star key={i} size={11} className={i < Math.floor(product.rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'} />
             ))}
           </div>
-          <span className="text-sm text-gray-500 ml-2">({product.reviews_count})</span>
+          <span className="text-[10px] text-gray-500 ml-1">({product.reviews_count})</span>
         </div>
 
-        {/* Price - DMart Style */}
-        <div className="flex items-start justify-between mt-2 mb-3">
+        {/* Price */}
+        <div className="flex items-start justify-between mb-2">
           <div className="flex flex-col">
-            <div className="flex items-end gap-3">
+            <div className="flex items-end gap-1.5 md:gap-3">
               <div className="flex flex-col text-center">
-                <span className="text-[11px] text-gray-500 mb-0.5">MRP</span>
+                <span className="text-[9px] md:text-[11px] text-gray-500 mb-0.5">MRP</span>
                 {currentOriginalPrice > currentPrice ? (
-                  <span className="text-sm text-gray-500 line-through leading-none">{formatMoney(currentOriginalPrice)}</span>
+                  <span className="text-[10px] md:text-sm text-gray-500 line-through leading-none">{formatMoney(currentOriginalPrice)}</span>
                 ) : (
-                  <span className="text-sm text-transparent leading-none">-</span>
+                  <span className="text-[10px] md:text-sm text-transparent leading-none">-</span>
                 )}
               </div>
               <div className="flex flex-col text-center">
-                <span className="text-[11px] text-gray-800 mb-0.5">Mankatha</span>
-                <span className="font-bold text-[17px] text-gray-900 leading-none">{formatMoney(currentPrice)}</span>
+                <span className="text-[9px] md:text-[11px] text-gray-800 mb-0.5">Mankatha</span>
+                <span className="font-bold text-[13px] md:text-[17px] text-gray-900 leading-none">{formatMoney(currentPrice)}</span>
               </div>
             </div>
-            <div className="text-[10px] text-gray-500 mt-1 italic">(Inclusive of all taxes)</div>
+            <div className="text-[8px] md:text-[10px] text-gray-500 mt-0.5 italic">(Incl. taxes)</div>
           </div>
           {discount > 0 && (
-            <div className="bg-green-50 text-green-700 px-3 py-1.5 rounded-md text-center flex flex-col justify-center border border-green-100">
-              <span className="font-bold text-sm leading-tight">{formatMoney(currentOriginalPrice - currentPrice)}</span>
-              <span className="text-xs font-semibold uppercase leading-tight">OFF</span>
+            <div className="bg-green-50 text-green-700 px-1.5 py-1 md:px-3 md:py-1.5 rounded text-center flex flex-col justify-center border border-green-100">
+              <span className="font-bold text-[10px] md:text-sm leading-tight">{formatMoney(currentOriginalPrice - currentPrice)}</span>
+              <span className="text-[8px] md:text-xs font-semibold uppercase leading-tight">OFF</span>
             </div>
           )}
         </div>
 
         {/* Variant Dropdown */}
-        <div className="relative w-full mb-4">
+        <div className="relative w-full mb-2 md:mb-4">
           <select
             value={selectedVariantIndex}
             onChange={(e) => setSelectedVariantIndex(Number(e.target.value))}
-            className="w-full border border-gray-200 rounded p-2 text-sm appearance-none bg-white cursor-pointer hover:border-primary-500 transition-colors focus:outline-none"
+            className="w-full border border-gray-200 rounded p-1.5 md:p-2 text-[10px] md:text-sm appearance-none bg-white cursor-pointer hover:border-primary-500 transition-colors focus:outline-none"
           >
             {variants.map((v, i) => (
               <option key={i} value={i}>{v.weight} - {formatMoney(v.price)}</option>
             ))}
           </select>
-          <div className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
-            <ChevronDown size={16} className="text-gray-400" />
+          <div className="absolute right-1.5 top-1/2 transform -translate-y-1/2 pointer-events-none">
+            <ChevronDown size={12} className="text-gray-400 md:w-4 md:h-4" />
           </div>
         </div>
 
         {/* Cart Control */}
-        <div className="flex items-center gap-2 w-full mt-2">
+        <div className="flex items-center gap-1 md:gap-2 w-full">
           <button
             onClick={() => toggleWishlist(product)}
-            className={`border rounded w-[42px] h-[42px] flex items-center justify-center transition-colors bg-white flex-shrink-0 ${
+            className={`border rounded w-7 h-7 md:w-[42px] md:h-[42px] flex items-center justify-center transition-colors bg-white flex-shrink-0 ${
               isInWishlist(product._id || product.id)
                 ? "border-primary-400 text-primary-600 bg-primary-50/50"
                 : "border-gray-300 text-gray-500 hover:text-primary-600 hover:border-primary-300"
             }`}
           >
-            <Heart size={20} className={isInWishlist(product._id || product.id) ? "fill-primary-500 text-primary-500" : ""} />
+            <Heart size={13} className={`md:w-5 md:h-5 ${isInWishlist(product._id || product.id) ? "fill-primary-500 text-primary-500" : ""}`} />
           </button>
           {currentVariant.stock <= 0 ? (
             <button
               disabled
-              className="w-full h-[42px] flex items-center justify-center gap-2 bg-gray-400 text-white rounded font-bold uppercase tracking-wide cursor-not-allowed"
+              className="w-full h-7 md:h-[42px] flex items-center justify-center gap-1 bg-gray-400 text-white rounded font-bold uppercase tracking-wide cursor-not-allowed"
             >
-              <ShoppingCart size={18} />
-              <span>Out of Stock</span>
+              <ShoppingCart size={12} className="md:w-[18px] md:h-[18px]" />
+              <span className="text-[9px] md:text-sm">Out of Stock</span>
             </button>
           ) : qty === 0 ? (
             <button
               onClick={handleAdd}
-              className="w-full h-[42px] flex items-center justify-center gap-2 bg-primary-500 hover:bg-primary-600 text-white rounded font-bold uppercase tracking-wide transition-colors"
+              className="w-full h-7 md:h-[42px] flex items-center justify-center gap-1 bg-primary-500 hover:bg-primary-600 text-white rounded font-bold uppercase tracking-wide transition-colors"
             >
-              <ShoppingCart size={18} />
-              <span>Add to Cart</span>
+              <ShoppingCart size={12} className="md:w-[18px] md:h-[18px]" />
+              <span className="text-[9px] md:text-sm">Add to Cart</span>
             </button>
           ) : (
-            <div className="flex items-center gap-2 w-full">
-              <div className="flex items-center border border-gray-300 rounded flex-1 h-[42px] overflow-hidden">
-                <button onClick={handleDecrease} className="bg-gray-100 text-gray-600 w-12 h-full flex items-center justify-center hover:bg-gray-200 transition-colors">
-                  <Minus size={16} />
+            <div className="flex items-center gap-1 w-full">
+              <div className="flex items-center border border-gray-300 rounded flex-1 h-7 md:h-[42px] overflow-hidden">
+                <button onClick={handleDecrease} className="bg-gray-100 text-gray-600 w-7 md:w-12 h-full flex items-center justify-center hover:bg-gray-200 transition-colors">
+                  <Minus size={12} className="md:w-4 md:h-4" />
                 </button>
-                <div className="flex-1 flex items-center justify-center font-bold text-gray-800">{qty}</div>
+                <div className="flex-1 flex items-center justify-center font-bold text-gray-800 text-xs md:text-base">{qty}</div>
                 <button
                   onClick={handleIncrease}
-                  className={`w-12 h-full flex items-center justify-center transition-colors ${
+                  className={`w-7 md:w-12 h-full flex items-center justify-center transition-colors ${
                     currentVariant.stock !== undefined && qty >= currentVariant.stock
                       ? "bg-gray-300 text-gray-500 cursor-pointer"
                       : "bg-primary-500 text-white hover:bg-primary-600"
                   }`}
                 >
-                  <Plus size={16} />
+                  <Plus size={12} className="md:w-4 md:h-4" />
                 </button>
               </div>
               <button
                 onClick={() => updateQuantity(variantCartItemId, 0)}
-                className="border border-gray-300 rounded w-[42px] h-[42px] flex items-center justify-center text-gray-500 hover:text-primary-600 hover:border-primary-300 transition-colors bg-white flex-shrink-0"
+                className="border border-gray-300 rounded w-7 h-7 md:w-[42px] md:h-[42px] flex items-center justify-center text-gray-500 hover:text-primary-600 hover:border-primary-300 transition-colors bg-white flex-shrink-0"
               >
-                <X size={20} />
+                <X size={12} className="md:w-5 md:h-5" />
               </button>
             </div>
           )}
@@ -453,7 +453,7 @@ const Products = () => {
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-4">All Products</h1>
+          <h1 className="text-xl md:text-3xl font-bold mb-3 md:mb-4">All Products</h1>
           <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
             <div className="relative w-full md:w-96">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
@@ -588,7 +588,7 @@ const Products = () => {
                 <p className="text-gray-600">Try adjusting your filters or search terms</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
                 {filteredProducts.map((product) => (
                   <ProductCard key={product._id || product.id} product={product} />
                 ))}

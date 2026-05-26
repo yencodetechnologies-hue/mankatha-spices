@@ -22,7 +22,7 @@ export const SIDEBAR_GROUPS = [
     items: [
       { id: "overview", label: "Overview", path: "overview" },
       { id: "billers", label: "Billers", path: "billers" },
-      { id: "billing-orders", label: "Billing Orders", path: "billing-orders" },
+      { id: "billing-orders", label: "Billing Lists", path: "billing-orders" },
       // { id: "distributors", label: "Vendors", path: "distributors" },
       // { id: "general", label: "General", path: "general" },
       { id: "inventory", label: "Inventory", path: "inventory" },

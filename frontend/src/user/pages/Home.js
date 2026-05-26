@@ -128,7 +128,7 @@ const ProductCard = ({ product, index }) => {
 
 
       {/* Product Image */}
-      <div className="relative image-zoom h-56 cursor-pointer overflow-hidden rounded-t-2xl" onClick={() => window.location.href = `/product/${product.slug}`}>
+      <div className="relative image-zoom h-36 md:h-56 cursor-pointer overflow-hidden rounded-t-xl md:rounded-t-2xl" onClick={() => window.location.href = `/product/${product.slug}`}>
         <img
           src={product.featured_image}
           alt={product.name}
@@ -137,7 +137,7 @@ const ProductCard = ({ product, index }) => {
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
       </div>
 
-      <div className="p-5">
+      <div className="p-3 md:p-5">
         <div className="flex items-center justify-end mb-2">
           <div className="flex items-center">
             <Star size={14} className="text-yellow-400 fill-current" />
@@ -146,7 +146,7 @@ const ProductCard = ({ product, index }) => {
         </div>
 
         <Link to={`/product/${product.slug}`}>
-          <h3 className="font-bold text-gray-800 mb-2 hover:text-primary-600 transition-colors line-clamp-2 h-12">
+          <h3 className="font-bold text-gray-800 text-sm md:text-base mb-1 md:mb-2 hover:text-primary-600 transition-colors line-clamp-2 h-10 md:h-12">
             {product.name}
           </h3>
         </Link>
@@ -155,16 +155,16 @@ const ProductCard = ({ product, index }) => {
           <div className="flex flex-col">
             <div className="flex items-end gap-3">
               <div className="flex flex-col text-center">
-                <span className="text-[11px] text-gray-500 mb-0.5">MRP</span>
+                <span className="text-[10px] md:text-[11px] text-gray-500 mb-0.5">MRP</span>
                 {currentOriginalPrice > currentPrice ? (
-                  <span className="text-sm text-gray-500 line-through leading-none">{formatMoney(currentOriginalPrice)}</span>
+                  <span className="text-xs md:text-sm text-gray-500 line-through leading-none">{formatMoney(currentOriginalPrice)}</span>
                 ) : (
-                  <span className="text-sm text-transparent leading-none">-</span>
+                  <span className="text-xs md:text-sm text-transparent leading-none">-</span>
                 )}
               </div>
               <div className="flex flex-col text-center">
-                <span className="text-[11px] text-gray-800 mb-0.5">Mankatha</span>
-                <span className="font-bold text-[17px] text-gray-900 leading-none">{formatMoney(currentPrice)}</span>
+                <span className="text-[9px] md:text-[11px] text-gray-800 mb-0.5">Mankatha</span>
+                <span className="font-bold text-[13px] md:text-[17px] text-gray-900 leading-none">{formatMoney(currentPrice)}</span>
               </div>
             </div>
             <div className="text-[10px] text-gray-500 mt-1 italic tracking-tight">(Inclusive of all taxes)</div>
@@ -172,19 +172,19 @@ const ProductCard = ({ product, index }) => {
           
           {/* OFF Box */}
           {discount > 0 && (
-            <div className="bg-green-50 text-green-700 px-3 py-1.5 rounded-md text-center flex flex-col justify-center border border-green-100">
-              <span className="font-bold text-sm leading-tight text-green-700">{formatMoney(currentOriginalPrice - currentPrice)}</span>
-              <span className="text-xs font-semibold uppercase text-green-600 leading-tight">OFF</span>
+            <div className="bg-green-50 text-green-700 px-2 py-1 md:px-3 md:py-1.5 rounded-md text-center flex flex-col justify-center border border-green-100">
+              <span className="font-bold text-xs md:text-sm leading-tight text-green-700">{formatMoney(currentOriginalPrice - currentPrice)}</span>
+              <span className="text-[10px] md:text-xs font-semibold uppercase text-green-600 leading-tight">OFF</span>
             </div>
           )}
         </div>
 
         {/* Dropdown for weight variants */}
-        <div className="relative w-full mb-4">
+        <div className="relative w-full mb-3 md:mb-4">
           <select
             value={selectedVariantIndex}
             onChange={(e) => setSelectedVariantIndex(Number(e.target.value))}
-            className="w-full border border-gray-200 rounded p-2 text-sm appearance-none bg-white cursor-pointer hover:border-primary-500 transition-colors focus:outline-none"
+            className="w-full border border-gray-200 rounded p-1.5 md:p-2 text-[11px] md:text-sm appearance-none bg-white cursor-pointer hover:border-primary-500 transition-colors focus:outline-none"
           >
             {variants.map((v, i) => (
               <option key={i} value={i}>
@@ -193,66 +193,66 @@ const ProductCard = ({ product, index }) => {
             ))}
           </select>
           <div className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
-            <ChevronDown size={16} className="text-gray-400"/>
+            <ChevronDown size={14} className="text-gray-400 md:w-4 md:h-4"/>
           </div>
         </div>
 
         {/* DMart style cart control */}
-        <div className="flex items-center gap-2 mt-2 w-full">
+        <div className="flex items-center gap-1.5 md:gap-2 mt-2 w-full">
           <button
             onClick={() => toggleWishlist(product)}
-            className={`border rounded w-[42px] h-[42px] flex items-center justify-center transition-colors bg-white flex-shrink-0 ${
+            className={`border rounded w-8 h-8 md:w-[42px] md:h-[42px] flex items-center justify-center transition-colors bg-white flex-shrink-0 ${
               isInWishlist(product._id || product.id)
                 ? "border-primary-400 text-primary-600 bg-primary-50/50"
                 : "border-gray-300 text-gray-500 hover:text-primary-600 hover:border-primary-300"
             }`}
           >
-            <Heart size={20} className={isInWishlist(product._id || product.id) ? "fill-primary-500 text-primary-500" : ""} />
+            <Heart size={16} className={isInWishlist(product._id || product.id) ? "fill-primary-500 text-primary-500" : "md:w-5 md:h-5"} />
           </button>
           {currentVariant.stock <= 0 ? (
             <button
               disabled
-              className="w-full h-[42px] flex items-center justify-center gap-2 bg-gray-400 text-white rounded font-bold uppercase tracking-wide cursor-not-allowed"
+              className="w-full h-8 md:h-[42px] flex items-center justify-center gap-1 md:gap-2 bg-gray-400 text-white rounded font-bold uppercase tracking-wide cursor-not-allowed"
             >
-              <ShoppingCart size={18} />
-              <span>Out of Stock</span>
+              <ShoppingCart size={14} className="md:w-[18px] md:h-[18px]" />
+              <span className="text-[10px] md:text-sm">Out of Stock</span>
             </button>
           ) : qty === 0 ? (
             <button
               onClick={handleAdd}
-              className="w-full h-[42px] flex items-center justify-center gap-2 bg-primary-500 hover:bg-primary-600 text-white rounded font-bold uppercase tracking-wide transition-colors"
+              className="w-full h-8 md:h-[42px] flex items-center justify-center gap-1 md:gap-2 bg-primary-500 hover:bg-primary-600 text-white rounded font-bold uppercase tracking-wide transition-colors"
             >
-              <ShoppingCart size={18} />
-              <span>Add to Cart</span>
+              <ShoppingCart size={14} className="md:w-[18px] md:h-[18px]" />
+              <span className="text-[10px] md:text-sm">Add to Cart</span>
             </button>
           ) : (
-          <div className="flex items-center gap-2 w-full">
-            <div className="flex items-center border border-gray-300 rounded flex-1 h-[42px] overflow-hidden">
+          <div className="flex items-center gap-1 md:gap-2 w-full">
+            <div className="flex items-center border border-gray-300 rounded flex-1 h-8 md:h-[42px] overflow-hidden">
               <button
                 onClick={handleDecrease}
-                className="bg-gray-100 text-gray-600 w-12 h-full flex items-center justify-center hover:bg-gray-200 transition-colors"
+                className="bg-gray-100 text-gray-600 w-8 md:w-12 h-full flex items-center justify-center hover:bg-gray-200 transition-colors"
               >
-                <Minus size={16} />
+                <Minus size={14} className="md:w-4 md:h-4" />
               </button>
-              <div className="flex-1 flex items-center justify-center font-bold text-gray-800">
+              <div className="flex-1 flex items-center justify-center font-bold text-gray-800 text-sm md:text-base">
                 {qty}
               </div>
               <button
                 onClick={handleIncrease}
-                className={`w-12 h-full flex items-center justify-center transition-colors ${
+                className={`w-8 md:w-12 h-full flex items-center justify-center transition-colors ${
                   currentVariant.stock !== undefined && qty >= currentVariant.stock
                     ? "bg-gray-300 text-gray-500 cursor-pointer"
                     : "bg-primary-500 text-white hover:bg-primary-600"
                 }`}
               >
-                <Plus size={16} />
+                <Plus size={14} className="md:w-4 md:h-4" />
               </button>
             </div>
             <button
               onClick={() => updateQuantity(variantCartItemId, 0)}
-              className="border border-gray-300 rounded w-[42px] h-[42px] flex items-center justify-center text-gray-500 hover:text-primary-600 hover:border-primary-300 transition-colors bg-white"
+              className="border border-gray-300 rounded w-8 h-8 md:w-[42px] md:h-[42px] flex items-center justify-center text-gray-500 hover:text-primary-600 hover:border-primary-300 transition-colors bg-white flex-shrink-0"
             >
-              <X size={20} />
+              <X size={16} className="md:w-5 md:h-5" />
             </button>
             </div>
           )}
@@ -597,17 +597,17 @@ const Home = () => {
 
   const features = [
     {
-      icon: <Truck className="text-primary-500" size={32} />,
+      icon: <Truck className="text-primary-500 w-6 h-6 md:w-8 md:h-8" />,
       title: "Free Delivery",
       description: "Free delivery on orders over $50"
     },
     {
-      icon: <Shield className="text-primary-500" size={32} />,
+      icon: <Shield className="text-primary-500 w-6 h-6 md:w-8 md:h-8" />,
       title: "100% Organic",
       description: "All products certified organic"
     },
     {
-      icon: <RefreshCw className="text-primary-500" size={32} />,
+      icon: <RefreshCw className="text-primary-500 w-6 h-6 md:w-8 md:h-8" />,
       title: "Easy Returns",
       description: "30-day return policy"
     }
@@ -701,24 +701,21 @@ const Home = () => {
       </section>
 
       {/* Features Section */}
-      <section className="relative z-40 container-custom -mt-16 sm:-mt-24 mb-8 reveal reveal-up">
-        <div className="bg-white rounded-[2rem] shadow-xl border border-gray-100 p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-8">
-          {features.map((feature, i) => (
-            <React.Fragment key={i}>
-              <div className="flex-1 flex items-center gap-6 w-full px-4">
-                <div className="w-16 h-16 bg-primary-100 rounded-2xl flex items-center justify-center text-primary-600 flex-shrink-0">
+      <section className="relative z-40 container-custom -mt-12 md:-mt-20 mb-6 reveal reveal-up">
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 px-4 py-4 md:px-10 md:py-8">
+          <div className="grid grid-cols-3 divide-x divide-gray-100">
+            {features.map((feature, i) => (
+              <div key={i} className="flex flex-col items-center text-center px-2 md:px-6 gap-2">
+                <div className="w-10 h-10 md:w-14 md:h-14 bg-primary-100 rounded-xl md:rounded-2xl flex items-center justify-center text-primary-600 flex-shrink-0">
                   {feature.icon}
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900">{feature.title}</h3>
-                  <p className="text-gray-500 text-sm mt-1">{feature.description}</p>
+                  <h3 className="text-[11px] md:text-base font-bold text-gray-900 leading-tight">{feature.title}</h3>
+                  <p className="text-gray-400 text-[9px] md:text-sm mt-0.5 leading-tight hidden md:block">{feature.description}</p>
                 </div>
               </div>
-              {i < features.length - 1 && (
-                <div className="hidden md:block w-px bg-gray-200/80 self-stretch my-2" />
-              )}
-            </React.Fragment>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
       
@@ -806,7 +803,7 @@ const Home = () => {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-8">
             {featuredProducts.map((product, index) => (
               <ProductCard key={product._id || product.id} product={product} index={index} />
             ))}

@@ -98,6 +98,34 @@ const AdminLayout = ({ children }) => {
             </div>
           ))}
         </nav>
+
+        {/* Logout pinned at bottom of sidebar */}
+        <div style={{ padding: "1rem 1rem 1.5rem", borderTop: "1px solid rgba(255,255,255,0.1)", marginTop: "auto" }}>
+          <button
+            onClick={handleLogout}
+            style={{
+              display: "flex", alignItems: "center", gap: "0.6rem",
+              width: "100%", padding: "0.65rem 0.85rem",
+              background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)",
+              borderRadius: "10px", color: "rgba(255,255,255,0.75)",
+              fontSize: "0.875rem", fontWeight: 600, cursor: "pointer",
+              transition: "all 0.2s"
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.background = "rgba(239,68,68,0.2)";
+              e.currentTarget.style.borderColor = "rgba(239,68,68,0.4)";
+              e.currentTarget.style.color = "#fca5a5";
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.background = "rgba(255,255,255,0.07)";
+              e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)";
+              e.currentTarget.style.color = "rgba(255,255,255,0.75)";
+            }}
+          >
+            <LogOut size={16} />
+            <span>Logout</span>
+          </button>
+        </div>
       </aside>
 
       <section className="admin-main">

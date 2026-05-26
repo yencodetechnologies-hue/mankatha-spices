@@ -424,20 +424,25 @@ const BillerNewBillPanel = () => {
   };
 
   if (success) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-[#ede6dc] shadow-sm">
-        <div className="print:hidden flex flex-col items-center">
-          <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-4">
-            <CheckCircle size={32} />
-          </div>
-          <h2 className="text-2xl font-bold text-[#3d2f26] mb-2">Bill Generated Successfully</h2>
-          <p className="text-gray-500 mb-6">Order ID: <span className="font-mono font-bold text-primary-700">{success.orderId}</span></p>
+    const subtotal = success.lineItems?.reduce((sum, item) => sum + (item.price || 0) * item.quantity, 0) || 0;
+    const gstAmount = Math.round(subtotal * 0.05 * 100) / 100;
 
-          <div className="flex gap-4">
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] bg-gradient-to-br from-green-50 to-white rounded-2xl border border-[#ede6dc] shadow-sm p-8">
+        {/* On-screen success card — hidden when printing */}
+        <div className="print:hidden flex flex-col items-center w-full max-w-sm">
+          <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-5 shadow-md">
+            <CheckCircle size={40} />
+          </div>
+          <h2 className="text-2xl font-bold text-[#3d2f26] mb-1">Bill Generated!</h2>
+          <p className="text-gray-500 text-sm mb-1">Order ID: <span className="font-mono font-bold text-primary-700">{success.orderId}</span></p>
+          <p className="text-gray-400 text-xs mb-6">Payment: <span className="font-semibold text-green-600">{success.paymentMethod || "Cash"}</span> &nbsp;·&nbsp; Total: <span className="font-semibold text-gray-700">{formatMoney(success.total)}</span></p>
+
+          <div className="flex gap-3 w-full">
             <button
               type="button"
               onClick={() => window.print()}
-              className="flex items-center gap-2 px-6 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg font-medium transition"
+              className="flex-1 flex items-center justify-center gap-2 px-5 py-3 bg-white border-2 border-gray-300 hover:border-primary-400 hover:bg-primary-50 text-gray-700 rounded-xl font-semibold transition shadow-sm"
             >
               <Printer size={18} />
               Print Receipt
@@ -445,7 +450,7 @@ const BillerNewBillPanel = () => {
             <button
               type="button"
               onClick={() => setSuccess(null)}
-              className="flex items-center gap-2 px-6 py-2.5 bg-primary-500 hover:bg-primary-600 text-white rounded-lg font-medium transition"
+              className="flex-1 flex items-center justify-center gap-2 px-5 py-3 bg-primary-500 hover:bg-primary-600 text-white rounded-xl font-semibold transition shadow-md"
             >
               <Plus size={18} />
               New Bill
@@ -453,10 +458,10 @@ const BillerNewBillPanel = () => {
           </div>
         </div>
 
-        {/* Printable Receipt Area */}
+        {/* ═══ Printable Thermal Receipt ═══ */}
         <div
-          className="hidden print:block w-full max-w-md mx-auto bg-white p-4"
-          style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}
+          className="hidden print:block w-full max-w-[320px] mx-auto bg-white"
+          style={{ fontFamily: "'Courier New', Courier, monospace", WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}
         >
           <div className="text-center mb-4 border-b border-[#91521f] pb-4">
             <MankathaBanner variant="strip" className="mb-2 !border-0 !shadow-none !bg-transparent" />
@@ -496,24 +501,20 @@ const BillerNewBillPanel = () => {
           </div>
 
           <div className="mb-4">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-left border-b border-[#91521f] text-[#91521f]">
-                  <th className="font-bold pb-1 w-1/2 uppercase tracking-wide text-xs">Item</th>
-                  <th className="font-bold pb-1 text-center w-1/6 uppercase tracking-wide text-xs">Qty</th>
-                  <th className="font-bold pb-1 text-right w-1/3 uppercase tracking-wide text-xs">Price</th>
-                </tr>
-              </thead>
-              <tbody className="text-[#3d2f26]">
-                {success.lineItems?.map((item, idx) => (
-                  <tr key={idx} className="border-b border-gray-100 last:border-0">
-                    <td className="py-2 pr-2 font-medium">{item.name}</td>
-                    <td className="py-2 text-center bg-gray-50/50 font-bold">{item.quantity}</td>
-                    <td className="py-2 text-right font-bold">{formatMoney((item.price || 0) * item.quantity)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <h3 className="font-bold text-[#91521f] text-sm uppercase tracking-wider mb-2 border-b border-[#91521f] pb-1">Order Items</h3>
+            <div className="space-y-3">
+              {success.lineItems?.map((item, idx) => (
+                <div key={idx} className="flex justify-between items-center p-3 border border-gray-100 rounded-lg bg-white shadow-sm">
+                  <div>
+                    <div className="font-bold text-[#3d2f26] text-sm">{item.name}</div>
+                    <div className="text-gray-500 text-xs mt-1">Qty: {item.quantity}</div>
+                  </div>
+                  <div className="font-bold text-lg text-[#3d2f26]">
+                    {formatMoney((item.price || 0) * item.quantity)}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="flex justify-between items-center font-bold text-lg border-t border-[#91521f] pt-3 mb-4 text-[#91521f]">
@@ -680,7 +681,7 @@ const BillerNewBillPanel = () => {
                 value={customerPhone}
                 onChange={(e) => setCustomerPhone(e.target.value)}
                 required
-                placeholder="+91-XXXXXXXXXX"
+                placeholder="XXXXXXXXXX"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
             </div>
@@ -748,7 +749,7 @@ const BillerNewBillPanel = () => {
                     value={customerPhone}
                     onChange={(e) => setCustomerPhone(e.target.value)}
                     required
-                    placeholder="+91-XXXXXXXXXX"
+                    placeholder="XXXXXXXXXX"
                     className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-[#3d2f26] font-medium focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white transition"
                   />
                 </div>
