@@ -448,91 +448,112 @@ const AdminOrdersPanel = () => {
       </div>
 
       {selectedOrder && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setSelectedOrder(null)}>
-          <div style={{ background: '#fff', borderRadius: '12px', padding: '24px', width: '500px', maxWidth: '90%', maxHeight: '80vh', display: 'flex', flexDirection: 'column', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }} onClick={e => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f4f8ec', margin: '-24px -24px 20px -24px', padding: '24px', borderBottom: '1px solid #d3e1b7', borderTopLeftRadius: '12px', borderTopRightRadius: '12px' }}>
+        <div className="fixed inset-0 z-[9999] bg-black/50 flex items-center justify-center p-4" onClick={() => setSelectedOrder(null)}>
+          <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+            {/* Modal Header */}
+            <div className="flex justify-between items-center bg-[#f4f8ec] p-5 border-b border-[#d3e1b7]">
               <div>
-                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 'bold', color: '#52720d' }}>Order #{selectedOrder.id} Details</h3>
-                <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#6b9312', fontWeight: '500' }}>{selectedOrder.date}</p>
+                <h3 className="m-0 text-lg md:text-xl font-bold text-[#52720d]">Order #{selectedOrder.id} Details</h3>
+                <p className="m-0 mt-1 text-xs md:text-sm color-[#6b9312] font-medium">{selectedOrder.date}</p>
               </div>
-              <button onClick={() => setSelectedOrder(null)} style={{ border: 'none', background: '#e1ecd0', cursor: 'pointer', fontSize: '14px', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#52720d' }}>✕</button>
+              <button 
+                onClick={() => setSelectedOrder(null)} 
+                className="border-none bg-[#e1ecd0] cursor-pointer text-sm w-8 h-8 rounded-full flex items-center justify-center text-[#52720d] hover:bg-[#d3e1b7] transition-colors"
+              >
+                ✕
+              </button>
             </div>
             
-            <div style={{ marginBottom: '24px', display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: '16px', alignItems: 'start' }}>
-              <div>
-                <span style={{ fontSize: '11px', textTransform: 'uppercase', color: '#6b7280', fontWeight: '600' }}>Customer</span>
-                <div style={{ fontWeight: '500', color: '#111827', marginTop: '4px' }}>{selectedOrder.customer}</div>
-                {(selectedOrder.email !== "N/A" || selectedOrder.phone !== "N/A") && (
-                  <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '6px', lineHeight: '1.4' }}>
-                    {selectedOrder.phone !== "N/A" && <div>{selectedOrder.phone}</div>}
-                    {selectedOrder.email !== "N/A" && <div style={{wordBreak: 'break-all'}}>{selectedOrder.email}</div>}
+            {/* Modal Body (Scrollable) */}
+            <div className="p-5 overflow-y-auto flex-1">
+              
+              {/* Order Info Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6 items-start">
+                <div>
+                  <span className="text-[11px] uppercase text-gray-500 font-semibold tracking-wider">Customer</span>
+                  <div className="font-medium text-gray-900 mt-1">{selectedOrder.customer}</div>
+                  {(selectedOrder.email !== "N/A" || selectedOrder.phone !== "N/A") && (
+                    <div className="text-xs text-gray-500 mt-1.5 leading-relaxed break-all">
+                      {selectedOrder.phone !== "N/A" && <div>{selectedOrder.phone}</div>}
+                      {selectedOrder.email !== "N/A" && <div>{selectedOrder.email}</div>}
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <span className="text-[11px] uppercase text-gray-500 font-semibold tracking-wider">Order Status</span>
+                  <div className="mt-1"><span className={statusClass(selectedOrder.status)} style={{ marginLeft: 0 }}>{selectedOrder.status}</span></div>
+                </div>
+                <div>
+                  <span className="text-[11px] uppercase text-gray-500 font-semibold tracking-wider">Payment Status</span>
+                  <div className="mt-1"><span className={paymentClass(selectedOrder.payment)} style={{ marginLeft: 0 }}>{selectedOrder.payment}</span></div>
+                </div>
+                <div>
+                  <span className="text-[11px] uppercase text-gray-500 font-semibold tracking-wider">Payment Method</span>
+                  <div className="font-medium text-gray-900 mt-1">{selectedOrder.paymentMethod}</div>
+                </div>
+              </div>
+
+              {/* Bank Transfer Details */}
+              {selectedOrder.paymentMethod === 'Bank Transfer' && (selectedOrder.userBankName || selectedOrder.transactionRef || selectedOrder.slipUrl) && (
+                <div className="mb-6 p-4 bg-slate-50 rounded-xl border border-slate-200 text-sm">
+                  <h4 className="m-0 mb-3 text-xs uppercase text-slate-500 font-bold tracking-wider">Bank Transfer Details</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {selectedOrder.userBankName && (
+                      <div><span className="text-slate-500">Bank:</span> <span className="font-semibold text-slate-700">{selectedOrder.userBankName}</span></div>
+                    )}
+                    {selectedOrder.transactionRef && (
+                      <div><span className="text-slate-500">Ref:</span> <span className="font-semibold text-slate-700">{selectedOrder.transactionRef}</span></div>
+                    )}
+                    {selectedOrder.slipUrl && (
+                      <div className="col-span-1 sm:col-span-2 mt-1">
+                        <button 
+                          type="button" 
+                          onClick={() => setViewSlip(selectedOrder.slipUrl?.startsWith('http') ? selectedOrder.slipUrl : `${getBackendOrigin()}${selectedOrder.slipUrl?.startsWith('/') ? '' : '/'}${selectedOrder.slipUrl}`)} 
+                          className="inline-flex items-center gap-1 text-blue-600 font-medium px-3 py-1.5 bg-blue-50 rounded-md border border-blue-200 cursor-pointer hover:bg-blue-100 transition-colors"
+                        >
+                          View Passbook
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Items List */}
+              <div className="mb-4">
+                <h4 className="m-0 mb-3 text-sm font-bold text-gray-700">Purchased Items</h4>
+                {selectedOrder.items && selectedOrder.items.length > 0 ? (
+                  <div className="flex flex-col gap-2">
+                    {selectedOrder.items.map((item, idx) => (
+                      <div key={idx} className="flex justify-between items-center p-3 border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                        <div className="flex items-center gap-3">
+                          <div 
+                            className="w-10 h-10 rounded-lg bg-gray-100 bg-cover bg-center shrink-0" 
+                            style={{ backgroundImage: `url(${getCategoryImg(item.category)})` }}
+                          />
+                          <div>
+                            <div className="font-semibold text-gray-800 text-sm leading-tight">{item.name}</div>
+                            <div className="text-xs text-gray-500 mt-0.5">Qty: {item.quantity} x {formatMoney(item.price || 0)}</div>
+                          </div>
+                        </div>
+                        <div className="font-bold text-gray-900 text-sm md:text-base">
+                          {formatMoney((item.price || 0) * (item.quantity || 1))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-6 text-center bg-gray-50 rounded-xl text-gray-500 text-sm">
+                    No item details found for this order.
                   </div>
                 )}
               </div>
-              <div>
-                <span style={{ fontSize: '11px', textTransform: 'uppercase', color: '#6b7280', fontWeight: '600' }}>Order Status</span>
-                <div style={{ marginTop: '4px' }}><span className={statusClass(selectedOrder.status)} style={{ marginLeft: 0 }}>{selectedOrder.status}</span></div>
-              </div>
-              <div>
-                <span style={{ fontSize: '11px', textTransform: 'uppercase', color: '#6b7280', fontWeight: '600' }}>Payment Status</span>
-                <div style={{ marginTop: '4px' }}><span className={paymentClass(selectedOrder.payment)} style={{ marginLeft: 0 }}>{selectedOrder.payment}</span></div>
-              </div>
-              <div>
-                <span style={{ fontSize: '11px', textTransform: 'uppercase', color: '#6b7280', fontWeight: '600' }}>Payment Method</span>
-                <div style={{ fontWeight: '500', color: '#111827', marginTop: '4px' }}>{selectedOrder.paymentMethod}</div>
-              </div>
             </div>
 
-            {selectedOrder.paymentMethod === 'Bank Transfer' && (selectedOrder.userBankName || selectedOrder.transactionRef || selectedOrder.slipUrl) && (
-              <div style={{ marginBottom: '24px', padding: '12px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '13px' }}>
-                <h4 style={{ margin: '0 0 8px 0', fontSize: '12px', textTransform: 'uppercase', color: '#64748b', fontWeight: '700' }}>Bank Transfer Details</h4>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                  {selectedOrder.userBankName && (
-                    <div><span style={{ color: '#64748b' }}>Bank:</span> <span style={{ fontWeight: '600' }}>{selectedOrder.userBankName}</span></div>
-                  )}
-                  {selectedOrder.transactionRef && (
-                    <div><span style={{ color: '#64748b' }}>Ref:</span> <span style={{ fontWeight: '600' }}>{selectedOrder.transactionRef}</span></div>
-                  )}
-                  {selectedOrder.slipUrl && (
-                    <div style={{ gridColumn: '1 / -1', marginTop: '4px' }}>
-                      <button type="button" onClick={() => setViewSlip(selectedOrder.slipUrl?.startsWith('http') ? selectedOrder.slipUrl : `${getBackendOrigin()}${selectedOrder.slipUrl?.startsWith('/') ? '' : '/'}${selectedOrder.slipUrl}`)} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#2563eb', textDecoration: 'none', fontWeight: '500', padding: '4px 8px', background: '#eff6ff', borderRadius: '4px', border: '1px solid #bfdbfe', cursor: 'pointer' }}>
-                        View Passbook
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            <div style={{ flex: 1, overflowY: 'auto', marginBottom: '20px' }}>
-              <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: 'bold', color: '#374151' }}>Purchased Items</h4>
-              {selectedOrder.items && selectedOrder.items.length > 0 ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {selectedOrder.items.map((item, idx) => (
-                    <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', borderBottom: '1px solid #f3f4f6' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <div style={{ width: '40px', height: '40px', borderRadius: '4px', backgroundColor: '#f3f4f6', backgroundImage: `url(${getCategoryImg(item.category)})`, backgroundSize: 'cover', backgroundPosition: 'center', flexShrink: 0 }}></div>
-                        <div>
-                          <div style={{ fontWeight: '600', color: '#1f2937', fontSize: '14px', lineHeight: '1.2' }}>{item.name}</div>
-                          <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '2px' }}>Qty: {item.quantity} x {formatMoney(item.price || 0)}</div>
-                        </div>
-                      </div>
-                      <div style={{ fontWeight: '700', color: '#111827', fontSize: '15px' }}>
-                        {formatMoney((item.price || 0) * (item.quantity || 1))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div style={{ padding: '20px', textAlign: 'center', background: '#f9fafb', borderRadius: '8px', color: '#6b7280', fontSize: '14px' }}>
-                  No item details found for this order.
-                </div>
-              )}
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', background: '#f9fafb', borderRadius: '8px', fontWeight: 'bold', fontSize: '16px', color: '#111827' }}>
-              <span>Total Amount</span>
-              <span style={{ fontSize: '18px', color: '#059669' }}>{formatMoney(selectedOrder.total)}</span>
+            {/* Modal Footer (Total) */}
+            <div className="flex justify-between items-center p-5 bg-gray-50 border-t border-gray-200">
+              <span className="font-bold text-gray-700">Total Amount</span>
+              <span className="text-xl font-bold text-emerald-600">{formatMoney(selectedOrder.total)}</span>
             </div>
           </div>
         </div>
