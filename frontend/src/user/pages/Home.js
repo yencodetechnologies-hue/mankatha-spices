@@ -494,12 +494,6 @@ const Home = () => {
     setFeaturedProducts(allProducts.filter((product) => product.is_featured).slice(0, 8));
   }, [allProducts, featuredProducts.length]);
 
-  useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
   // Intersection Observer for Reveal Animations
   useEffect(() => {
     const observer = new IntersectionObserver(
