@@ -242,8 +242,8 @@ const AdminCustomersPanel = () => {
           </div>
         </div>
 
-        <div className="customers-table-inner">
-            <table className="customers-table">
+        <div className="customers-table-inner overflow-x-auto w-full">
+            <table className="customers-table w-full min-w-[900px]">
               <thead>
                 <tr>
                   <th>Customer</th>
@@ -333,53 +333,62 @@ const AdminCustomersPanel = () => {
 
       {/* Customer Orders Modal */}
       {selectedCustomer && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setSelectedCustomer(null)}>
-          <div style={{ background: '#fff', borderRadius: '12px', padding: '24px', width: '600px', maxWidth: '90%', maxHeight: '85vh', display: 'flex', flexDirection: 'column', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }} onClick={e => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f4f8ec', margin: '-24px -24px 20px -24px', padding: '24px', borderBottom: '1px solid #d3e1b7', borderTopLeftRadius: '12px', borderTopRightRadius: '12px' }}>
+        <div className="fixed inset-0 z-[9999] bg-black/50 flex items-center justify-center p-4" onClick={() => setSelectedCustomer(null)}>
+          <div className="bg-white rounded-2xl w-full max-w-3xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="flex justify-between items-center bg-[#f4f8ec] p-5 border-b border-[#d3e1b7]">
               <div>
-                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 'bold', color: '#52720d' }}>{selectedCustomer.name}'s Orders</h3>
-                <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#6b9312', fontWeight: '500' }}>
+                <h3 className="m-0 text-lg md:text-xl font-bold text-[#52720d]">{selectedCustomer.name}'s Orders</h3>
+                <p className="m-0 mt-1 text-xs md:text-sm text-[#6b9312] font-medium">
                   {selectedCustomer.email} • {selectedCustomer.phone}
                 </p>
               </div>
-              <button onClick={() => setSelectedCustomer(null)} style={{ border: 'none', background: '#e1ecd0', cursor: 'pointer', fontSize: '14px', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#52720d' }}>✕</button>
+              <button 
+                onClick={() => setSelectedCustomer(null)} 
+                className="border-none bg-[#e1ecd0] cursor-pointer text-sm w-8 h-8 rounded-full flex items-center justify-center text-[#52720d] hover:bg-[#d3e1b7] transition-colors"
+              >
+                ✕
+              </button>
             </div>
 
-            <div style={{ flex: 1, overflowY: 'auto' }}>
+            <div className="p-4 md:p-6 overflow-y-auto flex-1 bg-gray-50">
               {loadingOrders ? null : customerOrders.length === 0 ? (
-                <div style={{ padding: '40px', textAlign: 'center', background: '#f9fafb', borderRadius: '8px', color: '#6b7280' }}>
+                <div className="p-10 text-center bg-white rounded-xl text-gray-500 shadow-sm border border-gray-100">
+                  No orders found for this customer.
                 </div>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div className="flex flex-col gap-4">
                   {customerOrders.map((o) => (
-                    <div key={o._id || o.orderId} style={{ border: '1px solid #e5e7eb', borderRadius: '8px', padding: '16px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+                    <div key={o._id || o.orderId} className="bg-white border border-gray-200 rounded-xl p-4 md:p-5 shadow-sm">
+                      <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-4 gap-2">
                         <div>
-                          <div style={{ fontWeight: 'bold', color: '#111827' }}>Order #{o.orderId}</div>
-                          <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '2px' }}>
+                          <div className="font-bold text-gray-900">Order #{o.orderId}</div>
+                          <div className="text-xs text-gray-500 mt-1 font-medium tracking-wide uppercase">
                             {new Date(o.orderDate).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' })}
                           </div>
                         </div>
-                        <div style={{ textAlign: 'right' }}>
-                          <div style={{ fontWeight: 'bold', color: '#6b9312', fontSize: '16px' }}>{formatMoneyWhole(o.total)}</div>
-                          <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '2px', textTransform: 'capitalize' }}>
+                        <div className="sm:text-right">
+                          <div className="font-bold text-emerald-600 text-lg">{formatMoneyWhole(o.total)}</div>
+                          <div className="text-xs text-gray-500 mt-1 capitalize font-medium">
                             {o.status} • {o.paymentMethod || o.payment}
                           </div>
                         </div>
                       </div>
                       
                       {o.lineItems && o.lineItems.length > 0 && (
-                        <div style={{ marginTop: '12px' }}>
-                          <div style={{ fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase', color: '#9ca3af', marginBottom: '8px' }}>Items Purchased</div>
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <div className="mt-4 pt-4 border-t border-gray-100">
+                          <div className="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-3">Items Purchased</div>
+                          <div className="flex flex-col gap-3">
                             {o.lineItems.map((item, idx) => (
-                              <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '16px', borderBottom: idx !== o.lineItems.length - 1 ? '1px solid #f3f4f6' : 'none', paddingBottom: idx !== o.lineItems.length - 1 ? '12px' : 0 }}>
-                                <div style={{ width: '48px', height: '48px', borderRadius: '8px', backgroundImage: `url(${getCategoryImg(item.category)})`, backgroundSize: 'cover', backgroundPosition: 'center', flexShrink: 0, backgroundColor: '#f3f4f6' }}></div>
-                                <div style={{ flex: 1 }}>
-                                  <div style={{ fontWeight: '600', color: '#111827', fontSize: '13px' }}>{item.name}</div>
-                                  <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '2px' }}>Qty: {item.quantity} x {formatMoney(item.price)}</div>
+                              <div key={idx} className="flex items-center gap-3 md:gap-4">
+                                <div 
+                                  className="w-12 h-12 rounded-lg bg-gray-100 bg-cover bg-center shrink-0 border border-gray-100"
+                                  style={{ backgroundImage: `url(${getCategoryImg(item.category)})` }}
+                                />
+                                <div className="flex-1">
+                                  <div className="font-semibold text-gray-800 text-sm">{item.name}</div>
+                                  <div className="text-xs text-gray-500 mt-1">Qty: {item.quantity} x {formatMoney(item.price)}</div>
                                 </div>
-                                <div style={{ fontWeight: 'bold', color: '#111827', fontSize: '14px' }}>
+                                <div className="font-bold text-gray-900 text-sm">
                                   {formatMoney((item.price || 0) * (item.quantity || 1))}
                                 </div>
                               </div>
