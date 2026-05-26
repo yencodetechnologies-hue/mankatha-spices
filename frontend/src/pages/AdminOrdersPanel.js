@@ -326,8 +326,8 @@ const AdminOrdersPanel = () => {
           </div>
         </div>
 
-        <div className="table-wrap orders-table-wrap">
-            <table className="orders-table">
+        <div className="table-wrap orders-table-wrap overflow-x-auto w-full">
+            <table className="orders-table w-full min-w-[900px]">
               <thead>
                 <tr>
                   <th>Order ID</th>
