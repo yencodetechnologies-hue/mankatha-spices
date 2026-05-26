@@ -188,7 +188,7 @@ const AdminInventoryPanel = () => {
       {data ? (
         <div className="inv-table-card">
           <div className="inv-table-wrap">
-            <table className="inv-table">
+            <table className="inv-table w-full min-w-[800px]">
               <thead>
                 <tr>
                   <th>Product</th>

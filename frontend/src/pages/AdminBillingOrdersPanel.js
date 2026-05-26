@@ -112,7 +112,7 @@ const AdminBillingOrdersPanel = () => {
         {/* Table */}
         <div className="bg-white border border-[#ede6dc] rounded-2xl shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left text-gray-600">
+            <table className="w-full min-w-[900px] text-sm text-left text-gray-600">
               <thead className="bg-gray-50 text-xs uppercase text-gray-500 font-semibold border-b border-gray-200">
                 <tr>
                   <th className="px-5 py-3">Order ID</th>
@@ -135,16 +135,16 @@ const AdminBillingOrdersPanel = () => {
                 ) : (
                   filtered.map((o) => (
                     <tr key={o._id} className="hover:bg-gray-50/50 transition">
-                      <td className="px-5 py-3 font-mono font-bold text-[#b45309]">
+                      <td className="px-5 py-3 font-mono font-bold text-[#b45309] whitespace-nowrap">
                         #{o.orderId}
                       </td>
                       <td className="px-5 py-3 font-medium text-gray-800">
                         {o.customerName || "Walk-in Customer"}
                       </td>
-                      <td className="px-5 py-3 text-gray-500">
+                      <td className="px-5 py-3 text-gray-500 whitespace-nowrap">
                         {o.itemCount || (o.lineItems?.length ?? "—")} item{o.itemCount !== 1 ? "s" : ""}
                       </td>
-                      <td className="px-5 py-3 font-bold text-[#6b9312]">
+                      <td className="px-5 py-3 font-bold text-[#6b9312] whitespace-nowrap">
                         {formatMoney(o.total)}
                       </td>
                       <td className="px-5 py-3">
@@ -152,7 +152,7 @@ const AdminBillingOrdersPanel = () => {
                           Paid
                         </span>
                       </td>
-                      <td className="px-5 py-3 text-gray-500 text-xs">
+                      <td className="px-5 py-3 text-gray-500 text-xs whitespace-nowrap">
                         {fmtDate(o.orderDate || o.createdAt)}
                       </td>
                       <td className="px-5 py-3 text-right">
