@@ -5,6 +5,7 @@ import { WishlistProvider } from './contexts/WishlistContext';
 import { AuthProvider } from './contexts/AuthContext';
 import Header from './components/Layout/Header';
 import Footer from './components/Layout/Footer';
+import MobileBottomNav from './components/Layout/MobileBottomNav';
 import CartNotification from './components/Notifications/CartNotification';
 import Home from './user/pages/Home';
 import Products from './user/pages/Products';
@@ -141,6 +142,7 @@ function AppContent() {
           </Routes>
         </main>
         {!isStaffPortal && <Footer />}
+        {!isStaffPortal && <MobileBottomNav />}
       </div>
 
       {!isStaffPortal && (

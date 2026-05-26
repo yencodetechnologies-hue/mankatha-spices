@@ -17,7 +17,7 @@ const Footer = () => {
    
 
       {/* Main Footer Content */}
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-4 py-8 pb-20 md:pb-12">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Company Info */}
           <div className="col-span-2 lg:col-span-1 flex flex-col md:items-start text-left">
@@ -166,7 +166,7 @@ const Footer = () => {
         href="https://wa.me/447000000000"
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed bottom-6 right-6 bg-[#25D366] text-white p-3.5 rounded-full shadow-lg hover:bg-[#1ebe57] hover:-translate-y-1 hover:shadow-xl transition-all duration-300 z-50 flex items-center justify-center"
+        className="fixed bottom-20 md:bottom-6 right-4 md:right-6 bg-[#25D366] text-white p-3 md:p-3.5 rounded-full shadow-lg hover:bg-[#1ebe57] hover:-translate-y-1 hover:shadow-xl transition-all duration-300 z-50 flex items-center justify-center"
         aria-label="Chat with us on WhatsApp"
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" viewBox="0 0 16 16">

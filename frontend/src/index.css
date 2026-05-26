@@ -203,11 +203,16 @@ body {
 
 /* Layout Helpers */
 .section-padding {
-  @apply py-24 px-4;
+  @apply py-12 px-4 md:py-24;
 }
 
 .container-custom {
   @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+/* Mobile bottom nav clearance */
+.mobile-nav-clearance {
+  @apply pb-20 md:pb-0;
 }
 
 /* Image Zoom */

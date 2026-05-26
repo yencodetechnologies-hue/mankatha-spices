@@ -424,9 +424,6 @@ const BillerNewBillPanel = () => {
   };
 
   if (success) {
-    const subtotal = success.lineItems?.reduce((sum, item) => sum + (item.price || 0) * item.quantity, 0) || 0;
-    const gstAmount = Math.round(subtotal * 0.05 * 100) / 100;
-
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] bg-gradient-to-br from-green-50 to-white rounded-2xl border border-[#ede6dc] shadow-sm p-8">
         {/* On-screen success card — hidden when printing */}

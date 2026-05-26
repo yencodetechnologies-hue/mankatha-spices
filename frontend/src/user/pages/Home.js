@@ -616,7 +616,7 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-slate-50/30">
       {/* Hero Slider with Parallax */}
-      <section className="relative overflow-hidden h-[450px] sm:h-[500px] md:h-[600px]">
+      <section className="relative overflow-hidden h-[320px] sm:h-[400px] md:h-[600px]">
         <div className="relative h-full">
           {/* Decorative Elements */}
           <div className="absolute top-20 left-[10%] w-64 h-64 bg-primary-200/20 rounded-full blur-3xl animate-pulse" />
@@ -648,26 +648,26 @@ const Home = () => {
                   <span className="inline-block text-primary-400 font-bold tracking-widest uppercase mb-4 reveal reveal-up active">
                     Best Organic Market
                   </span>
-                  <h1 className="text-5xl md:text-7xl font-extrabold mb-6 leading-tight text-white drop-shadow-2xl">
+                  <h1 className="text-3xl sm:text-4xl md:text-7xl font-extrabold mb-3 md:mb-6 leading-tight text-white drop-shadow-2xl">
                     {slide.title.split(' ').map((word, i) => (
                       <span key={i} className={i % 2 !== 0 ? 'text-primary-400' : ''}>{word} </span>
                     ))}
                   </h1>
                   {slide.description && (
-                    <p className="text-xl md:text-2xl mb-10 text-gray-200 leading-relaxed max-w-xl">
+                    <p className="text-sm sm:text-base md:text-2xl mb-5 md:mb-10 text-gray-200 leading-relaxed max-w-xl line-clamp-2 md:line-clamp-none">
                       {slide.description}
                     </p>
                   )}
                   <div className="flex flex-wrap gap-4">
                     <Link
                       to={slide.ctaLink}
-                      className="btn-premium flex items-center gap-3 px-10 py-5 text-lg"
+                      className="btn-premium flex items-center gap-2 px-6 py-3 md:px-10 md:py-5 text-sm md:text-lg"
                     >
                       {slide.cta}
                       <ArrowRight size={20} />
                     </Link>
                     {slide.description && (
-                      <button className="glass px-10 py-5 rounded-xl text-white font-bold hover:bg-white/20 transition-all">
+                      <button className="glass px-6 py-3 md:px-10 md:py-5 rounded-xl text-white font-bold hover:bg-white/20 transition-all text-sm md:text-base hidden sm:block">
                         Learn More
                       </button>
                     )}
@@ -678,7 +678,7 @@ const Home = () => {
           ))}
 
           {/* Slider Navigation Icons */}
-          <div className="absolute bottom-24 md:bottom-28 left-1/2 -translate-x-1/2 z-30 flex items-center gap-6 glass px-6 py-3 rounded-2xl">
+          <div className="absolute bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 z-30 flex items-center gap-4 md:gap-6 glass px-4 py-2 md:px-6 md:py-3 rounded-2xl">
             <button onClick={prevSlide} className="text-white hover:text-primary-400 transition-colors">
               <ChevronLeft size={28} />
             </button>
@@ -701,7 +701,7 @@ const Home = () => {
       </section>
 
       {/* Features Section */}
-      <section className="relative z-40 container-custom -mt-12 md:-mt-20 mb-6 reveal reveal-up">
+      <section className="relative z-40 container-custom mt-2 md:-mt-20 mb-6 reveal reveal-up">
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 px-4 py-4 md:px-10 md:py-8">
           <div className="grid grid-cols-3 divide-x divide-gray-100">
             {features.map((feature, i) => (
