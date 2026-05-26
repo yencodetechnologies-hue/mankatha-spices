@@ -590,17 +590,17 @@ const Home = () => {
 
   const features = [
     {
-      icon: <Truck className="text-primary-500 w-6 h-6 md:w-8 md:h-8" />,
+      icon: <Truck className="text-primary-500 w-4 h-4 md:w-8 md:h-8" />,
       title: "Free Delivery",
       description: "Free delivery on orders over $50"
     },
     {
-      icon: <Shield className="text-primary-500 w-6 h-6 md:w-8 md:h-8" />,
+      icon: <Shield className="text-primary-500 w-4 h-4 md:w-8 md:h-8" />,
       title: "100% Organic",
       description: "All products certified organic"
     },
     {
-      icon: <RefreshCw className="text-primary-500 w-6 h-6 md:w-8 md:h-8" />,
+      icon: <RefreshCw className="text-primary-500 w-4 h-4 md:w-8 md:h-8" />,
       title: "Easy Returns",
       description: "30-day return policy"
     }
@@ -691,12 +691,12 @@ const Home = () => {
 
       {/* Features Section */}
       <section className="relative z-40 container-custom -mt-10 md:-mt-20 mb-6 reveal reveal-up">
-        <div className="bg-white rounded-xl md:rounded-2xl shadow-lg border border-gray-100 px-2 py-2 md:px-10 md:py-8">
+        <div className="bg-white rounded-xl md:rounded-2xl shadow-lg border border-gray-100 px-1 py-2 md:px-10 md:py-8">
           <div className="grid grid-cols-3 divide-x divide-gray-100">
             {features.map((feature, i) => (
-              <div key={i} className="flex flex-col items-center text-center px-2 py-2 md:px-6 md:py-4 gap-1.5 md:gap-3">
+              <div key={i} className="flex flex-col items-center text-center px-2 py-2 md:px-6 md:py-4 gap-1 md:gap-3">
                 <div className="w-8 h-8 md:w-14 md:h-14 bg-primary-100 rounded-lg md:rounded-2xl flex items-center justify-center text-primary-600 flex-shrink-0">
-                  <span className="text-primary-500 [&>svg]:w-4 [&>svg]:h-4 md:[&>svg]:w-7 md:[&>svg]:h-7">{feature.icon}</span>
+                  {feature.icon}
                 </div>
                 <div>
                   <h3 className="text-[10px] md:text-base font-bold text-gray-900 leading-tight">{feature.title}</h3>
