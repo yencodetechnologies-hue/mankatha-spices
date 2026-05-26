@@ -417,7 +417,6 @@ const Home = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [allProducts, setAllProducts] = useState(products);
   const [featuredProducts, setFeaturedProducts] = useState([]);
-  const [scrollY, setScrollY] = useState(0);
   const [categoriesList, setCategoriesList] = useState([]);
   const [slides, setSlides] = useState(defaultSlides);
   const [promoBanner, setPromoBanner] = useState(null);
