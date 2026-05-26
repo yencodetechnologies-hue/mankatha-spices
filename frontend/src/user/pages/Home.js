@@ -419,7 +419,7 @@ const Home = () => {
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [scrollY, setScrollY] = useState(0);
   const [categoriesList, setCategoriesList] = useState([]);
-  const [slides, setSlides] = useState([]);
+  const [slides, setSlides] = useState(defaultSlides);
   const [promoBanner, setPromoBanner] = useState(null);
   const [showPromoPopup, setShowPromoPopup] = useState(false);
 
@@ -615,13 +615,9 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-slate-50/30">
-      {/* Hero Slider with Parallax */}
-      <section className="relative overflow-hidden h-[320px] sm:h-[400px] md:h-[600px]">
+      {/* Hero Slider */}
+      <section className="relative overflow-hidden h-[380px] sm:h-[420px] md:h-[600px]">
         <div className="relative h-full">
-          {/* Decorative Elements */}
-          <div className="absolute top-20 left-[10%] w-64 h-64 bg-primary-200/20 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-20 right-[10%] w-96 h-96 bg-primary-200/20 rounded-full blur-3xl animate-pulse delay-1000" />
-          
           {slides.map((slide, index) => (
             <div
               key={slide.id}
@@ -629,72 +625,72 @@ const Home = () => {
                 index === currentSlide ? 'opacity-100 scale-100' : 'opacity-0 scale-110'
               }`}
             >
-              <div
-                className="parallax-bg"
-                style={{ 
-                  backgroundImage: `url(${slide.image})`,
-                  backgroundPosition: 'center',
-                  backgroundSize: 'cover',
-                  transform: `translateY(${scrollY * 0.3}px)`
-                }}
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
-              </div>
-              
-              <div className="relative container-custom h-full flex items-center pb-20 md:pb-28">
-                <div className={`max-w-2xl text-white px-4 transition-all duration-1000 delay-300 ${
-                  index === currentSlide ? 'translate-x-0 opacity-100' : '-translate-x-20 opacity-0'
-                }`}>
-                  <span className="inline-block text-primary-400 font-bold tracking-widest uppercase mb-4 reveal reveal-up active">
-                    Best Organic Market
-                  </span>
-                  <h1 className="text-3xl sm:text-4xl md:text-7xl font-extrabold mb-3 md:mb-6 leading-tight text-white drop-shadow-2xl">
-                    {slide.title.split(' ').map((word, i) => (
-                      <span key={i} className={i % 2 !== 0 ? 'text-primary-400' : ''}>{word} </span>
-                    ))}
-                  </h1>
-                  {slide.description && (
-                    <p className="text-sm sm:text-base md:text-2xl mb-5 md:mb-10 text-gray-200 leading-relaxed max-w-xl line-clamp-2 md:line-clamp-none">
-                      {slide.description}
-                    </p>
-                  )}
-                  <div className="flex flex-wrap gap-4">
-                    <Link
-                      to={slide.ctaLink}
-                      className="btn-premium flex items-center gap-2 px-6 py-3 md:px-10 md:py-5 text-sm md:text-lg"
-                    >
-                      {slide.cta}
-                      <ArrowRight size={20} />
-                    </Link>
+              {/* Background Image — z-0 */}
+              <img
+                src={slide.image}
+                alt={slide.title}
+                className="absolute inset-0 w-full h-full object-cover z-0"
+              />
+              {/* Dark overlay — z-[1] */}
+              <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent z-[1]" />
+
+              {/* Text Content — z-[2] always on top */}
+              <div className="absolute inset-0 z-[2] flex items-center pb-14 sm:pb-16 md:pb-28">
+                <div className="container-custom w-full">
+                  <div className={`max-w-2xl text-white px-4 transition-all duration-1000 delay-300 ${
+                    index === currentSlide ? 'translate-x-0 opacity-100' : '-translate-x-20 opacity-0'
+                  }`}>
+                    <span className="inline-block text-primary-400 font-bold tracking-widest uppercase text-[10px] sm:text-xs md:text-sm mb-2 md:mb-4">
+                      Best Organic Market
+                    </span>
+                    <h1 className="text-2xl sm:text-3xl md:text-7xl font-extrabold mb-2 md:mb-6 leading-tight text-white drop-shadow-2xl">
+                      {slide.title.split(' ').map((word, i) => (
+                        <span key={i} className={i % 2 !== 0 ? 'text-primary-400' : ''}>{word} </span>
+                      ))}
+                    </h1>
                     {slide.description && (
-                      <button className="glass px-6 py-3 md:px-10 md:py-5 rounded-xl text-white font-bold hover:bg-white/20 transition-all text-sm md:text-base hidden sm:block">
-                        Learn More
-                      </button>
+                      <p className="text-xs sm:text-sm md:text-2xl mb-3 md:mb-10 text-gray-200 leading-relaxed max-w-xl line-clamp-2 md:line-clamp-none">
+                        {slide.description}
+                      </p>
                     )}
+                    <div className="flex flex-wrap gap-3 md:gap-4">
+                      <Link
+                        to={slide.ctaLink}
+                        className="btn-premium flex items-center gap-2 px-5 py-2.5 md:px-10 md:py-5 text-xs md:text-lg"
+                      >
+                        {slide.cta}
+                        <ArrowRight size={18} className="md:w-5 md:h-5" />
+                      </Link>
+                      {slide.description && (
+                        <button className="glass px-5 py-2.5 md:px-10 md:py-5 rounded-xl text-white font-bold hover:bg-white/20 transition-all text-xs md:text-base hidden sm:block">
+                          Learn More
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           ))}
 
-          {/* Slider Navigation Icons */}
-          <div className="absolute bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 z-30 flex items-center gap-4 md:gap-6 glass px-4 py-2 md:px-6 md:py-3 rounded-2xl">
+          {/* Slider Navigation — z-30 always on top */}
+          <div className="absolute bottom-3 md:bottom-8 left-1/2 -translate-x-1/2 z-30 flex items-center gap-3 md:gap-6 glass px-3 py-1.5 md:px-6 md:py-3 rounded-xl md:rounded-2xl">
             <button onClick={prevSlide} className="text-white hover:text-primary-400 transition-colors">
-              <ChevronLeft size={28} />
+              <ChevronLeft size={22} className="md:w-7 md:h-7" />
             </button>
-            <div className="flex gap-3">
+            <div className="flex gap-2 md:gap-3">
               {slides.map((_, i) => (
                 <button
                   key={i}
                   onClick={() => setCurrentSlide(i)}
-                  className={`h-2 rounded-full transition-all duration-500 ${
-                    i === currentSlide ? 'w-10 bg-primary-400' : 'w-2 bg-white/30'
+                  className={`h-1.5 md:h-2 rounded-full transition-all duration-500 ${
+                    i === currentSlide ? 'w-8 md:w-10 bg-primary-400' : 'w-1.5 md:w-2 bg-white/30'
                   }`}
                 />
               ))}
             </div>
             <button onClick={nextSlide} className="text-white hover:text-primary-400 transition-colors">
-              <ChevronRight size={28} />
+              <ChevronRight size={22} className="md:w-7 md:h-7" />
             </button>
           </div>
         </div>

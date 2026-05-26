@@ -401,7 +401,7 @@ const AdminOrdersPanel = () => {
                           <option value="Delivered">Delivered</option>
                         </select>
                       </td>
-                      <td>{o.date}</td>
+                      <td style={{ whiteSpace: "nowrap" }}>{o.date}</td>
                       <td>
                         <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
                           <button type="button" className="order-view-btn" onClick={() => setSelectedOrder(o)}>

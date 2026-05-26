@@ -530,11 +530,15 @@ const BillerNewBillPanel = () => {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-140px)]">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:h-[calc(100vh-140px)]">
       {/* ── Products List ── */}
-      <div className="lg:col-span-2 flex flex-col bg-white border border-[#ede6dc] rounded-2xl shadow-sm overflow-hidden h-full">
+      <div className="lg:col-span-2 flex flex-col bg-white border border-[#ede6dc] rounded-2xl shadow-sm overflow-hidden h-[60vh] lg:h-full lg:min-h-0">
         {/* Category Tabs */}
-        <div className="flex items-center gap-2 px-4 py-3 border-b border-[#ede6dc] overflow-x-auto bg-white custom-scrollbar">
+        <div 
+          className="flex items-center gap-2 px-4 py-3 border-b border-[#ede6dc] overflow-x-auto bg-white"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        >
+          <style>{`.overflow-x-auto::-webkit-scrollbar { display: none; }`}</style>
           {categories.map((c) => (
             <button
               key={c}
@@ -557,16 +561,6 @@ const BillerNewBillPanel = () => {
             onChange={(e) => setSearch(e.target.value)}
             className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
           />
-          {/* Hide select on larger screens since we have pills, show on mobile if pills are too small, actually just keep it */}
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
-          >
-            {categories.map((c) => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </select>
         </div>
 
         <div className="flex-1 overflow-y-auto p-4 bg-gray-50/20">
@@ -596,7 +590,7 @@ const BillerNewBillPanel = () => {
       </div>
 
       {/* ── Cart / Bill ── */}
-      <div className="flex flex-col bg-white border border-[#ede6dc] rounded-2xl shadow-sm overflow-hidden h-full">
+      <div className="flex flex-col bg-white border border-[#ede6dc] rounded-2xl shadow-sm overflow-hidden min-h-[500px] lg:h-full lg:min-h-0">
         <div className="p-4 border-b border-[#ede6dc] bg-gray-50 flex items-center justify-between">
           <h3 className="font-semibold text-[#3d2f26] flex items-center gap-2">
             <ShoppingCart size={18} className="text-primary-600" />

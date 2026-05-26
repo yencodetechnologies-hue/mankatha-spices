@@ -77,23 +77,34 @@ const SkeletonChart = () => (
 );
 
 const SkeletonRecentOrders = () => (
-  <div className="overview-recent-card animate-pulse bg-white border border-[#ede6dc] p-6">
-    <div className="h-4 bg-gray-200 rounded w-32 mb-6" />
-    <div className="space-y-4">
-      {[1, 2, 3, 4].map((i) => (
-        <div key={i} className="flex justify-between items-center border-b border-gray-100 pb-3 last:border-0 last:pb-0">
-          <div className="flex gap-4 items-center">
-            <div className="h-8 w-8 rounded-full bg-gray-200" />
-            <div className="space-y-2">
-              <div className="h-3 bg-gray-200 rounded w-24" />
-              <div className="h-2.5 bg-gray-150 rounded w-32" />
-            </div>
+  <section className="mt-8">
+    <div className="flex justify-between items-center mb-6">
+      <div className="h-6 bg-gray-200 rounded w-40" />
+      <div className="h-10 bg-gray-200 rounded w-24" />
+    </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      {[1, 2, 3].map((i) => (
+        <div key={i} className="animate-pulse bg-white border border-[#ede6dc] rounded-2xl p-5 shadow-sm">
+          <div className="flex justify-between mb-4">
+             <div className="h-5 bg-gray-200 rounded w-20" />
+             <div className="h-6 bg-gray-200 rounded-full w-24" />
           </div>
-          <div className="h-5 bg-gray-200 rounded w-16" />
+          <div className="flex gap-3 items-center mb-4">
+            <div className="h-10 w-10 rounded-full bg-gray-200" />
+            <div className="h-4 bg-gray-200 rounded w-28" />
+          </div>
+          <div className="space-y-2 mb-4">
+            <div className="h-3 bg-gray-200 rounded w-full" />
+            <div className="h-3 bg-gray-200 rounded w-3/4" />
+          </div>
+          <div className="pt-4 border-t border-gray-100 flex justify-between">
+            <div className="h-6 bg-gray-200 rounded w-16" />
+            <div className="h-4 bg-gray-200 rounded w-16 mt-2" />
+          </div>
         </div>
       ))}
     </div>
-  </div>
+  </section>
 );
 
 const AdminOverviewPanel = () => {
@@ -288,65 +299,59 @@ const AdminOverviewPanel = () => {
             </div>
           </section>
 
-          <section className="overview-recent-card">
-            <div className="overview-recent-head">
-              <h3 className="overview-recent-title">Recent Orders</h3>
-              <Link to="/adminpanel/orders" className="overview-view-all">
+          <section className="mt-8">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-bold text-gray-900" style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}>Recent Orders</h3>
+              <Link to="/adminpanel/orders" className="px-4 py-2 bg-white border border-gray-200 text-sm font-semibold rounded-lg shadow-sm hover:bg-gray-50 transition-colors text-gray-700">
                 View All →
               </Link>
             </div>
-            <div className="table-wrap overview-recent-table">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Order ID</th>
-                    <th>Customer</th>
-                    <th>Products</th>
-                    <th>Amount</th>
-                    <th>Status</th>
-                    <th>Date</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recentOrders.length === 0 ? (
-                    <tr>
-                      <td colSpan={6} className="orders-empty-cell">
-                       
-                      </td>
-                    </tr>
-                  ) : (
-                    recentOrders.map((o, idx) => (
-                      <tr key={o.orderId} className={idx === 0 ? "overview-recent-highlight" : ""}>
-                        <td>
-                          <span className="order-id-link">#{o.orderId}</span>
-                        </td>
-                        <td>
-                          <div className="order-customer-cell">
-                            <span
-                              className="order-avatar"
-                              style={{ background: `hsl(${hueFromName(o.customerName)} 55% 42%)` }}
-                              aria-hidden
-                            >
-                              {initialsFromName(o.customerName)}
-                            </span>
-                            {o.customerName}
-                          </div>
-                        </td>
-                        <td className="overview-products-cell">{o.productsLabel}</td>
-                        <td className="order-total-cell">{formatMoneyWhole(o.amount)}</td>
-                        <td>
-                          <span className={statusPill(o.status)}>
-                            <span className={statusDot(o.status)} />
-                            {o.status}
-                          </span>
-                        </td>
-                        <td>{recentDateShort(o.orderDate)}</td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
+            
+            {recentOrders.length === 0 ? (
+              <div className="bg-white border border-[#ede6dc] rounded-2xl p-8 text-center text-gray-500 shadow-sm">
+                No recent orders found.
+              </div>
+            ) : (
+              <div className="bg-white border border-[#ede6dc] rounded-2xl shadow-sm overflow-hidden">
+                <div className="divide-y divide-gray-100">
+                  {recentOrders.map((o) => (
+                    <div key={o.orderId} className="p-4 sm:p-5 hover:bg-slate-50 flex flex-col md:flex-row md:items-center justify-between gap-4 transition-colors">
+                      {/* Customer Info & Order ID */}
+                      <div className="flex items-center gap-3 w-full md:w-[25%] shrink-0">
+                        <span
+                          className="flex items-center justify-center w-9 h-9 rounded-full text-white font-bold text-xs shadow-sm flex-shrink-0"
+                          style={{ background: `hsl(${hueFromName(o.customerName)} 55% 42%)` }}
+                        >
+                          {initialsFromName(o.customerName)}
+                        </span>
+                        <div>
+                           <p className="font-semibold text-gray-900 text-sm truncate">{o.customerName}</p>
+                           <p className="text-xs text-gray-500 font-medium">#{o.orderId}</p>
+                        </div>
+                      </div>
+                      
+                      {/* Products Summary */}
+                      <div className="text-sm text-gray-500 line-clamp-1 flex-grow hidden lg:block">
+                        {o.productsLabel}
+                      </div>
+
+                      {/* Status, Amount, Date */}
+                      <div className="flex items-center justify-between md:justify-end w-full md:w-auto gap-4 md:gap-8 shrink-0">
+                         <div className={statusPill(o.status) + " !py-1 !px-2"}>
+                           <span className={statusDot(o.status)} />
+                           {o.status}
+                         </div>
+                         
+                         <div className="text-right">
+                           <p className="font-bold text-gray-900">{formatMoneyWhole(o.amount)}</p>
+                           <p className="text-[11px] text-gray-400 font-medium uppercase tracking-wider">{recentDateShort(o.orderDate)}</p>
+                         </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </section>
         </>
       )}

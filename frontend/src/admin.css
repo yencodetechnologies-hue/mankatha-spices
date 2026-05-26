@@ -222,12 +222,24 @@
 .modal-form input:not([type="checkbox"]):not([type="radio"]),
 .modal-form textarea,
 .modal-form select {
-  border: 1px solid #f2c9a6;
-  border-radius: 12px;
-  padding: 0.72rem 0.9rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 0.85rem 1.1rem;
   width: 100%;
-  background: #fff;
-  font-size: 1.05rem;
+  background: #f9fafb;
+  font-size: 1rem;
+  color: #1f2937;
+  transition: all 0.2s ease-in-out;
+}
+
+.toolbar input:hover,
+.toolbar select:hover,
+.table-controls select:hover,
+.modal-form input:not([type="checkbox"]):not([type="radio"]):hover,
+.modal-form textarea:hover,
+.modal-form select:hover {
+  border-color: #d1d5db;
+  background: #ffffff;
 }
 
 .toolbar input:focus,
@@ -237,8 +249,9 @@
 .modal-form textarea:focus,
 .modal-form select:focus {
   outline: none;
+  background: #ffffff;
   border-color: #6b9312;
-  box-shadow: 0 0 0 3px rgba(107, 147, 18, 0.15);
+  box-shadow: 0 0 0 4px rgba(107, 147, 18, 0.1);
 }
 
 .modal-form input[type="checkbox"],
@@ -2387,15 +2400,30 @@ th {
 
 .admin-settings-page .form-group input,
 .admin-settings-page .form-group select {
-  border: 1px solid #f2c9a6;
-  border-radius: 12px;
-  padding: 0.72rem 0.9rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 0.85rem 1.1rem;
   width: 100%;
-  background: #fff;
-  font-size: 1.05rem;
+  background: #f9fafb;
+  font-size: 1rem;
   font-weight: 500;
-  color: #1c1917;
+  color: #1f2937;
+  transition: all 0.2s ease-in-out;
   box-sizing: border-box;
+}
+
+.admin-settings-page .form-group input:hover,
+.admin-settings-page .form-group select:hover {
+  border-color: #d1d5db;
+  background: #ffffff;
+}
+
+.admin-settings-page .form-group input:focus,
+.admin-settings-page .form-group select:focus {
+  outline: none;
+  background: #ffffff;
+  border-color: #6b9312;
+  box-shadow: 0 0 0 4px rgba(107, 147, 18, 0.1);
 }
 
 .settings-toggle-list {
@@ -2795,13 +2823,7 @@ th {
   border: 1px solid #e1eccb;
 }
 
-.modal-form input:not([type="checkbox"]):not([type="radio"]),
-.modal-form textarea,
-.modal-form select,
-.toolbar input,
-.toolbar select {
-  border-color: #cfd8dc;
-}
+/* Removed border override so that the global clean input styles apply seamlessly */
 
 .admin-nav-badge {
   background: #ffffff;
@@ -2945,37 +2967,3 @@ th {
   transform: translateX(0);
 }
 
-/* Mobile Card Tables */
-@media (max-width: 768px) {
-  table {
-    display: block;
-    width: 100%;
-  }
-  thead {
-    display: none;
-  }
-  tbody {
-    display: block;
-    width: 100%;
-  }
-  tr {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 1.2rem;
-    background: #fff;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    padding: 1.25rem 1rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    gap: 0.6rem;
-  }
-  td {
-    display: block;
-    text-align: left;
-    padding: 0.4rem 0;
-    border-bottom: 1px dashed #f3f4f6;
-  }
-  td:last-child {
-    border-bottom: none;
-  }
-}

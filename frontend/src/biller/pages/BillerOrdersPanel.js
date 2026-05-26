@@ -123,15 +123,15 @@ const BillerOrdersPanel = () => {
                       <td className="px-5 py-3 text-gray-500">
                         {o.itemCount || (o.lineItems?.length ?? "—")} item{o.itemCount !== 1 ? "s" : ""}
                       </td>
-                      <td className="px-5 py-3 font-bold text-[#6b9312]">
+                      <td className="px-5 py-3 font-bold text-[#6b9312] whitespace-nowrap">
                         {formatMoney(o.total)}
                       </td>
-                      <td className="px-5 py-3">
+                      <td className="px-5 py-3 whitespace-nowrap">
                         <span className="inline-flex items-center text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-[#dcfce7] text-[#166534]">
                           Paid
                         </span>
                       </td>
-                      <td className="px-5 py-3 text-gray-500 text-xs">
+                      <td className="px-5 py-3 text-gray-500 text-xs whitespace-nowrap">
                         {fmtDate(o.orderDate || o.createdAt)}
                       </td>
                       <td className="px-5 py-3 text-right">
