@@ -667,7 +667,7 @@ const Home = () => {
           ))}
 
           {/* Slider Navigation — z-30 always on top */}
-          <div className="absolute bottom-3 md:bottom-8 left-1/2 -translate-x-1/2 z-30 flex items-center gap-3 md:gap-6 glass px-3 py-1.5 md:px-6 md:py-3 rounded-xl md:rounded-2xl">
+          <div className="absolute bottom-16 md:bottom-28 left-1/2 -translate-x-1/2 z-30 flex items-center gap-3 md:gap-6 glass px-3 py-1.5 md:px-6 md:py-3 rounded-xl md:rounded-2xl">
             <button onClick={prevSlide} className="text-white hover:text-primary-400 transition-colors">
               <ChevronLeft size={22} className="md:w-7 md:h-7" />
             </button>
@@ -690,16 +690,16 @@ const Home = () => {
       </section>
 
       {/* Features Section */}
-      <section className="relative z-40 container-custom mt-2 md:-mt-20 mb-6 reveal reveal-up">
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 px-4 py-4 md:px-10 md:py-8">
+      <section className="relative z-40 container-custom -mt-10 md:-mt-20 mb-6 reveal reveal-up">
+        <div className="bg-white rounded-xl md:rounded-2xl shadow-lg border border-gray-100 px-2 py-2 md:px-10 md:py-8">
           <div className="grid grid-cols-3 divide-x divide-gray-100">
             {features.map((feature, i) => (
-              <div key={i} className="flex flex-col items-center text-center px-2 md:px-6 gap-2">
-                <div className="w-10 h-10 md:w-14 md:h-14 bg-primary-100 rounded-xl md:rounded-2xl flex items-center justify-center text-primary-600 flex-shrink-0">
-                  {feature.icon}
+              <div key={i} className="flex flex-col items-center text-center px-2 py-2 md:px-6 md:py-4 gap-1.5 md:gap-3">
+                <div className="w-8 h-8 md:w-14 md:h-14 bg-primary-100 rounded-lg md:rounded-2xl flex items-center justify-center text-primary-600 flex-shrink-0">
+                  <span className="text-primary-500 [&>svg]:w-4 [&>svg]:h-4 md:[&>svg]:w-7 md:[&>svg]:h-7">{feature.icon}</span>
                 </div>
                 <div>
-                  <h3 className="text-[11px] md:text-base font-bold text-gray-900 leading-tight">{feature.title}</h3>
+                  <h3 className="text-[10px] md:text-base font-bold text-gray-900 leading-tight">{feature.title}</h3>
                   <p className="text-gray-400 text-[9px] md:text-sm mt-0.5 leading-tight hidden md:block">{feature.description}</p>
                 </div>
               </div>
