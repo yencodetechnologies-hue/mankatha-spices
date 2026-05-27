@@ -432,6 +432,15 @@ async function resetPassword(req, res) {
     user.forgotOtpExpires = null;
     await user.save();
 
+    const Notification = require("../models/Notification");
+    await Notification.create({
+      user: user._id,
+      title: "Password Reset Successful",
+      message: "Your password has been successfully reset.",
+      icon: "🔒",
+      color: "bg-blue-100"
+    });
+
     res.json({ message: "Password updated successfully! You can log in now." });
   } catch (err) {
     console.error(err);
@@ -462,6 +471,15 @@ async function changePassword(req, res) {
     const hashed = await bcrypt.hash(String(newPassword), 10);
     user.password = hashed;
     await user.save();
+
+    const Notification = require("../models/Notification");
+    await Notification.create({
+      user: user._id,
+      title: "Password Changed",
+      message: "Your password has been successfully updated.",
+      icon: "🔑",
+      color: "bg-green-100"
+    });
 
     res.json({ message: "Password updated successfully!" });
   } catch (err) {

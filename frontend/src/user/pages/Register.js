@@ -45,7 +45,13 @@ const Register = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    let filtered = value;
+    if (['firstName', 'lastName'].includes(name)) {
+      filtered = value.replace(/[^a-zA-Z\s.\-']/g, '');
+    } else if (name === 'phone') {
+      filtered = value.replace(/\D/g, '');
+    }
+    setFormData(prev => ({ ...prev, [name]: filtered }));
     // Clear error for this field when user starts typing
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));

@@ -26,7 +26,7 @@ const ProductCard = ({ product, index }) => {
   const { items: cartItems, addToCart, updateQuantity } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
   const hasVariants = product.pricing && product.pricing.length > 0 && product.pricing[0].weights && product.pricing[0].weights.length > 0;
-  
+
   const variants = hasVariants ? product.pricing[0].weights.map(w => ({
     weight: w.weight,
     price: w.price,
@@ -169,7 +169,7 @@ const ProductCard = ({ product, index }) => {
             </div>
             <div className="text-[10px] text-gray-500 mt-1 italic tracking-tight">(Inclusive of all taxes)</div>
           </div>
-          
+
           {/* OFF Box */}
           {discount > 0 && (
             <div className="bg-green-50 text-green-700 px-2 py-1 md:px-3 md:py-1.5 rounded-md text-center flex flex-col justify-center border border-green-100">
@@ -193,7 +193,7 @@ const ProductCard = ({ product, index }) => {
             ))}
           </select>
           <div className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
-            <ChevronDown size={14} className="text-gray-400 md:w-4 md:h-4"/>
+            <ChevronDown size={14} className="text-gray-400 md:w-4 md:h-4" />
           </div>
         </div>
 
@@ -201,11 +201,10 @@ const ProductCard = ({ product, index }) => {
         <div className="flex items-center gap-1.5 md:gap-2 mt-2 w-full">
           <button
             onClick={() => toggleWishlist(product)}
-            className={`border rounded w-8 h-8 md:w-[42px] md:h-[42px] flex items-center justify-center transition-colors bg-white flex-shrink-0 ${
-              isInWishlist(product._id || product.id)
-                ? "border-primary-400 text-primary-600 bg-primary-50/50"
-                : "border-gray-300 text-gray-500 hover:text-primary-600 hover:border-primary-300"
-            }`}
+            className={`border rounded w-8 h-8 md:w-[42px] md:h-[42px] flex items-center justify-center transition-colors bg-white flex-shrink-0 ${isInWishlist(product._id || product.id)
+              ? "border-primary-400 text-primary-600 bg-primary-50/50"
+              : "border-gray-300 text-gray-500 hover:text-primary-600 hover:border-primary-300"
+              }`}
           >
             <Heart size={16} className={isInWishlist(product._id || product.id) ? "fill-primary-500 text-primary-500" : "md:w-5 md:h-5"} />
           </button>
@@ -226,34 +225,33 @@ const ProductCard = ({ product, index }) => {
               <span className="text-[10px] md:text-sm">Add to Cart</span>
             </button>
           ) : (
-          <div className="flex items-center gap-1 md:gap-2 w-full">
-            <div className="flex items-center border border-gray-300 rounded flex-1 h-8 md:h-[42px] overflow-hidden">
-              <button
-                onClick={handleDecrease}
-                className="bg-gray-100 text-gray-600 w-8 md:w-12 h-full flex items-center justify-center hover:bg-gray-200 transition-colors"
-              >
-                <Minus size={14} className="md:w-4 md:h-4" />
-              </button>
-              <div className="flex-1 flex items-center justify-center font-bold text-gray-800 text-sm md:text-base">
-                {qty}
-              </div>
-              <button
-                onClick={handleIncrease}
-                className={`w-8 md:w-12 h-full flex items-center justify-center transition-colors ${
-                  currentVariant.stock !== undefined && qty >= currentVariant.stock
+            <div className="flex items-center gap-1 md:gap-2 w-full">
+              <div className="flex items-center border border-gray-300 rounded flex-1 h-8 md:h-[42px] overflow-hidden">
+                <button
+                  onClick={handleDecrease}
+                  className="bg-gray-100 text-gray-600 w-8 md:w-12 h-full flex items-center justify-center hover:bg-gray-200 transition-colors"
+                >
+                  <Minus size={14} className="md:w-4 md:h-4" />
+                </button>
+                <div className="flex-1 flex items-center justify-center font-bold text-gray-800 text-sm md:text-base">
+                  {qty}
+                </div>
+                <button
+                  onClick={handleIncrease}
+                  className={`w-8 md:w-12 h-full flex items-center justify-center transition-colors ${currentVariant.stock !== undefined && qty >= currentVariant.stock
                     ? "bg-gray-300 text-gray-500 cursor-pointer"
                     : "bg-primary-500 text-white hover:bg-primary-600"
-                }`}
+                    }`}
+                >
+                  <Plus size={14} className="md:w-4 md:h-4" />
+                </button>
+              </div>
+              <button
+                onClick={() => updateQuantity(variantCartItemId, 0)}
+                className="border border-gray-300 rounded w-8 h-8 md:w-[42px] md:h-[42px] flex items-center justify-center text-gray-500 hover:text-primary-600 hover:border-primary-300 transition-colors bg-white flex-shrink-0"
               >
-                <Plus size={14} className="md:w-4 md:h-4" />
+                <X size={16} className="md:w-5 md:h-5" />
               </button>
-            </div>
-            <button
-              onClick={() => updateQuantity(variantCartItemId, 0)}
-              className="border border-gray-300 rounded w-8 h-8 md:w-[42px] md:h-[42px] flex items-center justify-center text-gray-500 hover:text-primary-600 hover:border-primary-300 transition-colors bg-white flex-shrink-0"
-            >
-              <X size={16} className="md:w-5 md:h-5" />
-            </button>
             </div>
           )}
         </div>
@@ -529,7 +527,7 @@ const Home = () => {
       const stored = localStorage.getItem("mankatha_sliders_v2");
       if (stored) {
         const parsed = JSON.parse(stored);
-        const activeSliders = parsed.filter(s => s.isActive === true).sort((a,b) => (Number(a.order) || 99) - (Number(b.order) || 99));
+        const activeSliders = parsed.filter(s => s.isActive === true).sort((a, b) => (Number(a.order) || 99) - (Number(b.order) || 99));
         if (activeSliders.length > 0) {
           const mappedSlides = activeSliders.map(s => ({
             id: s.id,
@@ -557,11 +555,11 @@ const Home = () => {
         const banners = JSON.parse(storedBanners);
         if (banners.length > 0 && banners[0].isActive) {
           setPromoBanner(banners[0]);
-          
+
           // Temporarily bypassing the 'seen once' logic so you can test it easily
           // const hasSeen = sessionStorage.getItem(`seen_promo_${banners[0].id}`);
           // if (!hasSeen) {
-            setShowPromoPopup(true);
+          setShowPromoPopup(true);
           // }
         }
       } else {
@@ -614,9 +612,8 @@ const Home = () => {
           {slides.map((slide, index) => (
             <div
               key={slide.id}
-              className={`absolute inset-0 transition-all duration-1000 ease-in-out ${
-                index === currentSlide ? 'opacity-100 scale-100' : 'opacity-0 scale-110'
-              }`}
+              className={`absolute inset-0 transition-all duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100 scale-100' : 'opacity-0 scale-110'
+                }`}
             >
               {/* Background Image — z-0 */}
               <img
@@ -628,11 +625,10 @@ const Home = () => {
               <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent z-[1]" />
 
               {/* Text Content — z-[2] always on top */}
-              <div className="absolute inset-0 z-[2] flex items-center pb-14 sm:pb-16 md:pb-28">
+              <div className="absolute inset-0 z-[2] flex items-end md:items-center pb-24 md:pb-28">
                 <div className="container-custom w-full">
-                  <div className={`max-w-2xl text-white px-4 transition-all duration-1000 delay-300 ${
-                    index === currentSlide ? 'translate-x-0 opacity-100' : '-translate-x-20 opacity-0'
-                  }`}>
+                  <div className={`max-w-2xl text-white px-4 transition-all duration-1000 delay-300 ${index === currentSlide ? 'translate-x-0 opacity-100' : '-translate-x-20 opacity-0'
+                    }`}>
                     <span className="inline-block text-primary-400 font-bold tracking-widest uppercase text-[10px] sm:text-xs md:text-sm mb-2 md:mb-4">
                       Best Organic Market
                     </span>
@@ -676,9 +672,8 @@ const Home = () => {
                 <button
                   key={i}
                   onClick={() => setCurrentSlide(i)}
-                  className={`h-1.5 md:h-2 rounded-full transition-all duration-500 ${
-                    i === currentSlide ? 'w-8 md:w-10 bg-primary-400' : 'w-1.5 md:w-2 bg-white/30'
-                  }`}
+                  className={`h-1.5 md:h-2 rounded-full transition-all duration-500 ${i === currentSlide ? 'w-8 md:w-10 bg-primary-400' : 'w-1.5 md:w-2 bg-white/30'
+                    }`}
                 />
               ))}
             </div>
@@ -707,28 +702,28 @@ const Home = () => {
           </div>
         </div>
       </section>
-      
+
       {/* Promo Banner Popup */}
       {showPromoPopup && promoBanner && promoBanner.imageUrl && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 animate-fade-in">
           {/* Blurred Backdrop */}
-          <div 
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" 
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
             onClick={closePromoPopup}
           />
-          
+
           {/* Modal Content */}
           <div className="relative z-10 w-fit mx-auto max-w-3xl bg-transparent rounded-3xl overflow-hidden shadow-2xl transform transition-all scale-100 animate-scale-up">
-            <button 
+            <button
               onClick={closePromoPopup}
               className="absolute top-4 right-4 z-50 bg-black/50 hover:bg-black/80 text-white w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md transition-colors"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             </button>
             <Link to={promoBanner.link || "/products"} onClick={closePromoPopup} className="block group">
-              <img 
-                src={promoBanner.imageUrl} 
-                alt={promoBanner.title || "Promotional Banner"} 
+              <img
+                src={promoBanner.imageUrl}
+                alt={promoBanner.title || "Promotional Banner"}
                 className="w-auto h-auto max-w-full max-h-[80vh] rounded-3xl object-contain"
               />
             </Link>
@@ -750,7 +745,7 @@ const Home = () => {
               View All Categories <ArrowRight size={20} />
             </Link>
           </div>
-          
+
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
             {categoriesList.slice(0, 8).map((category, i) => (
               <Link
@@ -791,7 +786,7 @@ const Home = () => {
               Our most popular organic picks, hand-selected for quality and nutritional value.
             </p>
           </div>
-          
+
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-8">
             {featuredProducts.map((product, index) => (
               <ProductCard key={product._id || product.id} product={product} index={index} />
@@ -803,8 +798,8 @@ const Home = () => {
       {/* Promo Banner */}
       <section className="section-padding container-custom reveal reveal-up">
         <div className="relative h-[400px] rounded-[3rem] overflow-hidden group">
-          <img 
-            src="https://images.unsplash.com/photo-1542838132-92c53300491e?w=1600&h=600&fit=crop" 
+          <img
+            src="https://images.unsplash.com/photo-1542838132-92c53300491e?w=1600&h=600&fit=crop"
             alt="Promo"
             className="absolute inset-0 w-full h-full object-cover transform transition-transform duration-[2s] group-hover:scale-105"
           />

@@ -110,7 +110,7 @@ const Contact = () => {
                         placeholder="John Doe"
                         className="w-full px-6 py-4 bg-slate-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
                         value={formState.name}
-                        onChange={(e) => setFormState({...formState, name: e.target.value})}
+                        onChange={(e) => setFormState({...formState, name: e.target.value.replace(/[^a-zA-Z\s.\-']/g, '')})}
                       />
                     </div>
                     <div className="space-y-2">

@@ -74,12 +74,25 @@ const Checkout = () => {
     }
   };
 
+  // Fields that should only accept letters and spaces
+  const ALPHA_FIELDS = ['firstName', 'lastName', 'city', 'state', 'country', 'cardName'];
+  // Fields that should only accept digits
+  const NUMERIC_FIELDS = ['phone', 'zipCode', 'cardNumber', 'cvv'];
+
   const handleInputChange = (e, section) => {
     const { name, value } = e.target;
+    let filtered = value;
+    if (ALPHA_FIELDS.includes(name)) {
+      // Only allow letters, spaces, dots, hyphens
+      filtered = value.replace(/[^a-zA-Z\s.\-']/g, '');
+    } else if (NUMERIC_FIELDS.includes(name)) {
+      // Only allow digits
+      filtered = value.replace(/\D/g, '');
+    }
     if (section === 'shipping') {
-      setShippingInfo(prev => ({ ...prev, [name]: value }));
+      setShippingInfo(prev => ({ ...prev, [name]: filtered }));
     } else {
-      setPaymentInfo(prev => ({ ...prev, [name]: value }));
+      setPaymentInfo(prev => ({ ...prev, [name]: filtered }));
     }
   };
 
