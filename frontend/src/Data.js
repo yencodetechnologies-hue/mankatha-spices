@@ -26,51 +26,29 @@ import {
 export const navLinks = [
 	{
 		title: "Home",
-		to: "/Care/",
+		to: "/",
 	},
-	// {
-	// 	title: "Page 2",
-	// 	to: "/services",
-	// 	submenu: [
-	// 		{
-	// 			title: "page2",
-	// 			to: "/services/web-design", // corrected to include the full path
-	// 		},
-	// 	],
-	// },
-	// {
-	// 	title: "About Us",
-	// 	to: "/services",
-	// 	submenu: [
-	// 		{
-	// 			title: "WebDesd",
-	// 			to: "/services/web-design", // corrected to include the full path
-	// 		},
-	// 	],
-	// },
 	{
 		title: "About Us",
-		to: "/about",
+		to: "/Care/about",
 	},
 	{
 		title: "Contact Us",
-		to: "/contact",
+		to: "/Care/contact",
 	},
 
 
 	{
 		title: "Join Us",
-		to: "Careerr",
-		// to: "/mankathaspecieser/volunteer",
+		to: "/Care/Careerr",
 		submenu: [
 			{
 				title: "Volunteer",
-				// to: "/mankathaspecieser/volunteer", // corrected to include the full path
-				to: "volunteer", // corrected to include the full path
+				to: "/Care/volunteer",
 			},
 			{
 				title: "Career",
-				to: "Careerr", // corrected to include the full path
+				to: "/Care/Careerr",
 			},
 		],
 	},

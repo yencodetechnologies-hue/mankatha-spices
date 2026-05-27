@@ -64,6 +64,7 @@ function AppContent() {
   const path = location.pathname.toLowerCase();
   const isStaffPortal =
     path === '/' ||
+    path.startsWith('/care') ||
     path.startsWith('/adminpanel') ||
     path.startsWith('/vendor') ||
     path.startsWith('/biller') ||
