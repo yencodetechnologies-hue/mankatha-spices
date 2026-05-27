@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Plus, X, ShieldAlert, Eye, EyeOff, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus,ShieldAlert, Eye, EyeOff, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { billerApi } from "../api/billerApi";
 
 const AdminBillersPanel = () => {
