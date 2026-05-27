@@ -262,13 +262,13 @@ const Header = () => {
             </div>
 
             {/* Delivery Time */}
-            <div className="hidden lg:flex flex-col shrink-0">
+            {/* <div className="hidden lg:flex flex-col shrink-0">
               <div className="text-xs text-gray-500">Earliest <span className="text-primary-600 font-semibold">Home Delivery</span></div>
               <div className="text-sm font-bold text-gray-800 flex items-center mt-0.5 gap-1">
                 <Clock size={13} className="text-orange-500" />
                 Today 03:00 PM – 06:00 PM
               </div>
-            </div>
+            </div> */}
 
             {/* Search Bar */}
             <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-2xl">

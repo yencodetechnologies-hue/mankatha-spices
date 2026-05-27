@@ -119,6 +119,19 @@ const ProductDetail = () => {
     }
   };
 
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: product.name,
+        text: `Check out ${product.name} at Mankatha Spices!`,
+        url: window.location.href,
+      }).catch(console.error);
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      alert('Link copied to clipboard!');
+    }
+  };
+
   const RelatedProductCard = ({ relatedProduct }) => {
 
     return (
@@ -388,7 +401,10 @@ const ProductDetail = () => {
                 >
                   <Heart size={20} className={isInWishlist(product._id || product.id) ? 'fill-primary-500 text-primary-500 animate-heartBeat' : ''} />
                 </button>
-                <button className="p-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                <button 
+                  onClick={handleShare}
+                  className="p-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                >
                   <Share2 size={20} />
                 </button>
               </div>

@@ -112,7 +112,7 @@ const Hero = () => {
                   </Link>
                   <Link to="/mankathaspecies">
                     <button className="join-button animate-slideImage2 relative px-6 py-2 bg-[#8DC63F] rounded-full font-nunito font-bold text-white text-[17px] leading-[29.8px] tracking-[0.25px] overflow-hidden">
-                      <span className="relative z-10">Grab Your order</span>
+                      <span className="relative z-10">Mankatha Angadi</span>
                     </button>
                   </Link>
                 </div>

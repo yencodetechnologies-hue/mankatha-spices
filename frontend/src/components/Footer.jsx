@@ -51,7 +51,7 @@ const Footer = () => {
 									<img src={arrow} className="animate-bounce" alt="" />
 								</div>
 								<div>
-									<Link to="/volunteer">
+									<Link to="/Care/volunteer">
 										<button className="font-nunito bg-white rounded-full px-[37px] py-[8px] font-bold text-[17px] leading-[30px] tracking-[0.25px] text-[#122F2A]">
 											Join us now
 										</button>
@@ -110,11 +110,11 @@ const Footer = () => {
 									Quick Link
 								</p>
 								<div className="decoration-none mt-2 font-nunito font-normal text-[#BCBCBC] text-[16px] leading-[41px] tracking-[0.33px]">
-									<p> <Link to="/about">About Us</Link></p>
+									<p> <Link to="/Care/about">About Us</Link></p>
 
-									<p><Link to="/contact">Contact Us		</Link></p>
-									<p><Link to="/volunteer">Volunteer		</Link></p>
-									<p><Link to="/Careerr">Career		</Link></p>
+									<p><Link to="/Care/contact">Contact Us		</Link></p>
+									<p><Link to="/Care/volunteer">Volunteer		</Link></p>
+									<p><Link to="/Care/Careerr">Career		</Link></p>
 								</div>
 							</div>
 							{/* 4th div */}

@@ -199,10 +199,10 @@ const AdminCategoryPanel = () => {
                     type="button"
                     title="Rename"
                     onClick={(e) => openEdit(cat, e)}
-                    className={`p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity ${
+                    className={`p-1.5 rounded-lg transition-colors ${
                       isSelected
                         ? "hover:bg-white/20 text-white"
-                        : "hover:bg-[#eaf0d8] text-[#6b9312]"
+                        : "text-[#6b9312] hover:bg-[#eaf0d8]"
                     }`}
                     style={{ boxShadow: "none", background: "transparent", border: "none" }}
                   >
@@ -214,10 +214,10 @@ const AdminCategoryPanel = () => {
                     type="button"
                     title="Delete"
                     onClick={(e) => openDelete(cat, e)}
-                    className={`p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity ${
+                    className={`p-1.5 rounded-lg transition-colors ${
                       isSelected
                         ? "hover:bg-white/20 text-white"
-                        : "hover:bg-red-50 text-red-500"
+                        : "text-red-500 hover:bg-red-50"
                     }`}
                     style={{ boxShadow: "none", background: "transparent", border: "none" }}
                   >
