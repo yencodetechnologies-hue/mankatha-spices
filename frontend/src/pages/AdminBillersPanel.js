@@ -234,17 +234,15 @@ const AdminBillersPanel = () => {
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => openEditModal(biller)}
-                          className="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded transition"
-                          title="Edit"
+                          className="px-3 py-1.5 text-xs font-semibold bg-blue-50 text-blue-600 border border-blue-200 rounded-md hover:bg-blue-100 transition-colors"
                         >
-                          <Edit2 size={16} />
+                          Edit
                         </button>
                         <button
                           onClick={() => handleDelete(biller._id)}
-                          className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition"
-                          title="Delete"
+                          className="px-3 py-1.5 text-xs font-semibold bg-red-50 text-red-600 border border-red-200 rounded-md hover:bg-red-100 transition-colors"
                         >
-                          <Trash2 size={16} />
+                          Delete
                         </button>
                       </div>
                     </td>

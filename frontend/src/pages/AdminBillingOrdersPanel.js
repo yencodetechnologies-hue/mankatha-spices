@@ -4,6 +4,22 @@ import { orderApi } from "../api/orderApi";
 import { formatMoney } from "../utils/formatMoney";
 import MankathaBanner from "../components/Brand/MankathaBanner";
 
+import heroBlendedMasala from "../assets/hero_blended_masala.png";
+import heroOrganicSpices from "../assets/hero_organic_spices.png";
+import heroWholeSpices from "../assets/hero_whole_spices.png";
+
+const slugify = (input) => String(input || "").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+const getCategoryImg = (name) => {
+  const slug = slugify(name);
+  const images = {
+    "ground-spices": heroOrganicSpices,
+    "whole-spices": heroWholeSpices,
+    "blended-masalas": heroBlendedMasala,
+    "blended-masala": heroBlendedMasala,
+  };
+  return images[slug] || heroOrganicSpices;
+};
+
 const fmtDate = (iso) => {
   if (!iso) return "—";
   return new Date(iso).toLocaleString("en-IN", {
@@ -66,7 +82,7 @@ const AdminBillingOrdersPanel = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h2 className="text-xl font-bold text-[#3d2f26]">Billing Orders</h2>
+            <h2 className="text-xl font-bold text-[#3d2f26]">Billing Lists</h2>
             <p className="text-sm text-gray-500 mt-0.5">
               {filtered.length} total bill{filtered.length !== 1 ? "s" : ""}
             </p>
@@ -254,51 +270,89 @@ const AdminBillingOrdersPanel = () => {
 
       {/* View Order Modal */}
       {viewOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setViewOrder(null)}>
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
-            <div className="flex justify-between items-center p-4 border-b border-gray-100 bg-gray-50/50">
-              <h3 className="font-bold text-gray-800 text-lg">Order #{viewOrder.orderId}</h3>
-              <button onClick={() => setViewOrder(null)} className="p-1.5 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">
-                <X size={18} />
+        <div className="fixed inset-0 z-[9999] bg-black/50 flex items-center justify-center p-4" onClick={() => setViewOrder(null)}>
+          <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+            {/* Modal Header */}
+            <div className="flex justify-between items-center bg-[#f4f8ec] p-5 border-b border-[#d3e1b7]">
+              <div>
+                <h3 className="m-0 text-lg md:text-xl font-bold text-[#52720d]">Order #{viewOrder.orderId} Details</h3>
+                <p className="m-0 mt-1 text-xs md:text-sm color-[#6b9312] font-medium">{fmtDate(viewOrder.orderDate || viewOrder.createdAt)}</p>
+              </div>
+              <button 
+                onClick={() => setViewOrder(null)} 
+                className="border-none bg-[#e1ecd0] cursor-pointer text-sm w-8 h-8 rounded-full flex items-center justify-center text-[#52720d] hover:bg-[#d3e1b7] transition-colors"
+              >
+                ✕
               </button>
             </div>
             
-            <div className="p-5 overflow-y-auto">
-              <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
+            {/* Modal Body (Scrollable) */}
+            <div className="p-5 overflow-y-auto flex-1">
+              
+              {/* Order Info Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6 items-start">
                 <div>
-                  <p className="text-gray-500 mb-1">Customer</p>
-                  <p className="font-medium text-gray-800">{viewOrder.customerName || "Walk-in Customer"}</p>
+                  <span className="text-[11px] uppercase text-gray-500 font-semibold tracking-wider">Customer</span>
+                  <div className="font-medium text-gray-900 mt-1">{viewOrder.customerName || "Walk-in Customer"}</div>
                 </div>
                 <div>
-                  <p className="text-gray-500 mb-1">Date & Time</p>
-                  <p className="font-medium text-gray-800">{fmtDate(viewOrder.orderDate || viewOrder.createdAt)}</p>
-                </div>
-                <div>
-                  <p className="text-gray-500 mb-1">Payment</p>
-                  <p className="font-medium text-green-600">{viewOrder.paymentMethod || "Cash"}</p>
-                </div>
-                <div>
-                  <p className="text-gray-500 mb-1">Status</p>
-                  <p className="font-medium text-blue-600 capitalize">{viewOrder.status || "Completed"}</p>
-                </div>
-              </div>
-
-              <h4 className="font-bold text-sm text-gray-400 uppercase tracking-wider mb-3">Order Items</h4>
-              <div className="space-y-3 mb-6">
-                {viewOrder.lineItems?.map((item, idx) => (
-                  <div key={idx} className="flex justify-between items-center p-3 rounded-lg border border-gray-100 bg-gray-50">
-                    <div>
-                      <p className="font-medium text-gray-800 text-sm">{item.name}</p>
-                      <p className="text-xs text-gray-500 mt-0.5">Qty: {item.quantity}</p>
-                    </div>
-                    <p className="font-bold text-gray-800">{formatMoney((item.price || 0) * item.quantity)}</p>
+                  <span className="text-[11px] uppercase text-gray-500 font-semibold tracking-wider">Order Status</span>
+                  <div className="mt-1">
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 capitalize">
+                      {viewOrder.status || "Completed"}
+                    </span>
                   </div>
-                ))}
+                </div>
+                <div>
+                  <span className="text-[11px] uppercase text-gray-500 font-semibold tracking-wider">Payment Status</span>
+                  <div className="mt-1">
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-green-50 text-green-700 border border-green-200 capitalize">
+                      {viewOrder.payment || "Paid"}
+                    </span>
+                  </div>
+                </div>
+                <div>
+                  <span className="text-[11px] uppercase text-gray-500 font-semibold tracking-wider">Payment Method</span>
+                  <div className="font-medium text-gray-900 mt-1">{viewOrder.paymentMethod || "Cash"}</div>
+                </div>
               </div>
 
-              <div className="flex justify-between items-center pt-4 border-t border-gray-200">
-                <span className="font-bold text-gray-600">Total Amount</span>
-                <span className="text-xl font-bold text-primary-600">{formatMoney(viewOrder.total)}</span>
+              {/* Items List */}
+              <div className="mb-4">
+                <h4 className="m-0 mb-3 text-sm font-bold text-gray-700">Purchased Items</h4>
+                {viewOrder.lineItems && viewOrder.lineItems.length > 0 ? (
+                  <div className="flex flex-col gap-2">
+                    {viewOrder.lineItems.map((item, idx) => (
+                      <div key={idx} className="flex justify-between items-center p-3 border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                        <div className="flex items-center gap-3">
+                          <div 
+                            className="w-10 h-10 rounded-lg bg-gray-100 bg-cover bg-center shrink-0" 
+                            style={{ backgroundImage: `url(${getCategoryImg(item.category || item.name)})` }}
+                          />
+                          <div>
+                            <div className="font-semibold text-gray-800 text-sm leading-tight">{item.name}</div>
+                            <div className="text-xs text-gray-500 mt-0.5">Qty: {item.quantity} x {formatMoney(item.price || 0)}</div>
+                          </div>
+                        </div>
+                        <div className="font-bold text-gray-900 text-sm md:text-base">
+                          {formatMoney((item.price || 0) * (item.quantity || 1))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-gray-500 text-sm italic">No items found.</div>
+                )}
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="bg-gray-50 p-5 border-t border-gray-200 flex flex-col md:flex-row justify-between items-center gap-3">
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-gray-500 font-semibold uppercase tracking-wider">Total Amount</span>
+                <span className="text-2xl font-black text-[#6b9312]">
+                  {formatMoney(viewOrder.total || 0)}
+                </span>
               </div>
             </div>
           </div>
