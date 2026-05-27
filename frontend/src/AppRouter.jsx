@@ -44,6 +44,14 @@ import BillerPanelPage from './biller/pages/BillerPanelPage';
 import BillerDashboardPanel from './biller/pages/BillerDashboardPanel';
 import BillerNewBillPanel from './biller/pages/BillerNewBillPanel';
 import BillerOrdersPanel from './biller/pages/BillerOrdersPanel';
+import CareApp from './App.jsx';
+import CareRoot from './routes/routes/root.jsx';
+import CareAbout from './routes/routes/About.jsx';
+import CareContact from './routes/routes/Contact.jsx';
+import CareVolonteer from './routes/routes/Volonteer.jsx';
+import CareCareer from './routes/routes/Career.jsx';
+import CareServices from './routes/routes/Services_m.jsx';
+import CareDonate from './routes/routes/Donate.jsx';
 import './index.css';
 
 function AppContent() {
@@ -53,10 +61,13 @@ function AppContent() {
     productName: ''
   });
   const location = useLocation();
+  const path = location.pathname.toLowerCase();
   const isStaffPortal =
-    location.pathname.startsWith('/adminpanel') ||
-    location.pathname.startsWith('/vendor') ||
-    location.pathname.startsWith('/biller');
+    path === '/' ||
+    path.startsWith('/adminpanel') ||
+    path.startsWith('/vendor') ||
+    path.startsWith('/biller') ||
+    (path.startsWith('/mankathaspecies') && path !== '/mankathaspecies');
 
   useEffect(() => {
     const handleCartNotification = (event) => {
@@ -77,7 +88,10 @@ function AppContent() {
         {!isStaffPortal && <Header />}
         <main className="flex-grow page-transition">
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<CareRoot />}>
+              <Route index element={<CareApp />} />
+            </Route>
+            <Route path="/mankathaspecies" element={<Home />} />
             <Route path="/products" element={<Products />} />
             <Route path="/product/:slug" element={<ProductDetail />} />
             <Route path="/cart" element={<Cart />} />
@@ -138,6 +152,14 @@ function AppContent() {
               <Route path="dashboard" element={<BillerDashboardPanel />} />
               <Route path="orders" element={<BillerOrdersPanel />} />
               <Route path="new-bill" element={<BillerNewBillPanel />} />
+            </Route>
+            <Route path="/Care" element={<CareRoot />}>
+              <Route path="about" element={<CareAbout />} />
+              <Route path="contact" element={<CareContact />} />
+              <Route path="services" element={<CareServices />} />
+              <Route path="volunteer" element={<CareVolonteer />} />
+              <Route path="Careerr" element={<CareCareer />} />
+              <Route path="donate" element={<CareDonate />} />
             </Route>
           </Routes>
         </main>

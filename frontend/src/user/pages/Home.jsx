@@ -388,7 +388,7 @@ const defaultSlides = [
     subtitle: "Authentic Flavors, Rich Tradition",
     description: "Experience the premium taste of our handcrafted spice blends, perfect for enhancing your traditional home cooking.",
     image: heroBlendedMasala,
-    cta: "Explore Blends",
+    cta: "Shop Now",
     ctaLink: "/products"
   },
   {
@@ -523,6 +523,8 @@ const Home = () => {
   }, [featuredProducts]); // Re-run when products are loaded
 
   useEffect(() => {
+    // Disabled local storage override to ensure correct Vite image imports are used
+    /*
     try {
       const stored = localStorage.getItem("mankatha_sliders_v2");
       if (stored) {
@@ -545,6 +547,7 @@ const Home = () => {
     } catch (e) {
       console.error("Failed to load custom sliders", e);
     }
+    */
     setSlides(defaultSlides);
   }, []);
 
@@ -650,11 +653,6 @@ const Home = () => {
                         {slide.cta}
                         <ArrowRight size={18} className="md:w-5 md:h-5" />
                       </Link>
-                      {slide.description && (
-                        <button className="glass px-5 py-2.5 md:px-10 md:py-5 rounded-xl text-white font-bold hover:bg-white/20 transition-all text-xs md:text-base hidden sm:block">
-                          Learn More
-                        </button>
-                      )}
                     </div>
                   </div>
                 </div>
