@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Search, Printer, RefreshCw, ShoppingCart, Eye, X } from "lucide-react";
+import { Search, Printer, RefreshCw, ShoppingCart, Eye } from "lucide-react";
 import { orderApi } from "../api/orderApi";
 import { formatMoney } from "../utils/formatMoney";
 import MankathaBanner from "../components/Brand/MankathaBanner";
