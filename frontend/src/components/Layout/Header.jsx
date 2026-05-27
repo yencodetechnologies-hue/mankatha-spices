@@ -8,6 +8,7 @@ import { formatMoney } from '../../utils/formatMoney';
 import { categoryApi } from '../../api/categoryApi';
 import { notificationApi } from '../../api/notificationApi';
 import LocationModal from '../LocationModal';
+import { angadi_logo } from '../../assets';
 
 const slugify = (input) => {
   return String(input || "")
@@ -241,9 +242,9 @@ const Header = () => {
             {/* Logo */}
             <Link to="/" className="flex-shrink-0 flex items-center">
               <img
-                src="/brand/mankatha-spices.png"
-                alt="Mankatha Spices"
-                className="h-10 md:h-12 w-auto object-contain transition-transform duration-300 hover:scale-105"
+                src={angadi_logo}
+                alt="Mankatha Angadi"
+                className="h-16 md:h-20 w-auto object-contain transition-transform duration-300 hover:scale-105"
               />
             </Link>
 

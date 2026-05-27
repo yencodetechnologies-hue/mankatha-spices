@@ -233,3 +233,6 @@ export {
 
 }
 
+
+import angadi_logo from "./angadi_logo.png";
+export { angadi_logo };
