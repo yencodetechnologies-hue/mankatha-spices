@@ -105,7 +105,7 @@ const Hero = () => {
                   </p>
                 </div>
                 <div className="flex mt-8 gap-4">
-                  <Link to="/volunteer">
+                  <Link to="/Care/volunteer">
                     <button className="join-button animate-slideImage2 relative px-6 py-2 bg-[#213F96] rounded-full font-nunito font-bold text-white text-[17px] leading-[29.8px] tracking-[0.25px] overflow-hidden">
                       <span className="relative z-10">Join Us</span>
                     </button>
