@@ -40,6 +40,9 @@ const getUnitSystemFromWeights = (weights = []) => {
   if (firstWeightStr.endsWith("ml") || firstWeightStr.endsWith("l") || firstWeightStr.endsWith("liter")) {
     return "ml_l";
   }
+  if (firstWeightStr.includes("nos") || firstWeightStr.includes("no") || firstWeightStr.includes("piece") || firstWeightStr.includes("pcs")) {
+    return "nos";
+  }
   return "g_kg";
 };
 
@@ -378,7 +381,8 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
                       const defaults = {
                         g_kg: ["100g", "250g", "500g", "1kg"],
                         ml_l: ["100ml", "250ml", "500ml", "1l"],
-                        mg_g: ["100mg", "250mg", "500mg", "1g"]
+                        mg_g: ["100mg", "250mg", "500mg", "1g"],
+                        nos: ["1 nos", "2 nos", "5 nos", "10 nos"]
                       };
                       const items = defaults[newSys] || defaults.g_kg;
                       setCustomWeights(items.map((w, idx) => ({ id: idx, weight: w, price: "", original_price: "", barcode: generateBarcode() })));
@@ -396,6 +400,7 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
                     <option value="g_kg">Solid (g, kg)</option>
                     <option value="ml_l">Liquid (ml, l)</option>
                     <option value="mg_g">Milligram (mg, g)</option>
+                    <option value="nos">Numbers/Pieces (nos)</option>
                   </select>
                   <button
                     type="button"

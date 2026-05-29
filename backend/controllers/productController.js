@@ -19,58 +19,80 @@ const parsePayload = (body) => {
 };
 
 const getProducts = async (req, res) => {
-  const { page = 1, limit = 50 } = req.query;
-  const skip = (Number(page) - 1) * Number(limit);
+  try {
+    const { page = 1, limit = 50 } = req.query;
+    const skip = (Number(page) - 1) * Number(limit);
 
-  const [products, total] = await Promise.all([
-    Product.find().sort({ createdAt: -1 }).skip(skip).limit(Number(limit)),
-    Product.countDocuments(),
-  ]);
+    const [products, total] = await Promise.all([
+      Product.find().sort({ createdAt: -1 }).skip(skip).limit(Number(limit)),
+      Product.countDocuments(),
+    ]);
 
-  res.json({
-    products,
-    pagination: {
-      total,
-      page: Number(page),
-      pages: Math.ceil(total / Number(limit)) || 1,
-    },
-  });
+    res.json({
+      products,
+      pagination: {
+        total,
+        page: Number(page),
+        pages: Math.ceil(total / Number(limit)) || 1,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message || "Server error" });
+  }
 };
 
 const createProduct = async (req, res) => {
-  const payload = parsePayload(req.body);
-  if (req.file) {
-    payload.image = `/uploads/${req.file.filename}`;
-  }
+  try {
+    const payload = parsePayload(req.body);
+    if (req.file) {
+      payload.image = `/uploads/${req.file.filename}`;
+    }
 
-  const product = await Product.create(payload);
-  res.status(201).json({ message: "Product created", product });
+    const product = await Product.create(payload);
+    res.status(201).json({ message: "Product created", product });
+  } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({ message: `Duplicate key error: ${Object.keys(error.keyValue).join(', ')} already exists.` });
+    }
+    res.status(400).json({ message: error.message || "Failed to create product" });
+  }
 };
 
 const updateProduct = async (req, res) => {
-  console.log("UPDATE PRODUCT RECEIVED BODY:", req.body);
-  const payload = parsePayload(req.body);
-  if (req.file) {
-    payload.image = `/uploads/${req.file.filename}`;
-  }
+  try {
+    console.log("UPDATE PRODUCT RECEIVED BODY:", req.body);
+    const payload = parsePayload(req.body);
+    if (req.file) {
+      payload.image = `/uploads/${req.file.filename}`;
+    }
 
-  const product = await Product.findByIdAndUpdate(req.params.id, payload, {
-    new: true,
-    runValidators: true,
-  });
+    const product = await Product.findByIdAndUpdate(req.params.id, payload, {
+      new: true,
+      runValidators: true,
+    });
 
-  if (!product) {
-    return res.status(404).json({ message: "Product not found" });
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+    return res.json({ message: "Product updated", product });
+  } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({ message: `Duplicate key error: ${Object.keys(error.keyValue).join(', ')} already exists.` });
+    }
+    res.status(400).json({ message: error.message || "Failed to update product" });
   }
-  return res.json({ message: "Product updated", product });
 };
 
 const deleteProduct = async (req, res) => {
-  const product = await Product.findByIdAndDelete(req.params.id);
-  if (!product) {
-    return res.status(404).json({ message: "Product not found" });
+  try {
+    const product = await Product.findByIdAndDelete(req.params.id);
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+    return res.json({ message: "Product deleted" });
+  } catch (error) {
+    res.status(500).json({ message: error.message || "Failed to delete product" });
   }
-  return res.json({ message: "Product deleted" });
 };
 
 module.exports = {
