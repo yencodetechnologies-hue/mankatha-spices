@@ -13,7 +13,7 @@ const absoluteImage = (path) => {
 const generateBarcode = () => Math.floor(100000 + Math.random() * 900000).toString();
 
 const emptyProduct = {
-  type: "general",
+  type: "General",
   name: "",
   sku: "",
   category: "",
@@ -66,7 +66,7 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
 
     return {
       ...initialData,
-      type: initialData.type ?? "general",
+      type: initialData.type ?? "General",
       image: null,
       price: firstWeightPricing?.price ?? 1,
       weight: firstWeightPricing?.weight ?? "100g",
@@ -210,15 +210,16 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
 
         <form onSubmit={submit} className="modal-form">
           <div className="grid-2">
-            {/* 
             <div className="form-group">
-              <label>Product Type</label>
-              <select value={form.type || "general"} onChange={(e) => setField("type", e.target.value)} required>
-                <option value="general">General</option>
-                <option value="vendor">Vendor</option>
-              </select>
+              <label>Distributor</label>
+              <input 
+                type="text" 
+                placeholder="Distributor" 
+                value={form.type || "General"} 
+                onChange={(e) => setField("type", e.target.value)} 
+                required 
+              />
             </div>
-            */}
 
             <div className="form-group">
               <label>Product Name</label>
