@@ -602,16 +602,7 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
 
             </div>
 
-          <div className="form-group">
-            <label>Description</label>
-            <textarea
-              placeholder="Describe the spice origin, quality, aroma, taste notes..."
-              value={form.description}
-              onChange={(e) => setField("description", e.target.value)}
-              rows={3}
-              required
-            />
-          </div>
+        
 
           <div className="form-group">
             <label style={{ fontWeight: "600" }}>Product Image</label>
