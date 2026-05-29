@@ -149,7 +149,7 @@ function AppContent() {
                 </ProtectedRoute>
               }
             >
-              <Route index element={<Navigate to="/biller/dashboard" replace />} />
+              <Route index element={<Navigate to="/biller/new-bill" replace />} />
               <Route path="dashboard" element={<BillerDashboardPanel />} />
               <Route path="orders" element={<BillerOrdersPanel />} />
               <Route path="new-bill" element={<BillerNewBillPanel />} />

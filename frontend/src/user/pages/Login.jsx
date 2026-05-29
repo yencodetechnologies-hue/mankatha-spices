@@ -25,7 +25,7 @@ function redirectByRole(navigate, nextUser, fromPath) {
     return;
   }
   if (nextUser.role === 'biller') {
-    navigate('/biller/dashboard', { replace: true });
+    navigate('/biller/new-bill', { replace: true });
     return;
   }
   navigate(isSafeCustomerReturnPath(fromPath) ? fromPath : '/profile?tab=orders', { replace: true });
