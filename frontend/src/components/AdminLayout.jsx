@@ -23,6 +23,7 @@ import {
 import { SIDEBAR_GROUPS } from "../constants";
 import { useAuth } from "../contexts/AuthContext";
 import MankathaBanner from "./Brand/MankathaBanner";
+import { angadi_logo } from "../assets";
 
 const ICON_MAP = {
   overview: LayoutDashboard,
@@ -63,8 +64,8 @@ const AdminLayout = ({ children }) => {
         className={`admin-sidebar sticky-sidebar ${isSidebarOpen ? "open" : ""}`}
       >
         <div className="admin-brand">
-          <div className="mb-3 overflow-hidden rounded-xl border border-white/10 bg-black/20">
-            <MankathaBanner variant="strip" className="!rounded-none !border-0 !shadow-none" />
+          <div className="mb-3 overflow-hidden rounded-xl bg-white shadow-sm flex justify-center items-center p-2">
+            <img src={angadi_logo} alt="Angadi Logo" className="w-full h-auto max-h-32 object-contain" />
           </div>
           <h2 className="admin-logo">Mankatha Spices</h2>
           <p className="admin-subtitle">Admin dashboard</p>
