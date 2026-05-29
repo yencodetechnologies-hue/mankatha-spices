@@ -593,11 +593,7 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
               />
             </div>
 
-            <div className="form-group">
-              <label>Supplier</label>
-              <input placeholder="e.g. Kashmir Valley Co." value={form.supplier} onChange={(e) => setField("supplier", e.target.value)} />
-            </div>
-
+       
 
 
             </div>
