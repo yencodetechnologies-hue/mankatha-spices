@@ -209,9 +209,9 @@ const AdminBillingOrdersPanel = () => {
             <h1 className="text-xl font-bold tracking-wider mb-1 text-[#91521f] font-serif uppercase">
               Mankatha Spices
             </h1>
-            <p className="text-sm text-gray-700 font-medium">123 Spice Market, Bazaar Road</p>
-            <p className="text-sm text-gray-700 font-medium">Chennai - 600001</p>
-            <p className="text-sm text-gray-700 font-medium mt-1 font-mono">Ph: +91 98765 43210</p>
+            <p className="text-sm text-gray-700 font-medium">No 11, Modern Market, Valvettithurai</p>
+            <p className="text-sm text-gray-700 font-medium">Jaffna, SriLanka</p>
+            <p className="text-sm text-gray-700 font-medium mt-1 font-mono">Ph: 009 4771164071</p>
           </div>
 
           <div className="mb-4 bg-[#fdfaf6] p-3 rounded-lg border border-[#f2d4bb]">

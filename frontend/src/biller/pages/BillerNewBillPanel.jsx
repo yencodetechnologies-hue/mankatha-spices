@@ -55,9 +55,8 @@ const BillerProductCard = ({ product, cart, addToCart, updateQty, removeFromCart
   const discount = currentOriginalPrice > currentPrice
     ? Math.round(((currentOriginalPrice - currentPrice) / currentOriginalPrice) * 100)
     : 0;
-
-  const imgUrl = product.images?.[0] ? `${getBackendOrigin()}${product.images[0]}` : null;
-
+  const imagePath = product.image || (product.images && product.images.length > 0 ? product.images[0] : null);
+  const imgUrl = imagePath ? `${getBackendOrigin()}${imagePath}` : null;
   const variantCartItemId = makeVariantKey(product, selectedVariantIndex);
   const cartItem = cart.find(i => (i.cartItemId || i._id) === variantCartItemId);
   const qty = cartItem ? cartItem.qty : 0;
@@ -463,9 +462,9 @@ const BillerNewBillPanel = () => {
           <div className="text-center mb-4 border-b border-[#91521f] pb-4">
             <MankathaBanner variant="strip" className="mb-2 !border-0 !shadow-none !bg-transparent" />
             <h1 className="text-xl font-bold tracking-wider mb-1 text-[#91521f] font-serif uppercase">Mankatha Spices</h1>
-            <p className="text-sm text-gray-700 font-medium">123 Spice Market, Bazaar Road</p>
-            <p className="text-sm text-gray-700 font-medium">Chennai - 600001</p>
-            <p className="text-sm text-gray-700 font-medium mt-1 font-mono">Ph: +91 98765 43210</p>
+            <p className="text-sm text-gray-700 font-medium">No 11, Modern Market, Valvettithurai</p>
+            <p className="text-sm text-gray-700 font-medium">Jaffna, SriLanka</p>
+            <p className="text-sm text-gray-700 font-medium mt-1 font-mono">Ph: 009 4771164071</p>
           </div>
 
           <div className="mb-4 bg-[#fdfaf6] p-3 rounded-lg border border-[#f2d4bb]">

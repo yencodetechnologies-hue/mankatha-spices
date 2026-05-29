@@ -22,7 +22,8 @@ export function adaptBackendProduct(raw = {}, index = 0) {
   const unit = weightLabel.replace(/[0-9.\s]/g, "") || "g";
   const weight = Number.parseFloat(weightLabel) || 100;
   const price = Number(firstWeight.price || 0);
-  const featuredImage = absoluteImage(raw.image) || "https://placehold.co/600x400?text=Spice";
+  const imgUrl = raw.image || (raw.images && raw.images.length > 0 ? raw.images[0] : null);
+  const featuredImage = absoluteImage(imgUrl) || "https://placehold.co/600x400?text=Spice";
   const safeName = raw.name || "Product";
 
   return {
@@ -32,7 +33,7 @@ export function adaptBackendProduct(raw = {}, index = 0) {
     description: raw.description || "",
     category: raw.category || "spices",
     featured_image: featuredImage,
-    images: [featuredImage],
+    images: raw.images && raw.images.length > 0 ? raw.images.map(absoluteImage) : [featuredImage],
     price,
     original_price: firstWeight.original_price > price ? firstWeight.original_price : null,
     rating: raw.rating ?? 4.5,

@@ -1,5 +1,5 @@
 import React from "react";
-import { MANKATHA_BRAND_IMAGE } from "./brandAsset";
+import { angadi_logo } from "../../assets";
 
 /**
  * Branded loading state (initial auth, protected routes, long actions).
@@ -15,9 +15,9 @@ const MankathaLoader = ({ message = "Loading…", fullScreen = false }) => {
         <div className="absolute inset-0 animate-ping rounded-full bg-primary-300/35" aria-hidden />
         <div className="relative h-28 w-28 overflow-hidden rounded-full border-2 border-primary-400/50 bg-white shadow-md sm:h-32 sm:w-32">
           <img
-            src={MANKATHA_BRAND_IMAGE}
+            src={angadi_logo}
             alt=""
-            className="h-full w-full object-cover object-center"
+            className="h-full w-full object-contain p-2"
           />
         </div>
       </div>
