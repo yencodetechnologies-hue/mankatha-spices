@@ -4,9 +4,11 @@ const { listCategories, createCategory, renameCategory, deleteCategory } = requi
 
 const router = express.Router();
 
+const upload = require("../middleware/upload");
+
 router.get("/", listCategories);
-router.post("/", requireAuth, requireRoles("admin"), createCategory);
-router.put("/:id", requireAuth, requireRoles("admin"), renameCategory);
+router.post("/", requireAuth, requireRoles("admin"), upload.single("image"), createCategory);
+router.put("/:id", requireAuth, requireRoles("admin"), upload.single("image"), renameCategory);
 router.delete("/:id", requireAuth, requireRoles("admin"), deleteCategory);
 
 module.exports = router;

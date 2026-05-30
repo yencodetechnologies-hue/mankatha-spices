@@ -12,11 +12,13 @@ const AdminCategoryPanel = () => {
   // Add modal
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
+  const [newCategoryImage, setNewCategoryImage] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
   // Edit modal
   const [editModal, setEditModal] = useState(null); // { id, name }
   const [editName, setEditName] = useState("");
+  const [editImage, setEditImage] = useState(null);
   const [editSubmitting, setEditSubmitting] = useState(false);
 
   // Delete confirm modal
@@ -81,8 +83,9 @@ const AdminCategoryPanel = () => {
     setSubmitting(true);
     try {
       setErrorMessage("");
-      await categoryApi.create(newCategoryName.trim());
+      await categoryApi.create(newCategoryName.trim(), newCategoryImage);
       setNewCategoryName("");
+      setNewCategoryImage(null);
       setAddModalOpen(false);
       await fetchData();
     } catch (error) {
@@ -97,6 +100,7 @@ const AdminCategoryPanel = () => {
     e.stopPropagation();
     setEditModal(cat);
     setEditName(cat.name);
+    setEditImage(null);
   };
 
   const handleRename = async (e) => {
@@ -105,7 +109,7 @@ const AdminCategoryPanel = () => {
     setEditSubmitting(true);
     try {
       setErrorMessage("");
-      await categoryApi.rename(editModal._id, editName.trim());
+      await categoryApi.rename(editModal._id, editName.trim(), editImage);
       setEditModal(null);
       await fetchData();
     } catch (error) {
@@ -143,7 +147,7 @@ const AdminCategoryPanel = () => {
       <header className="products-head mb-6 flex justify-between items-center">
         <div>
           <h2>Categories</h2>
-          <p>Manage and view your spice offerings grouped by category type.</p>
+    
         </div>
         <button
           type="button"
@@ -296,6 +300,14 @@ const AdminCategoryPanel = () => {
                   autoFocus
                 />
               </div>
+              <div className="form-group">
+                <label>Category Image (Optional)</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setNewCategoryImage(e.target.files?.[0] || null)}
+                />
+              </div>
               <div className="actions-row modal-actions">
                 <button type="button" onClick={() => setAddModalOpen(false)} disabled={submitting}>
                   Cancel
@@ -314,20 +326,28 @@ const AdminCategoryPanel = () => {
         <div className="modal-overlay">
           <div className="modal-card">
             <div className="modal-header">
-              <h3>Rename Category</h3>
+              <h3>Edit Category</h3>
               <button type="button" className="modal-close-btn" onClick={() => setEditModal(null)}>
                 <X size={22} />
               </button>
             </div>
             <form onSubmit={handleRename} className="modal-form">
               <div className="form-group">
-                <label>New Category Name</label>
+                <label>Category Name</label>
                 <input
                   type="text"
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
                   required
                   autoFocus
+                />
+              </div>
+              <div className="form-group">
+                <label>Update Image (Optional)</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setEditImage(e.target.files?.[0] || null)}
                 />
               </div>
               <div className="actions-row modal-actions">

@@ -38,6 +38,10 @@ const createCategory = async (req, res) => {
     }
 
     const doc = new Category({ name: trimmed });
+    if (req.file) {
+      doc.image = `/uploads/${req.file.filename}`;
+    }
+    
     await doc.save();
     res.status(201).json({ category: doc });
   } catch (err) {
@@ -64,10 +68,17 @@ const renameCategory = async (req, res) => {
 
     const oldName = cat.name;
     cat.name = trimmed;
+    
+    if (req.file) {
+      cat.image = `/uploads/${req.file.filename}`;
+    }
+    
     await cat.save();
 
     // Also update all products that used the old category name
-    await Product.updateMany({ category: oldName }, { $set: { category: trimmed } });
+    if (oldName !== trimmed) {
+      await Product.updateMany({ category: oldName }, { $set: { category: trimmed } });
+    }
 
     res.json({ category: cat });
   } catch (err) {

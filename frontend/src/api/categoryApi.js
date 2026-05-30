@@ -14,14 +14,24 @@ export const categoryApi = {
 
   getCached: () => categoriesCache,
 
-  create: async (name) => {
-    const { data } = await axios.post(`${root()}/categories`, { name }, withAuthHeaders());
+  create: async (name, imageFile) => {
+    const formData = new FormData();
+    formData.append("name", name);
+    if (imageFile) {
+      formData.append("image", imageFile);
+    }
+    const { data } = await axios.post(`${root()}/categories`, formData, withAuthHeaders());
     categoriesCache = null;
     return data;
   },
 
-  rename: async (id, name) => {
-    const { data } = await axios.put(`${root()}/categories/${id}`, { name }, withAuthHeaders());
+  rename: async (id, name, imageFile) => {
+    const formData = new FormData();
+    formData.append("name", name);
+    if (imageFile) {
+      formData.append("image", imageFile);
+    }
+    const { data } = await axios.put(`${root()}/categories/${id}`, formData, withAuthHeaders());
     categoriesCache = null;
     return data;
   },

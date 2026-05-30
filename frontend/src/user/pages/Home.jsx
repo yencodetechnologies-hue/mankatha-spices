@@ -13,6 +13,7 @@ import heroWholeSpices from '../../assets/hero_whole_spices.png';
 import promoBannerImg from '../../assets/promo_banner.png';
 
 import { useWishlist } from '../../contexts/WishlistContext';
+import { getBackendOrigin } from '../../api/adminApiBase';
 
 // ── Stable cart item key — uses slug so key is same for both JSON & API products ──
 const makeVariantKey = (product, variantIndex) => {
@@ -434,22 +435,22 @@ const Home = () => {
         if (cancelled) return;
         const list = res.categories || [];
         if (list.length > 0) {
-          const formatted = list.map(cat => ({
-            id: cat._id,
-            name: cat.name,
-            slug: cat.name,
-            icon: getCategoryIcon(cat.name),
-            image: getCategoryImg(cat.name),
-            description: `Explore our high quality ${cat.name}`
-          }));
-          setCategoriesList(formatted);
-        } else {
-          setCategoriesList(categories.map(c => ({
-            ...c,
-            slug: c.name,
-            image: getCategoryImg(c.name, c.image)
-          })));
-        }
+            const formatted = list.map(cat => ({
+              id: cat._id,
+              name: cat.name,
+              slug: cat.name,
+              icon: getCategoryIcon(cat.name),
+              image: cat.image ? `${getBackendOrigin()}${cat.image}` : getCategoryImg(cat.name),
+              description: `Explore our high quality ${cat.name}`
+            }));
+            setCategoriesList(formatted);
+          } else {
+            setCategoriesList(categories.map(c => ({
+              ...c,
+              slug: c.name,
+              image: getCategoryImg(c.name, c.image)
+            })));
+          }
       } catch {
         if (!cancelled) {
           setCategoriesList(categories.map(c => ({

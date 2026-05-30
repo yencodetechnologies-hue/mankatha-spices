@@ -11,6 +11,7 @@ import { useWishlist } from '../../contexts/WishlistContext';
 import heroBlendedMasala from '../../assets/hero_blended_masala.png';
 import heroOrganicSpices from '../../assets/hero_organic_spices.png';
 import heroWholeSpices from '../../assets/hero_whole_spices.png';
+import { getBackendOrigin } from '../../api/adminApiBase';
 const slugify = (input) => {
   return String(input || "")
     .toLowerCase()
@@ -333,7 +334,7 @@ const Products = () => {
             name: cat.name,
             slug: cat.name,
             icon: getCategoryIcon(cat.name),
-            image: getCategoryImg(cat.name),
+            image: cat.image ? `${getBackendOrigin()}${cat.image}` : getCategoryImg(cat.name),
             description: `Explore our high quality ${cat.name}`
           }));
           setCategoriesList(formatted);
