@@ -92,29 +92,29 @@ const Footer = () => {
             <h4 className="text-lg font-semibold mb-4 text-white">Customer Service</h4>
             <ul className="space-y-2">
               <li>
-                <Link to="/help" className="text-gray-300 hover:text-white transition-colors">
+                <a href="#" onClick={(e) => e.preventDefault()} className="text-gray-300 hover:text-white transition-colors cursor-pointer">
                   Help Center
-                </Link>
+                </a>
               </li>
               <li>
-                <Link to="/shipping" className="text-gray-300 hover:text-white transition-colors">
+                <a href="#" onClick={(e) => e.preventDefault()} className="text-gray-300 hover:text-white transition-colors cursor-pointer">
                   Shipping Info
-                </Link>
+                </a>
               </li>
               <li>
-                <Link to="/returns" className="text-gray-300 hover:text-white transition-colors">
+                <a href="#" onClick={(e) => e.preventDefault()} className="text-gray-300 hover:text-white transition-colors cursor-pointer">
                   Returns & Refunds
-                </Link>
+                </a>
               </li>
               <li>
-                <Link to="/payment" className="text-gray-300 hover:text-white transition-colors">
+                <a href="#" onClick={(e) => e.preventDefault()} className="text-gray-300 hover:text-white transition-colors cursor-pointer">
                   Payment Methods
-                </Link>
+                </a>
               </li>
               <li>
-                <Link to="/faq" className="text-gray-300 hover:text-white transition-colors">
+                <a href="#" onClick={(e) => e.preventDefault()} className="text-gray-300 hover:text-white transition-colors cursor-pointer">
                   FAQ
-                </Link>
+                </a>
               </li>
             </ul>
           </div>
