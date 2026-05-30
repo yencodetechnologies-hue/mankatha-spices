@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { productApi } from "../api/productApi";
 import { categoryApi } from "../api/categoryApi";
+import { getBackendOrigin } from "../api/adminApiBase";
 import { Package, Tag, Plus, X, Pencil, Trash2 } from "lucide-react";
 
 const AdminCategoryPanel = () => {
@@ -343,7 +344,17 @@ const AdminCategoryPanel = () => {
                 />
               </div>
               <div className="form-group">
-                <label>Update Image (Optional)</label>
+                <label>Update Image</label>
+                {editModal?.image && (
+                  <div className="mb-2">
+                    <img 
+                      src={`${getBackendOrigin()}${editModal.image}`} 
+                      alt="Current Category" 
+                      className="h-16 w-16 object-cover rounded border"
+                    />
+                    <span className="text-xs text-gray-500 block mt-1">Current Image</span>
+                  </div>
+                )}
                 <input
                   type="file"
                   accept="image/*"

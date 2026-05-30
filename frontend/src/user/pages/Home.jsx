@@ -755,10 +755,10 @@ const Home = () => {
               <Link
                 key={category.id}
                 to={`/products?category=${encodeURIComponent(category.slug)}`}
-                className={`group reveal reveal-scale stagger-${(i % 4) + 1}`}
+                className={`group reveal reveal-scale stagger-${(i % 4) + 1} h-full block`}
               >
-                <div className="bg-white p-4 rounded-3xl shadow-sm hover:shadow-xl transition-all duration-500 text-center border border-gray-100 group-hover:border-primary-100 group-hover:-translate-y-2">
-                  <div className="relative w-20 h-20 mx-auto mb-4 bg-primary-50 rounded-full overflow-hidden flex items-center justify-center group-hover:scale-110 transition-transform duration-500 shadow-inner border border-gray-100">
+                <div className="bg-white h-full flex flex-col items-center justify-start p-4 rounded-3xl shadow-sm hover:shadow-xl transition-all duration-500 text-center border border-gray-100 group-hover:border-primary-100 group-hover:-translate-y-2">
+                  <div className="relative w-20 h-20 mx-auto mb-4 shrink-0 bg-primary-50 rounded-full overflow-hidden flex items-center justify-center group-hover:scale-110 transition-transform duration-500 shadow-inner border border-gray-100">
                     <img
                       src={category.image}
                       alt={category.name}
@@ -768,7 +768,7 @@ const Home = () => {
                       }}
                     />
                   </div>
-                  <h3 className="font-bold text-gray-800 text-sm group-hover:text-primary-600">{category.name}</h3>
+                  <h3 className="font-bold text-gray-800 text-sm group-hover:text-primary-600 flex-1 flex items-center justify-center">{category.name}</h3>
                 </div>
               </Link>
             ))}
