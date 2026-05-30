@@ -4,6 +4,7 @@ import { HeroSlider } from "../../Data";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { IoIosCloseCircleOutline } from "react-icons/io";
+import angadi_logo from "../../assets/angadi_logo.png";
 
 const Modal = ({ isOpen, onClose, videoUrl }) => {
   if (!isOpen) return null;
@@ -88,15 +89,22 @@ const Hero = () => {
                   </p>
                 </div>
                 <div>
-                  <p className="font-nunito font-extrabold animate-slideContent2 flex flex-row text-white text-[30px] leading-[40px] md:text-[60px] md:leading-[60px] items-center justify-between w-full">
+                  <div className="font-nunito font-extrabold animate-slideContent2 flex flex-row text-white text-[30px] leading-[40px] md:text-[60px] md:leading-[60px] items-center justify-between w-full">
                     <span>The Mankatha Way</span>
-                    <img
-                      src={HeroIcon4}
-                      alt=""
-                      className="p-[44px] hidden md:flex bg-white rounded-full animate-smoothPing"
-                      onClick={openModal}
-                    />
-                  </p>
+                    <div className="flex flex-col items-center gap-4">
+                      <img
+                        src={HeroIcon4}
+                        alt=""
+                        className="p-[44px] hidden md:flex bg-white rounded-full animate-smoothPing cursor-pointer"
+                        onClick={openModal}
+                      />
+                      <Link to="/Care/volunteer" className="hidden md:block">
+                        <button className="join-button animate-slideImage2 relative px-6 py-2 bg-[#213F96] rounded-full font-nunito font-bold text-white text-[17px] leading-[29.8px] tracking-[0.25px] overflow-hidden">
+                          <span className="relative z-10">Join Us</span>
+                        </button>
+                      </Link>
+                    </div>
+                  </div>
                   <Modal isOpen={isModalOpen} onClose={closeModal} videoUrl={videoUrl} />
                 </div>
                 <div className="flex flex-col animate-slideContent mt-4">
@@ -104,17 +112,25 @@ const Hero = () => {
                     Empowering our community through Unified Investments and Leadership
                   </p>
                 </div>
-                <div className="flex mt-8 gap-4">
-                  <Link to="/Care/volunteer">
+                <div className="flex flex-col md:flex-row mt-8 gap-4 md:gap-8 items-start md:items-end">
+                  {/* Mobile only Join Us */}
+                  <Link to="/Care/volunteer" className="md:hidden">
                     <button className="join-button animate-slideImage2 relative px-6 py-2 bg-[#213F96] rounded-full font-nunito font-bold text-white text-[17px] leading-[29.8px] tracking-[0.25px] overflow-hidden">
                       <span className="relative z-10">Join Us</span>
                     </button>
                   </Link>
-                  <Link to="/mankathaspecies">
-                    <button className="join-button animate-slideImage2 relative px-6 py-2 bg-[#8DC63F] rounded-full font-nunito font-bold text-white text-[17px] leading-[29.8px] tracking-[0.25px] overflow-hidden">
-                      <span className="relative z-10">Mankatha Angadi</span>
-                    </button>
-                  </Link>
+
+                  {/* Mankatha Angadi Logo & Button */}
+                  <div className="flex flex-col items-stretch w-[180px] md:w-[220px] group cursor-pointer hover:-translate-y-1 transition-transform animate-slideImage2">
+                    <Link to="/mankathaspecies" className="bg-white rounded-t-[30px] pt-4 pb-4 px-4 flex justify-center items-center shadow-lg">
+                      <img src={angadi_logo} alt="Mankatha Angadi Logo" className="h-16 md:h-20 object-contain group-hover:scale-105 transition-transform duration-300" />
+                    </Link>
+                    <Link to="/mankathaspecies" className="relative z-10">
+                      <button className="w-full join-button relative px-6 py-2 bg-[#8DC63F] rounded-b-[30px] rounded-t-none font-nunito font-bold text-white text-[16px] md:text-[17px] leading-[29.8px] tracking-[0.25px] overflow-hidden shadow-xl">
+                        <span className="relative z-10">Mankatha Angadi</span>
+                      </button>
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
