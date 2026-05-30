@@ -473,11 +473,15 @@ const Home = () => {
         const apiProducts = await catalogApi.getProducts();
         if (cancelled || apiProducts.length === 0) return;
         setAllProducts(apiProducts);
-        setFeaturedProducts(apiProducts.filter((product) => product.is_featured));
+        
+        // Show the 8 newest products (reversing the list)
+        const newest = [...apiProducts].reverse();
+        setFeaturedProducts(newest.slice(0, 8));
       } catch {
         if (!cancelled) {
           setAllProducts(products);
-          setFeaturedProducts(products.filter((product) => product.is_featured));
+          const newest = [...products].reverse();
+          setFeaturedProducts(newest.slice(0, 8));
         }
       }
     }
@@ -489,7 +493,8 @@ const Home = () => {
 
   useEffect(() => {
     if (featuredProducts.length > 0) return;
-    setFeaturedProducts(allProducts.filter((product) => product.is_featured).slice(0, 8));
+    const newest = [...allProducts].reverse();
+    setFeaturedProducts(newest.slice(0, 8));
   }, [allProducts, featuredProducts.length]);
 
   // Intersection Observer for Reveal Animations
