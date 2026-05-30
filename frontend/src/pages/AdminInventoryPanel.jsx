@@ -92,8 +92,7 @@ const AdminInventoryPanel = () => {
 
 
   const filteredItems = items.filter((row) =>
-    row.name?.toLowerCase().includes(search.toLowerCase()) ||
-    row.supplier?.toLowerCase().includes(search.toLowerCase())
+    row.name?.toLowerCase().includes(search.toLowerCase())
   );
   const totalPages = Math.max(1, Math.ceil(filteredItems.length / PAGE_SIZE));
   const paginated = filteredItems.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
@@ -195,7 +194,6 @@ const AdminInventoryPanel = () => {
                   <th>Current stock</th>
                   <th>Min. level</th>
                   <th>Reorder qty</th>
-                  <th>Supplier</th>
                   <th>Status</th>
                   <th>Action</th>
                 </tr>
@@ -226,7 +224,6 @@ const AdminInventoryPanel = () => {
                       </td>
                       <td>{row.minLevel} units</td>
                       <td>{row.reorderQty} units</td>
-                      <td>{row.supplier}</td>
                       <td>
                         <span className={statusPill(row.status)}>
                           <span className={statusDot(row.status)} aria-hidden />
