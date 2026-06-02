@@ -717,7 +717,7 @@ const Home = () => {
                           <div className="flex md:hidden mt-3 md:mt-5 pointer-events-auto z-10 items-center justify-center w-full">
                             <Link
                               to={slide.ctaLink}
-                              className="btn-premium flex items-center gap-1.5 px-4 py-1.5 text-[14px] font-bold rounded-full w-max shadow-md"
+                              className="btn-premium flex items-center justify-center gap-1.5 px-4 text-[14px] font-bold rounded-full w-[160px] h-[40px] shadow-md"
                             >
                               {slide.cta}
                               <ArrowRight size={18} className="w-4 h-4" />
@@ -733,11 +733,11 @@ const Home = () => {
           ))}
 
           {/* Mobile Slider Navigation — always on top */}
-          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-30 flex md:hidden items-center gap-3 glass px-3 py-1.5 rounded-xl">
-            <button onClick={prevSlide} className="text-white hover:text-primary-400 transition-colors">
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-30 flex md:hidden items-center justify-between glass px-4 rounded-full w-[160px] h-[40px] shadow-md">
+            <button onClick={prevSlide} className="text-white hover:text-primary-400 transition-colors flex items-center justify-center">
               <ChevronLeft size={22} />
             </button>
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
               {slides.map((_, i) => (
                 <button
                   key={i}
@@ -746,7 +746,7 @@ const Home = () => {
                 />
               ))}
             </div>
-            <button onClick={nextSlide} className="text-white hover:text-primary-400 transition-colors">
+            <button onClick={nextSlide} className="text-white hover:text-primary-400 transition-colors flex items-center justify-center">
               <ChevronRight size={22} />
             </button>
           </div>
