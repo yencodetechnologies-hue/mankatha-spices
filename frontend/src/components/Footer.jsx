@@ -85,9 +85,9 @@ const Footer = () => {
 										<p className="font-rubik font-medium text-[#FFFFFF] text-[16px] leading-[25px] tracking-[0.24px] mt-2 text-wrap">
 											Hotline  
 										</p>
-										<p className="font-rubik font-medium text-[#FFFFFF] text-[16px] leading-[25px] tracking-[0.24px] mt-2 text-wrap">
+										<a href="tel:0094771164071" className="font-rubik font-medium text-[#FFFFFF] text-[16px] leading-[25px] tracking-[0.24px] mt-2 text-wrap hover:text-[#FFA415] transition-colors cursor-pointer">
 											009 4771164071
-										</p>
+										</a>
 									</div>
 								</div>
 							</div>
@@ -140,7 +140,9 @@ const Footer = () => {
 								<div className="flex flex-cols-2 font-nunito font-normal text-[#BCBCBC] text-[16px]  gap-2 items-center mt-2 ">
 									<MdForwardToInbox className="text-[#8139E7] text-[17px]" />
 									<div className="flex-col">
-										<p>mankathavvt@gmail.com</p>
+										<a href="mailto:mankathavvt@gmail.com" className="hover:text-[#8139E7] transition-colors cursor-pointer">
+											mankathavvt@gmail.com
+										</a>
 									</div>
 								</div>
 							</div>
