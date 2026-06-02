@@ -104,11 +104,11 @@ const Hero = () => {
                       <img
                         src={HeroIcon4}
                         alt="Play Video"
-                        className="w-[60px] h-[60px] md:w-auto md:h-auto p-[15px] md:p-[40px] bg-white rounded-full animate-smoothPing cursor-pointer relative z-0"
+                        className="w-[80px] h-[80px] md:w-auto md:h-auto p-[20px] md:p-[40px] bg-white rounded-full animate-smoothPing cursor-pointer relative z-0"
                         onClick={openModal}
                       />
                       <Link to="/Care/volunteer" className="mt-4 md:mt-6 relative z-10">
-                        <button className="join-button animate-slideImage2 relative px-6 py-2 md:px-10 md:py-3 bg-[#213F96] rounded-full font-nunito font-bold text-white text-[16px] md:text-[20px] leading-[24px] md:leading-[30px] tracking-[0.5px] overflow-hidden border-2 border-white/20 shadow-xl hover:scale-105 transition-transform duration-300">
+                        <button className="join-button animate-slideImage2 relative px-7 py-2 md:px-10 md:py-3 bg-[#213F96] rounded-full font-nunito font-bold text-white text-[17px] md:text-[20px] leading-[25px] md:leading-[30px] tracking-[0.5px] overflow-hidden border-2 border-white/20 shadow-xl hover:scale-105 transition-transform duration-300">
                           <span className="relative z-10">Join Us</span>
                         </button>
                       </Link>
