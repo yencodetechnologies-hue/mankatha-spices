@@ -60,28 +60,27 @@ const Hero = () => {
   };
 
   return (
-    <div className="w-full relative h-[100vh] md:h-[110vh]  flex ">
+    <div className="w-full relative h-[100vh] md:h-[110vh] flex overflow-x-hidden">
       {HeroSlider.map((item, i) => (
         <div
           key={i}
           className={`slide-container ${i === index ? "block" : "hidden"} flex w-full`}
         >
           <div className="w-full  h-[100vh] md:h-[110vh] relative overflow-hidden flex items-center">
-            <img
-              alt=""
-              className=" -z-10 h-full w-full absolute zoom-in"
+            <div
+              className="absolute inset-0 z-0 zoom-in"
               style={{
-                backgroundImage: `linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.5)),url(${item.image})`,
+                backgroundImage: `linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.5)), url(${item.image})`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
               }}
-            />
+            ></div>
             <img
               src={item.icon3}
               alt=""
-              className="hidden md:flex absolute bg-opacity-80 left-[35px] bottom-0 w-[205px] animate-wiperAnimation"
+              className="hidden md:flex absolute bg-opacity-80 left-[35px] bottom-0 w-[205px] animate-wiperAnimation z-0"
             />
-            <div className="flex flex-col w-full mt-[80px] md:mt-[130px] mb-[20px] md:mb-[200px] z-4 px-6 md:px-24">
+            <div className="flex flex-col w-full mt-[80px] md:mt-[130px] mb-[20px] md:mb-[200px] relative z-10 px-6 md:px-24">
               <div className="flex flex-col md:flex-row justify-between w-full mt-4 md:mt-0 items-stretch">
                 
                 {/* LEFT COLUMN: Text + Play Button + Join Us */}
@@ -99,15 +98,15 @@ const Hero = () => {
                   </div>
 
                   {/* Play button + Join Us */}
-                  <div className="flex flex-col items-start mt-4 md:mt-8">
-                    <div className="flex flex-col items-center">
+                  <div className="flex flex-col items-start mt-4 md:mt-8 w-full md:w-auto">
+                    <div className="flex flex-row md:flex-col items-center justify-between md:justify-center w-full md:w-auto">
                       <img
                         src={HeroIcon4}
                         alt="Play Video"
                         className="w-[80px] h-[80px] md:w-auto md:h-auto p-[20px] md:p-[40px] bg-white rounded-full animate-smoothPing cursor-pointer relative z-0"
                         onClick={openModal}
                       />
-                      <Link to="/Care/volunteer" className="mt-4 md:mt-6 relative z-10">
+                      <Link to="/Care/volunteer" className="mt-0 md:mt-6 relative z-10">
                         <button className="join-button animate-slideImage2 relative px-7 py-2 md:px-10 md:py-3 bg-[#213F96] rounded-full font-nunito font-bold text-white text-[17px] md:text-[20px] leading-[25px] md:leading-[30px] tracking-[0.5px] overflow-hidden border-2 border-white/20 shadow-xl hover:scale-105 transition-transform duration-300">
                           <span className="relative z-10">Join Us</span>
                         </button>
