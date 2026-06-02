@@ -55,13 +55,13 @@ const Navbar = () => {
                 backgroundColor: scrollY > 50 ? "#080229" : "transparent",
             }}
         >
-            <div className="mx-auto flex w-full  justify-between py-5 text-sm text-white font-bold font-nunito">
+            <div className="mx-auto flex w-full justify-between py-5 text-sm text-white font-bold font-nunito">
                 {/* Left Section */}
                 <div className="flex items-center justify-between gap-10">
                     {/* Logo */}
-                    <img src={logo} alt="Logo" className="h-[60px]" />
-
-                    
+                    <Link to="/" className="flex items-center">
+                      <img src={logo} alt="Logo" className="h-[40px] md:h-[45px]" />
+                    </Link>
                 </div>
 
                 {/* Right Section */}

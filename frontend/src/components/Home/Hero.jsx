@@ -4,7 +4,7 @@ import { HeroSlider } from "../../Data";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { IoIosCloseCircleOutline } from "react-icons/io";
-import angadi_logo from "../../assets/angadi_logo.png";
+import angadi_logo from "../../assets/mankatha_new_logo.png";
 
 const Modal = ({ isOpen, onClose, videoUrl }) => {
   if (!isOpen) return null;
@@ -45,7 +45,7 @@ const Hero = () => {
   };
 
   useEffect(() => {
-    const interval = setInterval(nextSlide, 10000);
+    const interval = setInterval(nextSlide, 5000);
     return () => clearInterval(interval);
   }, []);
 
@@ -81,56 +81,67 @@ const Hero = () => {
               alt=""
               className="hidden md:flex absolute bg-opacity-80 left-[35px] bottom-0 w-[205px] animate-wiperAnimation"
             />
-            <div className="flex flex-col w-full my-[200px] z-4 px-6 md:px-24">
-              <div className="w-full flex flex-col">
-                <div className="w-full animate-slideContent2">
-                  <p className="font-nunito font-extrabold text-white text-[30px] leading-[30px] md:text-[60px] md:leading-[60px] flex flex-row w-full">
-                    {t("title")}
-                  </p>
-                </div>
-                <div>
-                  <div className="font-nunito font-extrabold animate-slideContent2 flex flex-row text-white text-[30px] leading-[40px] md:text-[60px] md:leading-[60px] items-center justify-between w-full">
-                    <span>The Mankatha Way</span>
-                    <div className="flex flex-col items-center gap-4">
+            <div className="flex flex-col w-full mt-[80px] md:mt-[130px] mb-[20px] md:mb-[200px] z-4 px-6 md:px-24">
+              <div className="flex flex-col md:flex-row justify-between w-full mt-4 md:mt-0 items-stretch">
+                
+                {/* LEFT COLUMN: Text + Play Button + Join Us */}
+                <div className="flex flex-col items-start justify-between w-full md:w-[65%] lg:w-[70%]">
+                  <div className="w-full flex-col font-nunito flex animate-slideImage2">
+                    <p className="font-extrabold text-[28px] md:text-[50px] lg:text-[58px] leading-[32px] md:leading-[55px] lg:leading-[65px] tracking-[-0.03em] drop-shadow-md pb-3 md:pb-6 text-white w-full">
+                      {t("title")}
+                      <br />
+                      The Mankatha Way
+                    </p>
+                    <p className="font-semibold text-white/90 text-[15px] md:text-[20px] lg:text-[24px] md:leading-[31.5px] leading-[22px] tracking-[0.27px] max-w-[700px]">
+                      Empowering our community through Unified Investments and Leadership
+                    </p>
+                    <Modal isOpen={isModalOpen} onClose={closeModal} videoUrl={videoUrl} />
+                  </div>
+
+                  {/* Play button + Join Us */}
+                  <div className="flex flex-col items-start mt-4 md:mt-8">
+                    <div className="flex flex-col items-center">
                       <img
                         src={HeroIcon4}
-                        alt=""
-                        className="p-[44px] hidden md:flex bg-white rounded-full animate-smoothPing cursor-pointer"
+                        alt="Play Video"
+                        className="w-[60px] h-[60px] md:w-auto md:h-auto p-[15px] md:p-[40px] bg-white rounded-full animate-smoothPing cursor-pointer relative z-0"
                         onClick={openModal}
                       />
-                      <Link to="/Care/volunteer" className="hidden md:block">
-                        <button className="join-button animate-slideImage2 relative px-6 py-2 bg-[#213F96] rounded-full font-nunito font-bold text-white text-[17px] leading-[29.8px] tracking-[0.25px] overflow-hidden">
+                      <Link to="/Care/volunteer" className="mt-4 md:mt-6 relative z-10">
+                        <button className="join-button animate-slideImage2 relative px-6 py-2 md:px-10 md:py-3 bg-[#213F96] rounded-full font-nunito font-bold text-white text-[16px] md:text-[20px] leading-[24px] md:leading-[30px] tracking-[0.5px] overflow-hidden border-2 border-white/20 shadow-xl hover:scale-105 transition-transform duration-300">
                           <span className="relative z-10">Join Us</span>
                         </button>
                       </Link>
                     </div>
                   </div>
-                  <Modal isOpen={isModalOpen} onClose={closeModal} videoUrl={videoUrl} />
                 </div>
-                <div className="flex flex-col animate-slideContent mt-4">
-                  <p className="font-rubik font-normal text-white md:text-[18px] text-[16px] md:leading-[31.5px] leading-[28px] tracking-[0.27px]">
-                    Empowering our community through Unified Investments and Leadership
-                  </p>
-                </div>
-                <div className="flex flex-col md:flex-row mt-8 gap-4 md:gap-8 items-start md:items-end">
-                  {/* Mobile only Join Us */}
-                  <Link to="/Care/volunteer" className="md:hidden">
-                    <button className="join-button animate-slideImage2 relative px-6 py-2 bg-[#213F96] rounded-full font-nunito font-bold text-white text-[17px] leading-[29.8px] tracking-[0.25px] overflow-hidden">
-                      <span className="relative z-10">Join Us</span>
-                    </button>
-                  </Link>
 
-                  {/* Mankatha Angadi Logo & Button */}
-                  <div className="flex flex-col items-stretch w-[180px] md:w-[220px] group cursor-pointer hover:-translate-y-1 transition-transform animate-slideImage2">
-                    <Link to="/mankathaspecies" className="bg-white rounded-t-[30px] pt-4 pb-4 px-4 flex justify-center items-center shadow-lg">
-                      <img src={angadi_logo} alt="Mankatha Angadi Logo" className="h-16 md:h-20 object-contain group-hover:scale-105 transition-transform duration-300" />
-                    </Link>
-                    <Link to="/mankathaspecies" className="relative z-10">
-                      <button className="w-full join-button relative px-6 py-2 bg-[#8DC63F] rounded-b-[30px] rounded-t-none font-nunito font-bold text-white text-[16px] md:text-[17px] leading-[29.8px] tracking-[0.25px] overflow-hidden shadow-xl">
-                        <span className="relative z-10">Mankatha Angadi</span>
-                      </button>
-                    </Link>
-                  </div>
+                {/* RIGHT COLUMN: Mankatha Angadi - Text + Arrow + Logo */}
+                <div className="flex flex-col items-center justify-between mt-8 md:mt-0 md:pt-[20px] w-full md:w-[35%] lg:w-[30%]">
+                  <Link to="/mankathaspecies" className="flex flex-col items-center justify-between h-full group cursor-pointer animate-slideImage2 hover:-translate-y-1 transition-transform">
+                    {/* Text Above Arrow */}
+                    <div className="text-white font-extrabold text-[24px] md:text-[35px] mb-0 drop-shadow-lg tracking-wide whitespace-nowrap" style={{ textShadow: '2px 2px 4px #000' }}>
+                      Mankatha Angadi
+                    </div>
+                    {/* Bouncing/Flickering Down Arrow */}
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="text-[#CC0000] animate-pulse drop-shadow-[0_4px_12px_rgba(204,0,0,0.8)] -my-2 md:-my-3 w-[60px] h-[80px] md:w-[90px] md:h-[115px]"
+                      style={{ animationDuration: '3s' }}
+                      viewBox="0 0 24 24" preserveAspectRatio="none"
+                      fill="currentColor"
+                    >
+                      <path d="M9 2 h6 v12 h4 L12 23 L5 14 h4 z"/>
+                    </svg>
+                    {/* Logo Circle Below */}
+                    <div className="flex justify-center items-center">
+                      <img
+                        src={angadi_logo}
+                        alt="Mankatha Angadi Logo"
+                        className="w-[120px] h-[120px] md:w-[220px] md:h-[220px] lg:w-[250px] lg:h-[250px] object-contain drop-shadow-2xl transition-all duration-300"
+                      />
+                    </div>
+                  </Link>
                 </div>
               </div>
             </div>

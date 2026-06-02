@@ -234,5 +234,5 @@ export {
 }
 
 
-import angadi_logo from "./angadi_logo.png";
+import angadi_logo from "./mankatha_new_logo.png";
 export { angadi_logo };

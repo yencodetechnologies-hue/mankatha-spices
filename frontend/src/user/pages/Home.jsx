@@ -11,6 +11,7 @@ import heroBlendedMasala from '../../assets/hero_blended_masala.png';
 import heroOrganicSpices from '../../assets/hero_organic_spices.png';
 import heroWholeSpices from '../../assets/hero_whole_spices.png';
 import promoBannerImg from '../../assets/promo_banner.png';
+import angadiLogo from '../../assets/mankatha_new_logo.png';
 
 import { useWishlist } from '../../contexts/WishlistContext';
 import { getBackendOrigin } from '../../api/adminApiBase';
@@ -385,29 +386,27 @@ const getCategoryImg = (name, staticImg) => {
 const defaultSlides = [
   {
     id: 1,
-    title: "Mankatha Blended Masalas",
+    title: "",
     subtitle: "Authentic Flavors, Rich Tradition",
-    description: "Experience the premium taste of our handcrafted spice blends, perfect for enhancing your traditional home cooking.",
     image: heroBlendedMasala,
     cta: "Shop Now",
     ctaLink: "/products"
   },
   {
     id: 2,
-    title: "Pure & Organic Spices",
+    title: "",
     subtitle: "100% Certified Organic Spice Powders",
-    description: "Sourced directly from the finest organic farms, packed with natural flavor, color, and rich aromatics.",
     image: heroOrganicSpices,
-    cta: "Shop Pure Powders",
+    cta: "Shop Now",
     ctaLink: "/products"
   },
   {
     id: 3,
-    title: "Traditional Whole Spices",
+    title: "",
     subtitle: "Gourmet Aromatics for Fine Culinary Art",
-    description: "Carefully selected whole cardamom, cloves, cinnamon, and pepper to bring gourmet level depth to your kitchen.",
+  
     image: heroWholeSpices,
-    cta: "Shop Whole Spices",
+    cta: "Shop Now",
     ctaLink: "/products"
   }
 ];
@@ -595,6 +594,14 @@ const Home = () => {
   const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % slides.length);
   const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
 
+  // Auto-play slider
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [slides.length]);
+
   const features = [
     {
       icon: <Truck className="text-primary-500 w-4 h-4 md:w-8 md:h-8" />,
@@ -616,7 +623,7 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-slate-50/30">
       {/* Hero Slider */}
-      <section className="relative overflow-hidden h-[380px] sm:h-[420px] md:h-[600px]">
+      <section className="relative overflow-hidden h-[500px] sm:h-[550px] md:h-[600px]">
         <div className="relative h-full">
           {slides.map((slide, index) => (
             <div
@@ -634,78 +641,119 @@ const Home = () => {
               <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent z-[1]" />
 
               {/* Text Content — z-[2] always on top */}
-              <div className="absolute inset-0 z-[2] flex items-end md:items-center pb-24 md:pb-28">
-                <div className="container-custom w-full">
-                  <div className={`max-w-2xl text-white px-4 transition-all duration-1000 delay-300 ${index === currentSlide ? 'translate-x-0 opacity-100' : '-translate-x-20 opacity-0'
-                    }`}>
-                    <span className="inline-block text-primary-400 font-bold tracking-widest uppercase text-[10px] sm:text-xs md:text-sm mb-2 md:mb-4">
-                      Best Organic Market
-                    </span>
+              <div className="absolute inset-0 z-[2] flex items-center pt-0 pb-16 md:pb-24">
+                <div className="container-custom w-full flex items-center justify-between relative">
+                  {/* LEFT: Slide text, and Shop Now */}
+                  <div className={`w-full text-white px-4 transition-all duration-1000 delay-300 ${index === currentSlide ? 'translate-x-0 opacity-100' : '-translate-x-20 opacity-0'}`}>
                     <h1 className="text-2xl sm:text-3xl md:text-7xl font-extrabold mb-2 md:mb-6 leading-tight text-white drop-shadow-2xl">
                       {slide.title.split(' ').map((word, i) => (
                         <span key={i} className={i % 2 !== 0 ? 'text-primary-400' : ''}>{word} </span>
                       ))}
                     </h1>
                     {slide.description && (
-                      <p className="text-xs sm:text-sm md:text-2xl mb-3 md:mb-10 text-gray-200 leading-relaxed max-w-xl line-clamp-2 md:line-clamp-none">
+                      <p className="text-xs sm:text-sm md:text-2xl mb-3 md:mb-8 text-gray-200 leading-relaxed max-w-xl line-clamp-2 md:line-clamp-none">
                         {slide.description}
                       </p>
                     )}
-                    <div className="flex flex-wrap gap-3 md:gap-4">
-                      <Link
-                        to={slide.ctaLink}
-                        className="btn-premium flex items-center gap-2 px-5 py-2.5 md:px-10 md:py-5 text-xs md:text-lg"
-                      >
-                        {slide.cta}
-                        <ArrowRight size={18} className="md:w-5 md:h-5" />
-                      </Link>
-                    </div>
+                      {/* Logo, Shop Now Button, and Tamil Text */}
+                      <div className="mb-4 md:mb-8 flex flex-col md:flex-row items-center justify-center w-full gap-8 md:gap-16">
+                      
+                        {/* Logo and Shop Now Button Container */}
+                        <div className="flex flex-col items-center justify-center">
+                          <img
+                            src={angadiLogo}
+                            alt="Mankatha Angadi Logo"
+                            className="w-[160px] h-[160px] md:w-[100%] md:h-auto object-contain rounded-full drop-shadow-2xl hover:scale-105 transition-transform duration-300 pointer-events-auto"
+                            style={{ maxWidth: '280px', maxHeight: '280px' }}
+                          />
+                          
+                          {/* Buttons Container */}
+                          <div className="mt-3 md:mt-5 pointer-events-auto z-10 flex items-center justify-center w-full">
+                            <div className="hidden md:flex">
+                              <Link
+                                to={slide.ctaLink}
+                                className="btn-premium flex items-center gap-1.5 px-4 py-1.5 md:px-5 md:py-2 text-[14px] md:text-lg font-bold rounded-full w-max shadow-md"
+                              >
+                                {slide.cta}
+                                <ArrowRight size={18} className="w-4 h-4 md:w-5 md:h-5" />
+                              </Link>
+                            </div>
+
+                            {/* Desktop Slider Navigation (Aligned Horizontally) */}
+                            <div className="hidden md:flex items-center justify-center md:h-[48px] absolute right-4 md:right-8 lg:right-12 gap-4 glass px-6 rounded-full pointer-events-auto z-30">
+                              <button onClick={prevSlide} className="text-white hover:text-primary-400 transition-colors">
+                                <ChevronLeft size={20} className="w-5 h-5" />
+                              </button>
+                              <div className="flex gap-2.5">
+                                {slides.map((_, i) => (
+                                  <button
+                                    key={`nav-${i}`}
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      setCurrentSlide(i);
+                                    }}
+                                    className={`h-1.5 rounded-full transition-all duration-500 ${i === currentSlide ? 'w-6 bg-primary-400' : 'w-1.5 bg-white/30'}`}
+                                  />
+                                ))}
+                              </div>
+                              <button onClick={nextSlide} className="text-white hover:text-primary-400 transition-colors">
+                                <ChevronRight size={20} className="w-5 h-5" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Tamil Text Container */}
+                        <div className="flex flex-col items-center md:items-center justify-center text-center pointer-events-auto mt-4 md:mt-0">
+                          <p className="text-white font-extrabold text-[16px] md:text-[18px] lg:text-[36px] leading-[1.2] drop-shadow-[0_4px_8px_rgba(0,0,0,1)] tracking-wide whitespace-nowrap" style={{ textShadow: '2px 2px 4px #000, -2px -2px 4px #000, 2px -2px 4px #000, -2px 2px 4px #000' }}>
+                            மங்காத்தா அங்காடி வல்வெட்டித்துறை
+                            <br/>
+                            <span className="text-[14px] md:text-[20px] lg:text-[32px] text-[#A6D13A] font-bold mt-2 md:mt-4 block" style={{ textShadow: '1px 1px 2px #000' }}>
+                              Mankatha Angadi - Valvettithurai
+                            </span>
+                          </p>
+                          
+                          {/* Mobile-only Shop Now Button (Displayed below text) */}
+                          <div className="flex md:hidden mt-3 md:mt-5 pointer-events-auto z-10 items-center justify-center w-full">
+                            <Link
+                              to={slide.ctaLink}
+                              className="btn-premium flex items-center gap-1.5 px-4 py-1.5 text-[14px] font-bold rounded-full w-max shadow-md"
+                            >
+                              {slide.cta}
+                              <ArrowRight size={18} className="w-4 h-4" />
+                            </Link>
+                          </div>
+                        </div>
+
+                      </div>
                   </div>
                 </div>
               </div>
             </div>
           ))}
 
-          {/* Slider Navigation — z-30 always on top */}
-          <div className="absolute bottom-16 md:bottom-28 left-1/2 -translate-x-1/2 z-30 flex items-center gap-3 md:gap-6 glass px-3 py-1.5 md:px-6 md:py-3 rounded-xl md:rounded-2xl">
+          {/* Mobile Slider Navigation — always on top */}
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-30 flex md:hidden items-center gap-3 glass px-3 py-1.5 rounded-xl">
             <button onClick={prevSlide} className="text-white hover:text-primary-400 transition-colors">
-              <ChevronLeft size={22} className="md:w-7 md:h-7" />
+              <ChevronLeft size={22} />
             </button>
-            <div className="flex gap-2 md:gap-3">
+            <div className="flex gap-2">
               {slides.map((_, i) => (
                 <button
                   key={i}
                   onClick={() => setCurrentSlide(i)}
-                  className={`h-1.5 md:h-2 rounded-full transition-all duration-500 ${i === currentSlide ? 'w-8 md:w-10 bg-primary-400' : 'w-1.5 md:w-2 bg-white/30'
-                    }`}
+                  className={`h-1.5 rounded-full transition-all duration-500 ${i === currentSlide ? 'w-8 bg-primary-400' : 'w-1.5 bg-white/30'}`}
                 />
               ))}
             </div>
             <button onClick={nextSlide} className="text-white hover:text-primary-400 transition-colors">
-              <ChevronRight size={22} className="md:w-7 md:h-7" />
+              <ChevronRight size={22} />
             </button>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="relative z-40 container-custom -mt-10 md:-mt-20 mb-6 reveal reveal-up">
-        <div className="bg-white rounded-xl md:rounded-2xl shadow-lg border border-gray-100 px-1 py-2 md:px-10 md:py-8">
-          <div className="grid grid-cols-3 divide-x divide-gray-100">
-            {features.map((feature, i) => (
-              <div key={i} className="flex flex-col items-center text-center px-2 py-2 md:px-6 md:py-4 gap-1 md:gap-3">
-                <div className="w-8 h-8 md:w-14 md:h-14 bg-primary-100 rounded-lg md:rounded-2xl flex items-center justify-center text-primary-600 flex-shrink-0">
-                  {feature.icon}
-                </div>
-                <div>
-                  <h3 className="text-[10px] md:text-base font-bold text-gray-900 leading-tight">{feature.title}</h3>
-                  <p className="text-gray-400 text-[9px] md:text-sm mt-0.5 leading-tight hidden md:block">{feature.description}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+
 
       {/* Promo Banner Popup */}
       {showPromoPopup && promoBanner && promoBanner.imageUrl && (
@@ -750,15 +798,15 @@ const Home = () => {
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
-            {categoriesList.slice(0, 8).map((category, i) => (
+          <div className="flex flex-wrap justify-center gap-4">
+            {categoriesList.slice(0, 7).map((category, i) => (
               <Link
                 key={category.id}
                 to={`/products?category=${encodeURIComponent(category.slug)}`}
-                className={`group reveal reveal-scale stagger-${(i % 4) + 1} h-full block`}
+                className={`group reveal reveal-scale stagger-${(i % 4) + 1} w-full sm:w-[calc(50%-1rem)] md:w-[calc(33.33%-1rem)] lg:w-[calc(25%-1rem)] max-w-[280px]`}
               >
-                <div className="bg-white h-full flex flex-col items-center justify-start p-4 rounded-3xl shadow-sm hover:shadow-xl transition-all duration-500 text-center border border-gray-100 group-hover:border-primary-100 group-hover:-translate-y-2">
-                  <div className="relative w-20 h-20 mx-auto mb-4 shrink-0 bg-primary-50 rounded-full overflow-hidden flex items-center justify-center group-hover:scale-110 transition-transform duration-500 shadow-inner border border-gray-100">
+                <div className="bg-white h-full flex flex-row items-center justify-start p-4 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 text-left border border-gray-100 group-hover:border-primary-100 group-hover:-translate-y-1">
+                  <div className="relative w-16 h-16 mr-4 shrink-0 bg-primary-50 rounded-full overflow-hidden flex items-center justify-center group-hover:scale-110 transition-transform duration-500 shadow-inner border border-gray-100">
                     <img
                       src={category.image}
                       alt={category.name}
@@ -768,7 +816,7 @@ const Home = () => {
                       }}
                     />
                   </div>
-                  <h3 className="font-bold text-gray-800 text-sm group-hover:text-primary-600 flex-1 flex items-center justify-center">{category.name}</h3>
+                  <h3 className="font-bold text-gray-800 text-sm group-hover:text-primary-600 leading-snug">{category.name}</h3>
                 </div>
               </Link>
             ))}

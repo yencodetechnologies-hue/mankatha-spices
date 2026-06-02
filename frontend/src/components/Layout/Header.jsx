@@ -192,44 +192,7 @@ const Header = () => {
   const cartTotal = getCartTotal();
 
   const handleLocationClick = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const lat = position.coords.latitude;
-          const lng = position.coords.longitude;
-          try {
-            const response = await fetch(`https://photon.komoot.io/reverse?lon=${lng}&lat=${lat}`);
-            const data = await response.json();
-            
-            if (data && data.features && data.features.length > 0) {
-              const props = data.features[0].properties;
-              const pin = props.postcode || props.city || "Unknown";
-              const desc = props.name || props.locality || props.street || props.city || "Serviceable Area";
-              
-              setUserLocation({
-                city: pin,
-                region: desc
-              });
-              localStorage.setItem("appCity", `${pin}, ${desc}`);
-              localStorage.setItem("appPincode", pin !== "Unknown" ? pin : "");
-            }
-          } catch (err) {
-            console.error("Geocoding error", err);
-          }
-          
-          // Do NOT open the Location Modal after successfully getting location
-          // setLocationModalOpen(true);
-        },
-        (err) => {
-          console.warn("Location permission denied", err);
-          // If they block or deny, show this strict alert and DO NOT open the modal
-          alert("Please allow the location permission before continuing");
-        },
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-      );
-    } else {
-      alert("Please allow the location permission before continuing");
-    }
+    setLocationModalOpen(true);
   };
 
   return (
@@ -240,23 +203,31 @@ const Header = () => {
           <div className="flex items-center justify-between py-2 md:py-3 gap-2 md:gap-4">
 
             {/* Logo */}
-            <Link to="/" className="flex-shrink-0 flex items-center">
+            <Link to="/" className="flex-shrink-0 flex items-center gap-2 md:gap-3 group">
               <img
                 src={angadi_logo}
                 alt="Mankatha Angadi"
-                className="h-16 md:h-20 w-auto object-contain transition-transform duration-300 hover:scale-105"
+                className="h-16 md:h-20 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
               />
+              <div className="flex flex-col">
+                <span className="text-[12px] md:text-[20px] lg:text-[24px] font-extrabold text-[#CC0000] tracking-wide leading-tight drop-shadow-sm">
+                  Mankatha Angadi
+                </span>
+                <span className="text-[7px] md:text-[10px] lg:text-[14px] font-bold text-[#8CC63F] tracking-wider uppercase leading-tight">
+                  Valvettithurai
+                </span>
+              </div>
             </Link>
 
             {/* Location - Amazon Style */}
             <div 
               onClick={handleLocationClick}
-              className="hidden md:flex items-center gap-1 cursor-pointer hover:ring-1 hover:ring-gray-200 p-1.5 rounded transition-all border border-gray-100 shadow-sm px-3 shrink-0"
+              className="flex items-center gap-1 cursor-pointer hover:ring-1 hover:ring-gray-200 p-1 md:p-1.5 rounded transition-all border border-gray-100 shadow-sm px-2 md:px-3 shrink-0"
             >
-              <MapPin size={20} className="text-gray-800 mt-1.5" strokeWidth={1.5} />
+              <MapPin className="text-gray-800 mt-1 w-4 h-4 md:w-5 md:h-5" strokeWidth={1.5} />
               <div className="flex flex-col">
-                <span className="text-[11px] text-gray-500 leading-none">Delivering to {userLocation.city}</span>
-                <div className="text-[14px] font-bold text-gray-900 leading-tight truncate max-w-[140px]">
+                <span className="text-[9px] md:text-[11px] text-gray-500 leading-none">Delivering to {userLocation.city}</span>
+                <div className="text-[11px] md:text-[14px] font-bold text-gray-900 leading-tight truncate max-w-[80px] md:max-w-[140px]">
                   {userLocation.region}
                 </div>
               </div>
