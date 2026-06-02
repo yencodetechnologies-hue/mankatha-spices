@@ -117,8 +117,10 @@ const Hero = () => {
                 </div>
 
                 {/* RIGHT COLUMN: Mankatha Angadi - Text + Arrow + Logo */}
-                <div className="flex flex-col items-center justify-between mt-8 md:mt-0 md:pt-[20px] w-full md:w-[35%] lg:w-[30%]">
-                  <Link to="/mankathaspecies" className="flex flex-col items-center justify-between h-full group cursor-pointer animate-slideImage2 hover:-translate-y-1 transition-transform">
+                <div className="flex flex-col items-center justify-between mt-8 md:mt-0 md:pt-[20px] w-full md:w-[35%] lg:w-[30%] h-full">
+                  
+                  {/* Top Part: Link to store with Logo and Arrow */}
+                  <Link to="/mankathaspecies" className="flex flex-col items-center justify-center gap-1 md:gap-2 group cursor-pointer animate-slideImage2 hover:-translate-y-1 transition-transform flex-grow">
                     {/* Text Above Arrow */}
                     <div className="text-white font-extrabold text-[24px] md:text-[35px] mb-0 drop-shadow-lg tracking-wide whitespace-nowrap" style={{ textShadow: '2px 2px 4px #000' }}>
                       Mankatha Angadi
@@ -126,8 +128,8 @@ const Hero = () => {
                     {/* Bouncing/Flickering Down Arrow */}
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      className="text-[#CC0000] animate-pulse drop-shadow-[0_4px_12px_rgba(204,0,0,0.8)] -my-2 md:-my-3 w-[60px] h-[80px] md:w-[90px] md:h-[115px]"
-                      style={{ animationDuration: '3s' }}
+                className="text-[#FF0000] animate-pulse drop-shadow-[0_0_20px_rgba(255,0,0,1)] w-[60px] h-[80px] md:w-[90px] md:h-[115px]"
+                      style={{ animationDuration: '0.5s' }}
                       viewBox="0 0 24 24" preserveAspectRatio="none"
                       fill="currentColor"
                     >
@@ -142,6 +144,20 @@ const Hero = () => {
                       />
                     </div>
                   </Link>
+
+                  {/* Bottom Part: Login Button */}
+                  <div className="flex flex-col items-center justify-end mt-4 md:mt-6 w-full">
+                    <Link to="/mankathaspecies" className="relative z-10 w-max group">
+                      <button className="bg-white px-6 py-2 md:px-8 md:py-2.5 rounded-full flex flex-col items-center justify-center shadow-xl group-hover:scale-105 border border-gray-100 group-hover:shadow-2xl transition-all duration-300 w-full whitespace-nowrap">
+                        <span className="text-[9px] md:text-[12px] lg:text-[14px] font-bold text-[#8CC63F] tracking-wider uppercase leading-tight mb-0.5">
+                          Click Here
+                        </span>
+                        <span className="text-[16px] md:text-[20px] lg:text-[24px] font-extrabold text-[#CC0000] tracking-wide leading-tight drop-shadow-sm">
+                          Mankatha Angadi
+                        </span>
+                      </button>
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
