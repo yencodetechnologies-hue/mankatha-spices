@@ -129,7 +129,7 @@ const BillerProductCard = ({ product, cart, addToCart, updateQty, removeFromCart
           <div className="flex items-end justify-between">
             <div className="flex items-end gap-2.5">
               <div className="flex flex-col text-center">
-                <span className="text-[9px] text-gray-500 mb-0.5">MRP</span>
+                {/* <span className="text-[9px] text-gray-500 mb-0.5">MRP</span> */}
                 {currentOriginalPrice > currentPrice ? (
                   <span className="text-[10px] text-gray-500 line-through leading-none">{formatMoney(currentOriginalPrice)}</span>
                 ) : (

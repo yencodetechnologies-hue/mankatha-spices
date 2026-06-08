@@ -4,7 +4,7 @@ const weightSchema = new mongoose.Schema(
   {
     weight: { type: String, required: true },
     price: { type: Number, required: true, min: 0 },
-    original_price: { type: Number, min: 0 },
+    // original_price: { type: Number, min: 0 },
   },
   { _id: false }
 );

@@ -157,7 +157,7 @@ const ProductCard = ({ product, index }) => {
           <div className="flex flex-col">
             <div className="flex items-end gap-3">
               <div className="flex flex-col text-center">
-                <span className="text-[10px] md:text-[11px] text-gray-500 mb-0.5">MRP</span>
+                {/* <span className="text-[10px] md:text-[11px] text-gray-500 mb-0.5">MRP</span> */}
                 {currentOriginalPrice > currentPrice ? (
                   <span className="text-xs md:text-sm text-gray-500 line-through leading-none">{formatMoney(currentOriginalPrice)}</span>
                 ) : (

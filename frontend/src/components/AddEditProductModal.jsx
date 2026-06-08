@@ -488,7 +488,7 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
                         />
 
                         {/* MRP Strike Price */}
-                        <input
+                        {/* <input
                           type="number"
                           placeholder="MRP"
                           title="Maximum Retail Price (Strike Price)"
@@ -510,7 +510,7 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
                             margin: 0
                           }}
                           min="0"
-                        />
+                        /> */}
 
 
                         {/* Barcode */}
