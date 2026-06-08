@@ -87,7 +87,7 @@ const Deals = () => {
                 <h3 className="text-2xl font-black text-gray-900 mb-2 truncate">{allProducts[0]?.name || "Featured deal"}</h3>
                 <div className="flex items-center gap-3 mb-6">
                   <span className="text-3xl font-black text-primary-600">$4.99</span>
-                  <span className="text-lg text-gray-400 line-through">$8.99</span>
+ 
                 </div>
                 {allProducts[0]?.stock <= 0 ? (
                   <button 
@@ -139,7 +139,7 @@ const Deals = () => {
               <div className="flex items-center justify-between mt-4">
                 <div>
                   <span className="text-2xl font-black text-primary-600">{formatMoney(product.price)}</span>
-                  <p className="text-sm text-gray-400 line-through">{formatMoney(product.original_price)}</p>
+
                 </div>
                 {product.stock <= 0 ? (
                   <button 

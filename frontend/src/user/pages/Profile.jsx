@@ -501,9 +501,7 @@ const Profile = () => {
                 </Link>
                 <div className="flex items-center justify-between">
                   <span className="font-bold text-primary-600">{formatMoney(item.price)}</span>
-                  {item.original_price > item.price && (
-                    <span className="text-xs text-gray-400 line-through">{formatMoney(item.original_price)}</span>
-                  )}
+ 
                 </div>
               </div>
             </div>

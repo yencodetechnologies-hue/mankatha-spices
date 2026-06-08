@@ -155,11 +155,7 @@ const ProductDetail = () => {
           <div className="flex items-center justify-between">
             <div>
               <span className="text-sm font-bold text-primary-600">{formatMoney(relatedProduct.price)}</span>
-              {relatedProduct.original_price > relatedProduct.price && (
-                <span className="text-xs text-gray-500 line-through ml-1">
-                  {formatMoney(relatedProduct.original_price)}
-                </span>
-              )}
+ 
             </div>
             {relatedProduct.stock <= 0 ? (
               <button
@@ -271,11 +267,7 @@ const ProductDetail = () => {
                   <span className="text-3xl font-bold text-primary-600">
                     {formatMoney(currentPrice, { currency: activeCurrency })}
                   </span>
-                  {originalPrice > currentPrice && (
-                    <span className="text-xl text-gray-500 line-through ml-3">
-                      {formatMoney(originalPrice, { currency: activeCurrency })}
-                    </span>
-                  )}
+ 
                 </div>
                 <span className="text-xs text-gray-400 italic mt-1">(Inclusive of all taxes)</span>
               </div>
