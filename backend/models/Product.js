@@ -23,7 +23,6 @@ const productSchema = new mongoose.Schema({
   sku: { type: String, required: true, trim: true, unique: true },
   category: { type: String, required: true, trim: true },
   origin: { type: String, required: true, trim: true },
-  description: { type: String, required: true, trim: true },
   stock: { type: Number, required: true, min: 0 },
   minStock: { type: Number, required: true, min: 0 },
   /** Default batch size when placing a supplier reorder from Inventory. */
