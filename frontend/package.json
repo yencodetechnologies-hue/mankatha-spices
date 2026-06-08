@@ -1,6 +1,7 @@
 {
   "name": "yencode-ecommerce-react",
   "version": "1.0.0",
+  "type": "module",
   "private": true,
   "dependencies": {
     "@formkit/auto-animate": "^0.9.0",
