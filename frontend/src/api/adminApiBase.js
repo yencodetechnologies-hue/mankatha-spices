@@ -37,11 +37,7 @@ function runtimeApiBase() {
 export function getAdminApiBase() {
   let base = runtimeApiBase() || process.env.REACT_APP_API_BASE_URL;
   if (!base) {
-    if (process.env.NODE_ENV === "development") {
-      base = "http://localhost:9876";
-    } else {
-      base = "http://localhost:9876";
-    }
+    base = devBackendOrigin();
   }
   base = base.replace(/\/$/, "");
   if (/^https?:\/\/[^/]+$/i.test(base)) {

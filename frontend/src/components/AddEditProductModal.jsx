@@ -56,7 +56,7 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
     }
     const firstCountryPricing = initialData.pricing?.[0];
     const firstWeightPricing = firstCountryPricing?.weights?.[0];
-    
+
     const weightsMap = {};
     if (firstCountryPricing?.weights) {
       firstCountryPricing.weights.forEach(w => {
@@ -121,7 +121,7 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
       const res = await categoryApi.list();
       const list = (res.categories || []).map((c) => c.name);
       setCategories(list);
-    } catch (_) {}
+    } catch (_) { }
   };
 
   React.useEffect(() => {
@@ -137,7 +137,7 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
     setForm(seedData);
     const firstCountryPricing = seedData.pricing?.[0];
     setUnitSystem(getUnitSystemFromWeights(firstCountryPricing?.weights || []));
-    
+
     if (isOpen) {
       if (firstCountryPricing?.weights && firstCountryPricing.weights.length > 0) {
         setCustomWeights(
@@ -212,12 +212,12 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
           <div className="grid-2">
             <div className="form-group">
               <label>Distributor</label>
-              <input 
-                type="text" 
-                placeholder="Distributor" 
-                value={form.type || "General"} 
-                onChange={(e) => setField("type", e.target.value)} 
-                required 
+              <input
+                type="text"
+                placeholder="Distributor"
+                value={form.type || "General"}
+                onChange={(e) => setField("type", e.target.value)}
+                required
               />
             </div>
 
@@ -442,11 +442,17 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
                       padding: "0.5rem 0.75rem",
                       borderRadius: "8px"
                     }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
-                        {/* Weight (Grams/kg/etc) */}
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr auto", gap: "0.6rem", alignItems: "end" }}>
+                        {/* Column Headers */}
+                        <div style={{ fontSize: "0.75rem", fontWeight: "600", color: "#6b7280", paddingLeft: "0.25rem" }}>Weight</div>
+                        <div style={{ fontSize: "0.75rem", fontWeight: "600", color: "#6b7280", paddingLeft: "0.25rem" }}>Price</div>
+                        <div style={{ fontSize: "0.75rem", fontWeight: "600", color: "#6b7280", paddingLeft: "0.25rem" }}>Barcode</div>
+                        <div></div>
+
+                        {/* Weight Input */}
                         <input
                           type="text"
-                          placeholder="Weight (e.g. 100g)"
+                          placeholder="e.g. 100g"
                           value={w.weight}
                           onChange={(e) => {
                             const updated = [...customWeights];
@@ -454,7 +460,6 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
                             setCustomWeights(updated);
                           }}
                           style={{
-                            flex: "1 1 120px",
                             fontSize: "0.85rem",
                             padding: "0.25rem 0.5rem",
                             border: "1px solid #d7dce8",
@@ -464,7 +469,7 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
                           required
                         />
 
-                        {/* Price */}
+                        {/* Price Input */}
                         <input
                           type="number"
                           placeholder="Price"
@@ -476,7 +481,6 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
                             setCustomWeights(updated);
                           }}
                           style={{
-                            flex: "1 1 100px",
                             fontSize: "0.85rem",
                             padding: "0.25rem 0.5rem",
                             border: "1px solid #d7dce8",
@@ -487,33 +491,7 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
                           min="0"
                         />
 
-                        {/* MRP Strike Price */}
-                        {/* <input
-                          type="number"
-                          placeholder="MRP"
-                          title="Maximum Retail Price (Strike Price)"
-                          value={w.original_price || ""}
-                          onChange={(e) => {
-                            const val = e.target.value === "" ? "" : Number(e.target.value);
-                            const updated = [...customWeights];
-                            updated[index].original_price = val;
-                            setCustomWeights(updated);
-                          }}
-                          style={{
-                            flex: "0 0 90px",
-                            fontSize: "0.85rem",
-                            padding: "0.25rem 0.5rem",
-                            border: w.original_price && Number(w.original_price) > Number(w.price)
-                              ? "1.5px solid #8dbe20"
-                              : "1px solid #d7dce8",
-                            borderRadius: "4px",
-                            margin: 0
-                          }}
-                          min="0"
-                        /> */}
-
-
-                        {/* Barcode */}
+                        {/* Barcode Input */}
                         <input
                           type="text"
                           placeholder="Barcode"
@@ -525,7 +503,6 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
                             setCustomWeights(updated);
                           }}
                           style={{
-                            flex: "1 1 120px",
                             fontSize: "0.85rem",
                             padding: "0.25rem 0.5rem",
                             border: "1px solid #d7dce8",
@@ -534,7 +511,7 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
                           }}
                         />
 
-                        {/* Delete Row Button */}
+                        {/* Delete Button */}
                         <button
                           type="button"
                           onClick={() => {
@@ -575,7 +552,7 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
                   );
                 })}
               </div>
-            </div>  
+            </div>
 
             <div className="form-group">
               <label>Min. Stock Alert</label>
@@ -594,12 +571,12 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
               />
             </div>
 
-       
 
 
-            </div>
 
-        
+          </div>
+
+
 
           <div className="form-group">
             <label style={{ fontWeight: "600" }}>Product Image</label>
