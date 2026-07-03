@@ -141,7 +141,7 @@ const ProductDetail = () => {
             <img
               src={relatedProduct.featured_image}
               alt={relatedProduct.name}
-              className="w-full h-32 object-cover hover:scale-105 transition-transform duration-300"
+              className="w-full h-32 object-contain bg-white hover:scale-105 transition-transform duration-300"
             />
           </Link>
 

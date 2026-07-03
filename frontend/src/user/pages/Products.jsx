@@ -158,7 +158,7 @@ const ProductCard = ({ product }) => {
 
       {/* Image */}
       <div className="relative image-zoom h-32 md:h-48 cursor-pointer" onClick={() => window.location.href = `/product/${product.slug}`}>
-        <img src={product.featured_image} alt={product.name} className="w-full h-full object-cover" />
+        <img src={product.featured_image} alt={product.name} className="w-full h-full object-contain bg-white" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
       </div>
 
