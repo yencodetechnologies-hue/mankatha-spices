@@ -39,7 +39,7 @@ const ProductDetail = () => {
     if (foundProduct) {
       setProduct(foundProduct);
       setSelectedImage(0);
-      
+
       // Default to first weight if available
       const weights = foundProduct.pricing?.[0]?.weights || [];
       if (weights.length > 0) {
@@ -73,7 +73,7 @@ const ProductDetail = () => {
   // Resolve active pricing details
   const activeCountryPricing = product.pricing?.[0] || { country: "India", currency: "INR", weights: [] };
   const weightsList = activeCountryPricing.weights || [];
-  
+
   const fallbackWeightLabel = product.weight ? `${product.weight}${product.unit || "g"}` : "100g";
   const activeWeightObj = weightsList.find(w => w.weight === selectedWeight) || {
     weight: fallbackWeightLabel,
@@ -136,15 +136,14 @@ const ProductDetail = () => {
 
     return (
       <div className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden">
-        <div className="relative">
-          <Link to={`/product/${relatedProduct.slug}`}>
+        <div className="relative w-full h-32 flex items-center justify-center bg-white overflow-hidden">
+          <Link to={`/product/${relatedProduct.slug}`} className="w-full h-full flex items-center justify-center">
             <img
               src={relatedProduct.featured_image}
               alt={relatedProduct.name}
-              className="w-full h-32 object-contain bg-white hover:scale-105 transition-transform duration-300"
+              className="max-w-full max-h-full w-auto h-auto object-contain hover:scale-105 transition-transform duration-300"
             />
           </Link>
-
         </div>
         <div className="p-3">
           <Link to={`/product/${relatedProduct.slug}`}>
@@ -155,7 +154,7 @@ const ProductDetail = () => {
           <div className="flex items-center justify-between">
             <div>
               <span className="text-sm font-bold text-primary-600">{formatMoney(relatedProduct.price)}</span>
- 
+
             </div>
             {relatedProduct.stock <= 0 ? (
               <button
@@ -194,11 +193,11 @@ const ProductDetail = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
           {/* Product Images */}
           <div>
-            <div className="mb-4">
+            <div className="mb-4 w-full h-96 flex items-center justify-center bg-white rounded-lg overflow-hidden">
               <img
                 src={product.images[selectedImage]}
                 alt={product.name}
-                className="w-full h-96 object-contain bg-white rounded-lg"
+                className="max-w-full max-h-full w-auto h-auto object-contain"
               />
             </div>
             <div className="grid grid-cols-4 gap-2">
@@ -206,15 +205,16 @@ const ProductDetail = () => {
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
-                  className={`border-2 rounded-lg overflow-hidden transition-colors ${
-                    selectedImage === index ? 'border-primary-500' : 'border-gray-200'
-                  }`}
+                  className={`border-2 rounded-lg overflow-hidden transition-colors ${selectedImage === index ? 'border-primary-500' : 'border-gray-200'
+                    }`}
                 >
-                  <img
-                    src={image}
-                    alt={`${product.name} ${index + 1}`}
-                    className="w-full h-20 object-contain bg-white"
-                  />
+                  <div className="w-full h-20 flex items-center justify-center bg-white overflow-hidden">
+                    <img
+                      src={image}
+                      alt={`${product.name} ${index + 1}`}
+                      className="max-w-full max-h-full w-auto h-auto object-contain"
+                    />
+                  </div>
                 </button>
               ))}
             </div>
@@ -267,12 +267,12 @@ const ProductDetail = () => {
                   <span className="text-3xl font-bold text-primary-600">
                     {formatMoney(currentPrice, { currency: activeCurrency })}
                   </span>
- 
+
                 </div>
                 <span className="text-xs text-gray-400 italic mt-1">(Inclusive of all taxes)</span>
               </div>
               <p className="text-gray-600 mb-4">{product.description}</p>
-              
+
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <div className="flex items-center text-sm text-gray-600">
                   <Truck size={16} className="mr-2 text-primary-500" />
@@ -312,8 +312,8 @@ const ProductDetail = () => {
                       if (isNaN(val)) return;
                       const maxQty = product.stock !== undefined ? Math.min(product.stock, product.max_quantity || 99) : (product.max_quantity || 99);
                       if (val > maxQty) {
-                         val = maxQty;
-                         alert(`Only ${maxQty} units available in stock`);
+                        val = maxQty;
+                        alert(`Only ${maxQty} units available in stock`);
                       }
                       if (val >= product.min_quantity && val <= maxQty) {
                         setQuantity(val);
@@ -341,14 +341,14 @@ const ProductDetail = () => {
                       weightsList.map((w) => {
                         const num = parseFloat(w.weight) || 1;
                         const rawUnit = w.weight.replace(/[0-9.\s]/g, "").toLowerCase();
-                        
+
                         let displayUnit = rawUnit;
                         if (rawUnit === "kilogram") displayUnit = "kg";
                         else if (rawUnit === "milligram") displayUnit = "mg";
                         else if (rawUnit === "liter" || rawUnit === "litre") displayUnit = "l";
                         else if (rawUnit === "milliliter") displayUnit = "ml";
                         else if (rawUnit === "gram") displayUnit = "g";
-                        
+
                         const formattedWeight = `${num} ${displayUnit}`;
                         return (
                           <option key={w.weight} value={w.weight}>
@@ -385,15 +385,14 @@ const ProductDetail = () => {
                 )}
                 <button
                   onClick={() => toggleWishlist(product)}
-                  className={`p-3 border rounded-lg transition-colors ${
-                    isInWishlist(product._id || product.id)
-                      ? 'border-primary-400 bg-primary-50 text-primary-600 shadow-sm scale-105'
-                      : 'border-gray-300 hover:bg-gray-50 text-gray-600 hover:text-primary-600 hover:border-primary-300'
-                  }`}
+                  className={`p-3 border rounded-lg transition-colors ${isInWishlist(product._id || product.id)
+                    ? 'border-primary-400 bg-primary-50 text-primary-600 shadow-sm scale-105'
+                    : 'border-gray-300 hover:bg-gray-50 text-gray-600 hover:text-primary-600 hover:border-primary-300'
+                    }`}
                 >
                   <Heart size={20} className={isInWishlist(product._id || product.id) ? 'fill-primary-500 text-primary-500 animate-heartBeat' : ''} />
                 </button>
-                <button 
+                <button
                   onClick={handleShare}
                   className="p-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                 >
