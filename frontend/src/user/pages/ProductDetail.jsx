@@ -193,11 +193,11 @@ const ProductDetail = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
           {/* Product Images */}
           <div>
-            <div className="mb-4 w-full h-96 rounded-lg overflow-hidden">
+            <div className="mb-4 w-full h-96 flex items-center justify-center bg-white rounded-lg overflow-hidden">
               <img
                 src={product.images[selectedImage]}
                 alt={product.name}
-                className="w-full h-full object-cover object-center"
+                className="max-w-full max-h-full w-auto h-auto object-contain"
               />
             </div>
             <div className="grid grid-cols-4 gap-2">
@@ -208,11 +208,11 @@ const ProductDetail = () => {
                   className={`border-2 rounded-lg overflow-hidden transition-colors ${selectedImage === index ? 'border-primary-500' : 'border-gray-200'
                     }`}
                 >
-                  <div className="w-full h-20 overflow-hidden">
+                  <div className="w-full h-20 flex items-center justify-center bg-white overflow-hidden">
                     <img
                       src={image}
                       alt={`${product.name} ${index + 1}`}
-                      className="w-full h-full object-cover object-center"
+                      className="max-w-full max-h-full w-auto h-auto object-contain"
                     />
                   </div>
                 </button>
