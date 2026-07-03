@@ -157,8 +157,8 @@ const ProductCard = ({ product }) => {
       </div>
 
       {/* Image */}
-      <div className="relative image-zoom h-32 md:h-48 cursor-pointer" onClick={() => window.location.href = `/product/${product.slug}`}>
-        <img src={product.featured_image} alt={product.name} className="w-full h-full object-contain bg-white" />
+      <div className="relative image-zoom h-32 md:h-48 cursor-pointer overflow-hidden" onClick={() => window.location.href = `/product/${product.slug}`}>
+        <img src={product.featured_image} alt={product.name} className="w-full h-full object-cover object-center" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
       </div>
 
@@ -187,7 +187,7 @@ const ProductCard = ({ product }) => {
             <div className="flex items-end gap-1.5 md:gap-3">
               <div className="flex flex-col text-center">
                 {/* <span className="text-[9px] md:text-[11px] text-gray-500 mb-0.5">MRP</span> */}
-                  <span className="text-[10px] md:text-sm text-transparent leading-none">-</span>
+                <span className="text-[10px] md:text-sm text-transparent leading-none">-</span>
               </div>
               <div className="flex flex-col text-center">
                 <span className="text-[9px] md:text-[11px] text-gray-800 mb-0.5">Mankatha</span>
@@ -224,11 +224,10 @@ const ProductCard = ({ product }) => {
         <div className="flex items-center gap-1 md:gap-2 w-full">
           <button
             onClick={() => toggleWishlist(product)}
-            className={`border rounded w-7 h-7 md:w-[42px] md:h-[42px] flex items-center justify-center transition-colors bg-white flex-shrink-0 ${
-              isInWishlist(product._id || product.id)
-                ? "border-primary-400 text-primary-600 bg-primary-50/50"
-                : "border-gray-300 text-gray-500 hover:text-primary-600 hover:border-primary-300"
-            }`}
+            className={`border rounded w-7 h-7 md:w-[42px] md:h-[42px] flex items-center justify-center transition-colors bg-white flex-shrink-0 ${isInWishlist(product._id || product.id)
+              ? "border-primary-400 text-primary-600 bg-primary-50/50"
+              : "border-gray-300 text-gray-500 hover:text-primary-600 hover:border-primary-300"
+              }`}
           >
             <Heart size={13} className={`md:w-5 md:h-5 ${isInWishlist(product._id || product.id) ? "fill-primary-500 text-primary-500" : ""}`} />
           </button>
@@ -257,11 +256,10 @@ const ProductCard = ({ product }) => {
                 <div className="flex-1 flex items-center justify-center font-bold text-gray-800 text-xs md:text-base">{qty}</div>
                 <button
                   onClick={handleIncrease}
-                  className={`w-7 md:w-12 h-full flex items-center justify-center transition-colors ${
-                    currentVariant.stock !== undefined && qty >= currentVariant.stock
-                      ? "bg-gray-300 text-gray-500 cursor-pointer"
-                      : "bg-primary-500 text-white hover:bg-primary-600"
-                  }`}
+                  className={`w-7 md:w-12 h-full flex items-center justify-center transition-colors ${currentVariant.stock !== undefined && qty >= currentVariant.stock
+                    ? "bg-gray-300 text-gray-500 cursor-pointer"
+                    : "bg-primary-500 text-white hover:bg-primary-600"
+                    }`}
                 >
                   <Plus size={12} className="md:w-4 md:h-4" />
                 </button>
@@ -470,7 +468,7 @@ const Products = () => {
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
             </div>
-            
+
             <div className="flex items-center gap-4">
               <select
                 value={sortBy}
@@ -482,7 +480,7 @@ const Products = () => {
                 <option value="price-high">Price: High to Low</option>
                 <option value="rating">Highest Rated</option>
               </select>
-              
+
               <button
                 onClick={() => setShowFilters(!showFilters)}
                 className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors lg:hidden"

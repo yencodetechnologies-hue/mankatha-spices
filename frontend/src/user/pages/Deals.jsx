@@ -60,7 +60,7 @@ const Deals = () => {
               <p className="text-gray-400 text-xl mb-10 leading-relaxed">
                 Grab your favorite organic groceries at unbeatable prices. Limited time only, while stocks last.
               </p>
-              
+
               {/* Countdown Timer */}
               <div className="flex gap-4 justify-center lg:justify-start">
                 {[
@@ -75,7 +75,7 @@ const Deals = () => {
                 ))}
               </div>
             </div>
-            
+
             <div className="relative group">
               <div className="absolute -inset-1 bg-gradient-to-r from-primary-500 to-orange-500 rounded-[3rem] blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
               <div className="relative bg-white rounded-[3rem] p-8 max-w-sm shadow-2xl overflow-hidden">
@@ -83,21 +83,23 @@ const Deals = () => {
                   <span className="text-xs">SAVE</span>
                   <span className="text-lg">40%</span>
                 </div>
-                <img src={allProducts[0]?.featured_image} alt="Featured Deal" className="w-full h-64 object-contain bg-white rounded-2xl mb-6 hover:scale-105 transition-transform duration-500" />
+                <div className="w-full h-64 flex items-center justify-center bg-white rounded-2xl mb-6 overflow-hidden">
+                  <img src={allProducts[0]?.featured_image} alt="Featured Deal" className="max-w-full max-h-full w-auto h-auto object-contain hover:scale-105 transition-transform duration-500" />
+                </div>
                 <h3 className="text-2xl font-black text-gray-900 mb-2 truncate">{allProducts[0]?.name || "Featured deal"}</h3>
                 <div className="flex items-center gap-3 mb-6">
                   <span className="text-3xl font-black text-primary-600">$4.99</span>
- 
+
                 </div>
                 {allProducts[0]?.stock <= 0 ? (
-                  <button 
+                  <button
                     disabled
                     className="w-full bg-gray-400 text-white rounded-xl py-4 flex items-center justify-center gap-2 cursor-not-allowed font-bold"
                   >
                     <ShoppingCart size={20} /> Out of Stock
                   </button>
                 ) : (
-                  <button 
+                  <button
                     onClick={() => allProducts[0] && addToCart(allProducts[0])}
                     className="w-full btn-premium py-4 flex items-center justify-center gap-2"
                   >
@@ -132,8 +134,8 @@ const Deals = () => {
               <div className="absolute top-4 left-4 bg-orange-100 text-orange-600 px-3 py-1 rounded-full text-xs font-black z-10">
                 LTD OFFER
               </div>
-              <div className="image-zoom h-48 rounded-2xl mb-4">
-                <img src={product.featured_image} alt={product.name} className="w-full h-full object-contain bg-white" />
+              <div className="image-zoom h-48 rounded-2xl mb-4 flex items-center justify-center bg-white overflow-hidden">
+                <img src={product.featured_image} alt={product.name} className="max-w-full max-h-full w-auto h-auto object-contain" />
               </div>
               <h3 className="font-bold text-gray-900 mb-2 h-12 line-clamp-2">{product.name}</h3>
               <div className="flex items-center justify-between mt-4">
@@ -142,7 +144,7 @@ const Deals = () => {
 
                 </div>
                 {product.stock <= 0 ? (
-                  <button 
+                  <button
                     disabled
                     className="w-12 h-12 bg-gray-400 text-white rounded-2xl flex items-center justify-center cursor-not-allowed shadow-lg"
                     title="Out of Stock"
@@ -150,7 +152,7 @@ const Deals = () => {
                     <ShoppingCart size={20} />
                   </button>
                 ) : (
-                  <button 
+                  <button
                     onClick={() => addToCart(product)}
                     className="w-12 h-12 bg-slate-900 text-white rounded-2xl flex items-center justify-center hover:bg-primary-500 transition-colors shadow-lg"
                   >

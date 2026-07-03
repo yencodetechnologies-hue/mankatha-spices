@@ -134,7 +134,7 @@ const ProductCard = ({ product, index }) => {
         <img
           src={product.featured_image}
           alt={product.name}
-          className="w-full h-full object-contain bg-white transform transition-transform duration-700 group-hover:scale-110"
+          className="w-full h-full object-cover object-center transform transition-transform duration-700 group-hover:scale-110"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
       </div>
@@ -158,7 +158,7 @@ const ProductCard = ({ product, index }) => {
             <div className="flex items-end gap-3">
               <div className="flex flex-col text-center">
                 {/* <span className="text-[10px] md:text-[11px] text-gray-500 mb-0.5">MRP</span> */}
-                  <span className="text-xs md:text-sm text-transparent leading-none">-</span>
+                <span className="text-xs md:text-sm text-transparent leading-none">-</span>
               </div>
               <div className="flex flex-col text-center">
                 <span className="text-[9px] md:text-[11px] text-gray-800 mb-0.5">Mankatha</span>
@@ -400,7 +400,7 @@ const defaultSlides = [
     id: 3,
     title: "",
     subtitle: "Gourmet Aromatics for Fine Culinary Art",
-  
+
     image: heroWholeSpices,
     cta: "Shop Now",
     ctaLink: "/products"
@@ -430,22 +430,22 @@ const Home = () => {
         if (cancelled) return;
         const list = res.categories || [];
         if (list.length > 0) {
-            const formatted = list.map(cat => ({
-              id: cat._id,
-              name: cat.name,
-              slug: cat.name,
-              icon: getCategoryIcon(cat.name),
-              image: cat.image ? `${getBackendOrigin()}${cat.image}` : getCategoryImg(cat.name),
-              description: `Explore our high quality ${cat.name}`
-            }));
-            setCategoriesList(formatted);
-          } else {
-            setCategoriesList(categories.map(c => ({
-              ...c,
-              slug: c.name,
-              image: getCategoryImg(c.name, c.image)
-            })));
-          }
+          const formatted = list.map(cat => ({
+            id: cat._id,
+            name: cat.name,
+            slug: cat.name,
+            icon: getCategoryIcon(cat.name),
+            image: cat.image ? `${getBackendOrigin()}${cat.image}` : getCategoryImg(cat.name),
+            description: `Explore our high quality ${cat.name}`
+          }));
+          setCategoriesList(formatted);
+        } else {
+          setCategoriesList(categories.map(c => ({
+            ...c,
+            slug: c.name,
+            image: getCategoryImg(c.name, c.image)
+          })));
+        }
       } catch {
         if (!cancelled) {
           setCategoriesList(categories.map(c => ({
@@ -469,7 +469,7 @@ const Home = () => {
         const apiProducts = await catalogApi.getProducts();
         if (cancelled || apiProducts.length === 0) return;
         setAllProducts(apiProducts);
-        
+
         // Show the 8 newest products (reversing the list)
         const newest = [...apiProducts].reverse();
         setFeaturedProducts(newest.slice(0, 8));
@@ -651,77 +651,77 @@ const Home = () => {
                         {slide.description}
                       </p>
                     )}
-                      {/* Logo, Shop Now Button, and Tamil Text */}
-                      <div className="mb-4 md:mb-8 flex flex-col md:flex-row items-center justify-center w-full gap-8 md:gap-16">
-                      
-                        {/* Logo and Shop Now Button Container */}
-                        <div className="flex flex-col items-center justify-center">
-                          <img
-                            src={angadiLogo}
-                            alt="Mankatha Angadi Logo"
-                            className="w-[160px] h-[160px] md:w-[100%] md:h-auto object-contain rounded-full drop-shadow-2xl hover:scale-105 transition-transform duration-300 pointer-events-auto"
-                            style={{ maxWidth: '280px', maxHeight: '280px' }}
-                          />
-                          
-                          {/* Buttons Container */}
-                          <div className="mt-3 md:mt-5 pointer-events-auto z-10 flex items-center justify-center w-full">
-                            <div className="hidden md:flex">
-                              <Link
-                                to={slide.ctaLink}
-                                className="btn-premium flex items-center gap-1.5 px-4 py-1.5 md:px-5 md:py-2 text-[14px] md:text-lg font-bold rounded-full w-max shadow-md"
-                              >
-                                {slide.cta}
-                                <ArrowRight size={18} className="w-4 h-4 md:w-5 md:h-5" />
-                              </Link>
-                            </div>
+                    {/* Logo, Shop Now Button, and Tamil Text */}
+                    <div className="mb-4 md:mb-8 flex flex-col md:flex-row items-center justify-center w-full gap-8 md:gap-16">
 
-                            {/* Desktop Slider Navigation (Aligned Horizontally) */}
-                            <div className="hidden md:flex items-center justify-center md:h-[48px] absolute right-4 md:right-8 lg:right-12 gap-4 glass px-6 rounded-full pointer-events-auto z-30">
-                              <button onClick={prevSlide} className="text-white hover:text-primary-400 transition-colors">
-                                <ChevronLeft size={20} className="w-5 h-5" />
-                              </button>
-                              <div className="flex gap-2.5">
-                                {slides.map((_, i) => (
-                                  <button
-                                    key={`nav-${i}`}
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      setCurrentSlide(i);
-                                    }}
-                                    className={`h-1.5 rounded-full transition-all duration-500 ${i === currentSlide ? 'w-6 bg-primary-400' : 'w-1.5 bg-white/30'}`}
-                                  />
-                                ))}
-                              </div>
-                              <button onClick={nextSlide} className="text-white hover:text-primary-400 transition-colors">
-                                <ChevronRight size={20} className="w-5 h-5" />
-                              </button>
-                            </div>
-                          </div>
-                        </div>
+                      {/* Logo and Shop Now Button Container */}
+                      <div className="flex flex-col items-center justify-center">
+                        <img
+                          src={angadiLogo}
+                          alt="Mankatha Angadi Logo"
+                          className="w-[160px] h-[160px] md:w-[100%] md:h-auto object-contain rounded-full drop-shadow-2xl hover:scale-105 transition-transform duration-300 pointer-events-auto"
+                          style={{ maxWidth: '280px', maxHeight: '280px' }}
+                        />
 
-                        {/* Tamil Text Container */}
-                        <div className="flex flex-col items-center md:items-center justify-center text-center pointer-events-auto mt-4 md:mt-0">
-                          <p className="text-white font-extrabold text-[16px] md:text-[18px] lg:text-[36px] leading-[1.2] drop-shadow-[0_4px_8px_rgba(0,0,0,1)] tracking-wide whitespace-nowrap" style={{ textShadow: '2px 2px 4px #000, -2px -2px 4px #000, 2px -2px 4px #000, -2px 2px 4px #000' }}>
-                            மங்காத்தா அங்காடி வல்வெட்டித்துறை
-                            <br/>
-                            <span className="text-[14px] md:text-[20px] lg:text-[32px] text-[#A6D13A] font-bold mt-2 md:mt-4 block" style={{ textShadow: '1px 1px 2px #000' }}>
-                              Mankatha Angadi - Valvettithurai
-                            </span>
-                          </p>
-                          
-                          {/* Mobile-only Shop Now Button (Displayed below text) */}
-                          <div className="flex md:hidden mt-3 md:mt-5 pointer-events-auto z-10 items-center justify-center w-full">
+                        {/* Buttons Container */}
+                        <div className="mt-3 md:mt-5 pointer-events-auto z-10 flex items-center justify-center w-full">
+                          <div className="hidden md:flex">
                             <Link
                               to={slide.ctaLink}
-                              className="btn-premium flex items-center justify-center gap-1.5 px-4 text-[14px] font-bold rounded-full w-[160px] h-[40px] shadow-md"
+                              className="btn-premium flex items-center gap-1.5 px-4 py-1.5 md:px-5 md:py-2 text-[14px] md:text-lg font-bold rounded-full w-max shadow-md"
                             >
                               {slide.cta}
-                              <ArrowRight size={18} className="w-4 h-4" />
+                              <ArrowRight size={18} className="w-4 h-4 md:w-5 md:h-5" />
                             </Link>
                           </div>
-                        </div>
 
+                          {/* Desktop Slider Navigation (Aligned Horizontally) */}
+                          <div className="hidden md:flex items-center justify-center md:h-[48px] absolute right-4 md:right-8 lg:right-12 gap-4 glass px-6 rounded-full pointer-events-auto z-30">
+                            <button onClick={prevSlide} className="text-white hover:text-primary-400 transition-colors">
+                              <ChevronLeft size={20} className="w-5 h-5" />
+                            </button>
+                            <div className="flex gap-2.5">
+                              {slides.map((_, i) => (
+                                <button
+                                  key={`nav-${i}`}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    setCurrentSlide(i);
+                                  }}
+                                  className={`h-1.5 rounded-full transition-all duration-500 ${i === currentSlide ? 'w-6 bg-primary-400' : 'w-1.5 bg-white/30'}`}
+                                />
+                              ))}
+                            </div>
+                            <button onClick={nextSlide} className="text-white hover:text-primary-400 transition-colors">
+                              <ChevronRight size={20} className="w-5 h-5" />
+                            </button>
+                          </div>
+                        </div>
                       </div>
+
+                      {/* Tamil Text Container */}
+                      <div className="flex flex-col items-center md:items-center justify-center text-center pointer-events-auto mt-4 md:mt-0">
+                        <p className="text-white font-extrabold text-[16px] md:text-[18px] lg:text-[36px] leading-[1.2] drop-shadow-[0_4px_8px_rgba(0,0,0,1)] tracking-wide whitespace-nowrap" style={{ textShadow: '2px 2px 4px #000, -2px -2px 4px #000, 2px -2px 4px #000, -2px 2px 4px #000' }}>
+                          மங்காத்தா அங்காடி வல்வெட்டித்துறை
+                          <br />
+                          <span className="text-[14px] md:text-[20px] lg:text-[32px] text-[#A6D13A] font-bold mt-2 md:mt-4 block" style={{ textShadow: '1px 1px 2px #000' }}>
+                            Mankatha Angadi - Valvettithurai
+                          </span>
+                        </p>
+
+                        {/* Mobile-only Shop Now Button (Displayed below text) */}
+                        <div className="flex md:hidden mt-3 md:mt-5 pointer-events-auto z-10 items-center justify-center w-full">
+                          <Link
+                            to={slide.ctaLink}
+                            className="btn-premium flex items-center justify-center gap-1.5 px-4 text-[14px] font-bold rounded-full w-[160px] h-[40px] shadow-md"
+                          >
+                            {slide.cta}
+                            <ArrowRight size={18} className="w-4 h-4" />
+                          </Link>
+                        </div>
+                      </div>
+
+                    </div>
                   </div>
                 </div>
               </div>
