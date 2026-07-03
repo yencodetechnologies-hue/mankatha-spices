@@ -580,51 +580,97 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
 
           <div className="form-group">
             <label style={{ fontWeight: "600" }}>Product Image</label>
-            <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-              {(form.image || (initialData && initialData.image)) && (
-                <div style={{ position: "relative", width: "90px", height: "90px", borderRadius: "10px", overflow: "hidden", border: "1px solid #ede6dc", flexShrink: 0 }}>
-                  <img
-                    src={form.image ? URL.createObjectURL(form.image) : absoluteImage(initialData.image)}
-                    alt="Product preview"
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setField("image", null);
-                    }}
-                    style={{
-                      position: "absolute",
-                      top: "4px",
-                      right: "4px",
-                      background: "rgba(220, 38, 38, 0.85)",
-                      color: "#white",
-                      border: "none",
-                      borderRadius: "50%",
-                      width: "20px",
-                      height: "20px",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      cursor: "pointer",
-                      padding: 0
-                    }}
-                    title="Remove selected file"
-                  >
-                    <X size={12} color="#fff" />
-                  </button>
-                </div>
-              )}
-
-              <label className="upload-dropzone" style={{ flex: 1, margin: 0, height: "90px", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", border: "2px dashed #ede6dc", borderRadius: "10px", cursor: "pointer", background: "#fcfcf9" }}>
+            <div style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
+              <label 
+                className="upload-dropzone" 
+                style={{ 
+                  display: "flex", 
+                  flexDirection: "column", 
+                  justifyContent: "center", 
+                  alignItems: "center", 
+                  border: "2px dashed #ede6dc", 
+                  borderRadius: "10px", 
+                  cursor: "pointer", 
+                  background: (form.image || (initialData && initialData.image)) ? "#fff" : "#fcfcf9",
+                  position: "relative",
+                  overflow: "hidden",
+                  padding: (form.image || (initialData && initialData.image)) ? "0" : "2rem",
+                  width: "100%",
+                  maxWidth: "400px",
+                  minHeight: "120px",
+                  transition: "all 0.2s ease"
+                }}
+              >
                 <input type="file" accept="image/*" onChange={(e) => setField("image", e.target.files?.[0] || null)} style={{ display: "none" }} />
-                <Camera size={20} style={{ color: "#8dbe20", marginBottom: "0.25rem" }} />
-                <span style={{ fontSize: "0.85rem", fontWeight: "600" }}>
-                  {form.image ? "Change selected image" : (initialData && initialData.image ? "Change existing image" : "Click to upload image")}
-                </span>
-                <small style={{ fontSize: "0.75rem", color: "#9ca3af" }}>PNG, JPG up to 5MB</small>
-                {form.image && <em style={{ fontSize: "0.7rem", color: "#8dbe20", marginTop: "0.25rem" }}>{form.image.name}</em>}
+                
+                {(form.image || (initialData && initialData.image)) ? (
+                  <div style={{ position: "relative", width: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
+                    <img
+                      src={form.image ? URL.createObjectURL(form.image) : absoluteImage(initialData.image)}
+                      alt="Product preview"
+                      style={{ 
+                        width: "100%",
+                        height: "auto",
+                        maxHeight: "300px", 
+                        objectFit: "contain", 
+                        display: "block" 
+                      }}
+                    />
+                    <div 
+                      style={{ 
+                        position: "absolute", 
+                        inset: 0, 
+                        background: "rgba(0,0,0,0.5)", 
+                        opacity: 0, 
+                        transition: "opacity 0.2s ease", 
+                        display: "flex", 
+                        alignItems: "center", 
+                        justifyContent: "center", 
+                        color: "#fff", 
+                        fontWeight: "600",
+                        fontSize: "0.9rem"
+                      }} 
+                      onMouseEnter={e => e.currentTarget.style.opacity = 1} 
+                      onMouseLeave={e => e.currentTarget.style.opacity = 0}
+                    >
+                      <Camera size={18} style={{ marginRight: "6px" }} /> Change Image
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <Camera size={28} style={{ color: "#8dbe20", marginBottom: "0.75rem" }} />
+                    <span style={{ fontSize: "0.95rem", fontWeight: "600", color: "#374151" }}>
+                      Click to upload image
+                    </span>
+                    <small style={{ fontSize: "0.75rem", color: "#9ca3af", marginTop: "0.4rem" }}>PNG, JPG up to 5MB</small>
+                  </>
+                )}
               </label>
+
+              {(form.image || (initialData && initialData.image)) && (
+                <button
+                  type="button"
+                  onClick={() => setField("image", null)}
+                  style={{ 
+                    marginTop: "0.75rem", 
+                    fontSize: "0.85rem", 
+                    color: "#ef4444", 
+                    background: "none", 
+                    border: "none", 
+                    cursor: "pointer", 
+                    fontWeight: "500", 
+                    display: "flex", 
+                    alignItems: "center", 
+                    gap: "0.3rem",
+                    padding: "0.25rem 0.5rem",
+                    borderRadius: "4px"
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.background = "#fef2f2"}
+                  onMouseLeave={e => e.currentTarget.style.background = "none"}
+                >
+                  <Trash2 size={16} /> Remove Image
+                </button>
+              )}
             </div>
           </div>
 
