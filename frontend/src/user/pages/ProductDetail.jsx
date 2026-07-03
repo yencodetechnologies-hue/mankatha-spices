@@ -136,12 +136,12 @@ const ProductDetail = () => {
 
     return (
       <div className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden">
-        <div className="relative w-full h-32 overflow-hidden">
-          <Link to={`/product/${relatedProduct.slug}`}>
+        <div className="relative w-full h-32 flex items-center justify-center bg-white overflow-hidden">
+          <Link to={`/product/${relatedProduct.slug}`} className="w-full h-full flex items-center justify-center">
             <img
               src={relatedProduct.featured_image}
               alt={relatedProduct.name}
-              className="w-full h-full object-cover object-center hover:scale-105 transition-transform duration-300"
+              className="max-w-full max-h-full w-auto h-auto object-contain hover:scale-105 transition-transform duration-300"
             />
           </Link>
         </div>

@@ -130,11 +130,11 @@ const ProductCard = ({ product, index }) => {
 
 
       {/* Product Image */}
-      <div className="relative image-zoom h-36 md:h-56 cursor-pointer overflow-hidden rounded-t-xl md:rounded-t-2xl" onClick={() => window.location.href = `/product/${product.slug}`}>
+      <div className="relative image-zoom h-36 md:h-56 cursor-pointer overflow-hidden rounded-t-xl md:rounded-t-2xl flex items-center justify-center bg-white" onClick={() => window.location.href = `/product/${product.slug}`}>
         <img
           src={product.featured_image}
           alt={product.name}
-          className="w-full h-full object-cover object-center transform transition-transform duration-700 group-hover:scale-110"
+          className="max-w-full max-h-full w-auto h-auto object-contain transform transition-transform duration-700 group-hover:scale-110"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
       </div>
