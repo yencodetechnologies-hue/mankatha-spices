@@ -581,16 +581,16 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
           <div className="form-group">
             <label style={{ fontWeight: "600" }}>Product Image</label>
             <div style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
-              <label 
-                className="upload-dropzone" 
-                style={{ 
-                  display: "flex", 
-                  flexDirection: "column", 
-                  justifyContent: "center", 
-                  alignItems: "center", 
-                  border: "2px dashed #ede6dc", 
-                  borderRadius: "10px", 
-                  cursor: "pointer", 
+              <label
+                className="upload-dropzone"
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  border: "2px dashed #ede6dc",
+                  borderRadius: "10px",
+                  cursor: "pointer",
                   background: (form.image || (initialData && initialData.image)) ? "#fff" : "#fcfcf9",
                   position: "relative",
                   overflow: "hidden",
@@ -600,37 +600,40 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
                   minHeight: "120px",
                   transition: "all 0.2s ease"
                 }}
-              >
-                <input type="file" accept="image/*" onChange={(e) => setField("image", e.target.files?.[0] || null)} style={{ display: "none" }} />
-                
-                {(form.image || (initialData && initialData.image)) ? (
+              ><input type="file" accept="image/*" onChange={(e) => {
+                const file = e.target.files?.[0] || null;
+                setField("image", file);
+                if (file) setField("removeImage", false);
+              }} style={{ display: "none" }} />
+
+                {(form.image || (!form.removeImage && initialData && initialData.image)) ? (
                   <div style={{ position: "relative", width: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
                     <img
                       src={form.image ? URL.createObjectURL(form.image) : absoluteImage(initialData.image)}
                       alt="Product preview"
-                      style={{ 
+                      style={{
                         width: "100%",
                         height: "auto",
-                        maxHeight: "300px", 
-                        objectFit: "contain", 
-                        display: "block" 
+                        maxHeight: "300px",
+                        objectFit: "contain",
+                        display: "block"
                       }}
                     />
-                    <div 
-                      style={{ 
-                        position: "absolute", 
-                        inset: 0, 
-                        background: "rgba(0,0,0,0.5)", 
-                        opacity: 0, 
-                        transition: "opacity 0.2s ease", 
-                        display: "flex", 
-                        alignItems: "center", 
-                        justifyContent: "center", 
-                        color: "#fff", 
+                    <div
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        background: "rgba(0,0,0,0.5)",
+                        opacity: 0,
+                        transition: "opacity 0.2s ease",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "#fff",
                         fontWeight: "600",
                         fontSize: "0.9rem"
-                      }} 
-                      onMouseEnter={e => e.currentTarget.style.opacity = 1} 
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.opacity = 1}
                       onMouseLeave={e => e.currentTarget.style.opacity = 0}
                     >
                       <Camera size={18} style={{ marginRight: "6px" }} /> Change Image
@@ -647,20 +650,23 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
                 )}
               </label>
 
-              {(form.image || (initialData && initialData.image)) && (
+              {(form.image || (!form.removeImage && initialData && initialData.image)) && (
                 <button
                   type="button"
-                  onClick={() => setField("image", null)}
-                  style={{ 
-                    marginTop: "0.75rem", 
-                    fontSize: "0.85rem", 
-                    color: "#ef4444", 
-                    background: "none", 
-                    border: "none", 
-                    cursor: "pointer", 
-                    fontWeight: "500", 
-                    display: "flex", 
-                    alignItems: "center", 
+                  onClick={() => {
+                    setField("image", null);
+                    setField("removeImage", true);
+                  }}
+                  style={{
+                    marginTop: "0.75rem",
+                    fontSize: "0.85rem",
+                    color: "#ef4444",
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    fontWeight: "500",
+                    display: "flex",
+                    alignItems: "center",
                     gap: "0.3rem",
                     padding: "0.25rem 0.5rem",
                     borderRadius: "4px"
@@ -682,9 +688,9 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
               {initialData ? "Update Product" : "Add Product"}
             </button>
           </div>
-        </form>
-      </div>
-    </div>
+        </form >
+      </div >
+    </div >
   );
 };
 

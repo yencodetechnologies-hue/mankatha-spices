@@ -39,9 +39,9 @@ const AdminProductsPanel = () => {
       const detail = error.response?.data?.message;
       setErrorMessage(
         detail ||
-          (isNetwork
-            ? "Cannot reach the API. Start the backend (cd backend, npm start on port 5000), then restart the React dev server so the /api proxy is active."
-            : error.message || "Request failed.")
+        (isNetwork
+          ? "Cannot reach the API. Start the backend (cd backend, npm start on port 5000), then restart the React dev server so the /api proxy is active."
+          : error.message || "Request failed.")
       );
       if (!cachedData) {
         setProducts([]);
@@ -98,6 +98,7 @@ const AdminProductsPanel = () => {
     formData.append("vatPercent", String(product.vatPercent ?? 0));
     formData.append("dietaryPreference", product.dietaryPreference ?? "");
     if (product.image) formData.append("image", product.image);
+    if (product.removeImage) formData.append("removeImage", "true");
     return formData;
   };
 

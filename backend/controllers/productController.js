@@ -62,14 +62,33 @@ const updateProduct = async (req, res) => {
   try {
     console.log("UPDATE PRODUCT RECEIVED BODY:", req.body);
     const payload = parsePayload(req.body);
+    const shouldRemoveImage = payload.removeImage === "true" || payload.removeImage === true;
+    delete payload.removeImage;
+    console.log("shouldRemoveImage:", shouldRemoveImage, "req.file:", !!req.file);
+
     if (req.file) {
       payload.image = `/uploads/${req.file.filename}`;
+    } else if (shouldRemoveImage) {
+      payload.image = "";
     }
+
+    const existingProduct = shouldRemoveImage && !req.file
+      ? await Product.findById(req.params.id)
+      : null;
 
     const product = await Product.findByIdAndUpdate(req.params.id, payload, {
       new: true,
       runValidators: true,
     });
+
+    if (existingProduct?.image) {
+      const fs = require("fs");
+      const path = require("path");
+      const oldImagePath = path.join(__dirname, "..", existingProduct.image);
+      fs.unlink(oldImagePath, (err) => {
+        if (err) console.warn("Could not delete old image file:", err.message);
+      });
+    }
 
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
