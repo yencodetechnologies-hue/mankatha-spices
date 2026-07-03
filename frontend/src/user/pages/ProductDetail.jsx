@@ -136,12 +136,12 @@ const ProductDetail = () => {
 
     return (
       <div className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden">
-        <div className="relative w-full h-32 flex items-center justify-center bg-white overflow-hidden">
-          <Link to={`/product/${relatedProduct.slug}`} className="w-full h-full flex items-center justify-center">
+        <div className="relative w-full h-32 overflow-hidden">
+          <Link to={`/product/${relatedProduct.slug}`}>
             <img
               src={relatedProduct.featured_image}
               alt={relatedProduct.name}
-              className="max-w-full max-h-full w-auto h-auto object-contain hover:scale-105 transition-transform duration-300"
+              className="w-full h-full object-cover object-center hover:scale-105 transition-transform duration-300"
             />
           </Link>
         </div>
@@ -193,11 +193,11 @@ const ProductDetail = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
           {/* Product Images */}
           <div>
-            <div className="mb-4 w-full h-96 flex items-center justify-center bg-white rounded-lg overflow-hidden">
+            <div className="mb-4 w-full h-96 rounded-lg overflow-hidden">
               <img
                 src={product.images[selectedImage]}
                 alt={product.name}
-                className="max-w-full max-h-full w-auto h-auto object-contain"
+                className="w-full h-full object-cover object-center"
               />
             </div>
             <div className="grid grid-cols-4 gap-2">
@@ -208,11 +208,11 @@ const ProductDetail = () => {
                   className={`border-2 rounded-lg overflow-hidden transition-colors ${selectedImage === index ? 'border-primary-500' : 'border-gray-200'
                     }`}
                 >
-                  <div className="w-full h-20 flex items-center justify-center bg-white overflow-hidden">
+                  <div className="w-full h-20 overflow-hidden">
                     <img
                       src={image}
                       alt={`${product.name} ${index + 1}`}
-                      className="max-w-full max-h-full w-auto h-auto object-contain"
+                      className="w-full h-full object-cover object-center"
                     />
                   </div>
                 </button>
