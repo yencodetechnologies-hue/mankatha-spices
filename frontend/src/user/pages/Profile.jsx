@@ -379,7 +379,7 @@ const Profile = () => {
                           <img
                             src={item.featured_image}
                             alt={item.name}
-                            className="w-12 h-12 object-cover rounded border"
+                            className="w-12 h-12 object-contain bg-white rounded border"
                           />
                         ) : (
                           <div className="w-12 h-12 bg-gray-100 rounded flex items-center justify-center text-gray-400 text-xs">
@@ -483,7 +483,7 @@ const Profile = () => {
                   <img
                     src={item.featured_image}
                     alt={item.name}
-                    className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-300"
+                    className="w-full h-40 object-contain bg-white group-hover:scale-105 transition-transform duration-300"
                   />
                 </Link>
                 <button
