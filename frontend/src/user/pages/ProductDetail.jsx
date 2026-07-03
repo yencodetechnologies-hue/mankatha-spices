@@ -198,7 +198,7 @@ const ProductDetail = () => {
               <img
                 src={product.images[selectedImage]}
                 alt={product.name}
-                className="w-full h-96 object-cover rounded-lg"
+                className="w-full h-96 object-contain bg-white rounded-lg"
               />
             </div>
             <div className="grid grid-cols-4 gap-2">
@@ -213,7 +213,7 @@ const ProductDetail = () => {
                   <img
                     src={image}
                     alt={`${product.name} ${index + 1}`}
-                    className="w-full h-20 object-cover"
+                    className="w-full h-20 object-contain bg-white"
                   />
                 </button>
               ))}
