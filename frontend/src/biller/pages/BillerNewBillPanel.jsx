@@ -104,9 +104,9 @@ const BillerProductCard = ({ product, cart, addToCart, updateQty, removeFromCart
       {/* Image */}
       <div className="w-full h-32 bg-gray-100 overflow-hidden relative cursor-pointer" onClick={handleIncrease}>
         {imgUrl ? (
-          <img src={imgUrl} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+          <img src={imgUrl} alt={product.name} className="w-full h-full object-contain bg-white group-hover:scale-105 transition-transform duration-300" />
         ) : (
-          <img src={getCategoryImg(product.category)} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+          <img src={getCategoryImg(product.category)} alt={product.name} className="w-full h-full object-contain bg-white group-hover:scale-105 transition-transform duration-300" />
         )}
       </div>
 

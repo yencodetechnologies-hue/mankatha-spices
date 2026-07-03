@@ -83,7 +83,7 @@ const Cart = () => {
                       <img
                         src={item.featured_image}
                         alt={item.name}
-                        className="w-24 h-24 object-cover rounded-lg"
+                        className="w-24 h-24 object-contain bg-white rounded-lg"
                       />
                       <div className="flex-1">
                         <div className="flex justify-between mb-2">

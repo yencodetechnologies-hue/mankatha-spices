@@ -83,7 +83,7 @@ const Deals = () => {
                   <span className="text-xs">SAVE</span>
                   <span className="text-lg">40%</span>
                 </div>
-                <img src={allProducts[0]?.featured_image} alt="Featured Deal" className="w-full h-64 object-cover rounded-2xl mb-6 hover:scale-105 transition-transform duration-500" />
+                <img src={allProducts[0]?.featured_image} alt="Featured Deal" className="w-full h-64 object-contain bg-white rounded-2xl mb-6 hover:scale-105 transition-transform duration-500" />
                 <h3 className="text-2xl font-black text-gray-900 mb-2 truncate">{allProducts[0]?.name || "Featured deal"}</h3>
                 <div className="flex items-center gap-3 mb-6">
                   <span className="text-3xl font-black text-primary-600">$4.99</span>
@@ -133,7 +133,7 @@ const Deals = () => {
                 LTD OFFER
               </div>
               <div className="image-zoom h-48 rounded-2xl mb-4">
-                <img src={product.featured_image} alt={product.name} className="w-full h-full object-cover" />
+                <img src={product.featured_image} alt={product.name} className="w-full h-full object-contain bg-white" />
               </div>
               <h3 className="font-bold text-gray-900 mb-2 h-12 line-clamp-2">{product.name}</h3>
               <div className="flex items-center justify-between mt-4">
