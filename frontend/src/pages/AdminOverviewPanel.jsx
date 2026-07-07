@@ -86,8 +86,8 @@ const SkeletonRecentOrders = () => (
       {[1, 2, 3].map((i) => (
         <div key={i} className="animate-pulse bg-white border border-[#ede6dc] rounded-2xl p-5 shadow-sm">
           <div className="flex justify-between mb-4">
-             <div className="h-5 bg-gray-200 rounded w-20" />
-             <div className="h-6 bg-gray-200 rounded-full w-24" />
+            <div className="h-5 bg-gray-200 rounded w-20" />
+            <div className="h-6 bg-gray-200 rounded-full w-24" />
           </div>
           <div className="flex gap-3 items-center mb-4">
             <div className="h-10 w-10 rounded-full bg-gray-200" />
@@ -126,7 +126,7 @@ const AdminOverviewPanel = () => {
       setData(res);
       try {
         localStorage.setItem("admin_overview_data", JSON.stringify(res));
-      } catch (_) {}
+      } catch (_) { }
     } catch (error) {
       const status = error.response?.status;
       const detail = error.response?.data?.message;
@@ -195,7 +195,7 @@ const AdminOverviewPanel = () => {
           <button type="button" className="overview-btn-outline" onClick={exportReport} disabled={!data}>
             Export Report
           </button>
-          <Link to="/adminpanel/products" className="overview-btn-primary">
+          <Link to="/adminpanel/products" state={{ openAddModal: true }} className="overview-btn-primary">
             + Add Product
           </Link>
         </div>
@@ -306,7 +306,7 @@ const AdminOverviewPanel = () => {
                 View All →
               </Link>
             </div>
-            
+
             {recentOrders.length === 0 ? (
               <div className="bg-white border border-[#ede6dc] rounded-2xl p-8 text-center text-gray-500 shadow-sm">
                 No recent orders found.
@@ -325,11 +325,11 @@ const AdminOverviewPanel = () => {
                           {initialsFromName(o.customerName)}
                         </span>
                         <div>
-                           <p className="font-semibold text-gray-900 text-sm truncate">{o.customerName}</p>
-                           <p className="text-xs text-gray-500 font-medium">#{o.orderId}</p>
+                          <p className="font-semibold text-gray-900 text-sm truncate">{o.customerName}</p>
+                          <p className="text-xs text-gray-500 font-medium">#{o.orderId}</p>
                         </div>
                       </div>
-                      
+
                       {/* Products Summary */}
                       <div className="text-sm text-gray-500 line-clamp-1 flex-grow hidden lg:block">
                         {o.productsLabel}
@@ -337,15 +337,15 @@ const AdminOverviewPanel = () => {
 
                       {/* Status, Amount, Date */}
                       <div className="flex items-center justify-between md:justify-end w-full md:w-auto gap-4 md:gap-8 shrink-0">
-                         <div className={statusPill(o.status) + " !py-1 !px-2"}>
-                           <span className={statusDot(o.status)} />
-                           {o.status}
-                         </div>
-                         
-                         <div className="text-right">
-                           <p className="font-bold text-gray-900">{formatMoneyWhole(o.amount)}</p>
-                           <p className="text-[11px] text-gray-400 font-medium uppercase tracking-wider">{recentDateShort(o.orderDate)}</p>
-                         </div>
+                        <div className={statusPill(o.status) + " !py-1 !px-2"}>
+                          <span className={statusDot(o.status)} />
+                          {o.status}
+                        </div>
+
+                        <div className="text-right">
+                          <p className="font-bold text-gray-900">{formatMoneyWhole(o.amount)}</p>
+                          <p className="text-[11px] text-gray-400 font-medium uppercase tracking-wider">{recentDateShort(o.orderDate)}</p>
+                        </div>
                       </div>
                     </div>
                   ))}

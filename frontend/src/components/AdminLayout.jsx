@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
   Package,
@@ -47,6 +47,8 @@ const ICON_MAP = {
 const AdminLayout = ({ children }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const suppressActiveHighlight = Boolean(location.state?.openAddModal);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const handleLogout = () => {
@@ -56,11 +58,11 @@ const AdminLayout = ({ children }) => {
 
   return (
     <div className="admin-shell">
-      <div 
-        className={`admin-sidebar-overlay ${isSidebarOpen ? "open" : ""}`} 
+      <div
+        className={`admin-sidebar-overlay ${isSidebarOpen ? "open" : ""}`}
         onClick={() => setIsSidebarOpen(false)}
       />
-      <aside 
+      <aside
         className={`admin-sidebar sticky-sidebar ${isSidebarOpen ? "open" : ""}`}
       >
         <div className="admin-brand">
@@ -81,7 +83,7 @@ const AdminLayout = ({ children }) => {
                     <li key={item.id}>
                       <NavLink
                         to={`/adminpanel/${item.path}`}
-                        className={({ isActive }) => `admin-nav-link${isActive ? " active" : ""}`}
+                        className={({ isActive }) => `admin-nav-link${isActive && !suppressActiveHighlight ? " active" : ""}`}
                         onClick={() => setIsSidebarOpen(false)}
                       >
                         <Icon size={18} strokeWidth={1.75} className="admin-nav-icon" aria-hidden />
@@ -132,8 +134,8 @@ const AdminLayout = ({ children }) => {
       <section className="admin-main">
         <header className="admin-topbar">
           <div className="topbar-left">
-            <button 
-              className="mobile-menu-btn" 
+            <button
+              className="mobile-menu-btn"
               onClick={() => setIsSidebarOpen(true)}
               aria-label="Open sidebar"
             >

@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { Camera, X, Check, Plus, Trash2 } from "lucide-react";
+import ImageCropModal from "./ImageCropModal";
 import { categoryApi } from "../api/categoryApi";
 import { getBackendOrigin } from "../api/adminApiBase";
 
@@ -91,6 +92,8 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
   const [addingCategory, setAddingCategory] = useState(false);
   const [newCatName, setNewCatName] = useState("");
   const [catError, setCatError] = useState("");
+  const [cropSrc, setCropSrc] = useState(null);
+  const [showCropModal, setShowCropModal] = useState(false);
 
   const inputRef = React.useRef(null);
 
@@ -570,14 +573,7 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
                 required
               />
             </div>
-
-
-
-
           </div>
-
-
-
           <div className="form-group">
             <label style={{ fontWeight: "600" }}>Product Image</label>
             <div style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
@@ -602,19 +598,45 @@ const AddEditProductModal = ({ isOpen, onClose, onSubmit, initialData }) => {
                 }}
               ><input type="file" accept="image/*" onChange={(e) => {
                 const file = e.target.files?.[0] || null;
-                setField("image", file);
-                if (file) setField("removeImage", false);
+                if (file) {
+                  const reader = new FileReader();
+                  reader.onload = () => {
+                    setCropSrc(reader.result);
+                    setShowCropModal(true);
+                  };
+                  reader.readAsDataURL(file);
+                }
+                e.target.value = "";
               }} style={{ display: "none" }} />
 
+                {showCropModal && cropSrc && (
+                  <ImageCropModal
+                    image={cropSrc}
+                    aspect={1}
+                    onCancel={() => {
+                      setShowCropModal(false);
+                      setCropSrc(null);
+                    }}
+                    onCropComplete={(croppedBlob) => {
+                      const croppedFile = new File([croppedBlob], "product-image.jpg", { type: "image/jpeg" });
+                      setField("image", croppedFile);
+                      setField("removeImage", false);
+                      setShowCropModal(false);
+                      setCropSrc(null);
+                    }}
+                  />
+                )}
+
                 {(form.image || (!form.removeImage && initialData && initialData.image)) ? (
-                  <div style={{ position: "relative", width: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
+                  <div style={{ position: "relative", width: "100%", minHeight: "200px", display: "flex", justifyContent: "center", alignItems: "center", background: "#fff" }}>
                     <img
                       src={form.image ? URL.createObjectURL(form.image) : absoluteImage(initialData.image)}
                       alt="Product preview"
                       style={{
-                        width: "100%",
-                        height: "auto",
+                        maxWidth: "100%",
                         maxHeight: "300px",
+                        width: "auto",
+                        height: "auto",
                         objectFit: "contain",
                         display: "block"
                       }}

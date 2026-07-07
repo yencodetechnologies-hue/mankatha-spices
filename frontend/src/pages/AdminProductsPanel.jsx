@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import ProductTable from "../components/ProductTable";
 import AddEditProductModal from "../components/AddEditProductModal";
+import { useLocation } from "react-router-dom";
 import { productApi } from "../api/productApi";
 import { COUNTRY_OPTIONS } from "../constants";
 import { Search } from "lucide-react";
@@ -18,6 +19,15 @@ const AdminProductsPanel = () => {
   const [page, setPage] = useState(1);
   const [modalOpen, setModalOpen] = useState(false);
   const [editProduct, setEditProduct] = useState(null);
+  const location = useLocation();
+
+  React.useEffect(() => {
+    if (location.state?.openAddModal) {
+      setEditProduct(null);
+      setModalOpen(true);
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   const fetchProducts = async () => {
     // 1. Populate immediately from cache if available

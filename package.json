@@ -5,5 +5,8 @@
     "build": "npm run build --prefix frontend",
     "start": "npm start --prefix frontend",
     "start:backend": "npm start --prefix backend"
+  },
+  "dependencies": {
+    "react-easy-crop": "^6.1.0"
   }
 }
