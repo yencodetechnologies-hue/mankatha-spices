@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Search } from "lucide-react";
 import { customerApi } from "../api/customerApi";
+import { orderApi } from "../api/orderApi";
 import { formatMoneyWhole, formatMoney } from "../utils/formatMoney";
 
 import heroBlendedMasala from "../assets/hero_blended_masala.png";
@@ -118,9 +119,6 @@ const AdminCustomersPanel = () => {
     setCustomerOrders([]);
     try {
       // Use the orderApi to fetch orders matching the customer's name
-      // Use dynamic import or assume orderApi is globally available or imported if I add it.
-      // Wait, I need to import orderApi at the top!
-      const { orderApi } = await import('../api/orderApi');
       const res = await orderApi.getOrders({ search: customer.name, period: 'all' });
       // Filter exactly to this customer to be safe (in case of partial matches)
       const exactMatches = (res.orders || []).filter(
@@ -139,7 +137,7 @@ const AdminCustomersPanel = () => {
     try {
       await customerApi.deleteCustomer(id);
       setCustomers(customers.filter(c => c._id !== id));
-      loadStats().catch(() => {});
+      loadStats().catch(() => { });
     } catch (err) {
       alert(err.response?.data?.message || "Failed to delete customer.");
     }
@@ -243,92 +241,92 @@ const AdminCustomersPanel = () => {
         </div>
 
         <div className="customers-table-inner overflow-x-auto w-full">
-            <table className="customers-table w-full min-w-[900px]">
-              <thead>
+          <table className="customers-table w-full min-w-[900px]">
+            <thead>
+              <tr>
+                <th>Customer</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>City</th>
+                <th>Orders</th>
+                <th>Spent</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {customers.length === 0 ? (
                 <tr>
-                  <th>Customer</th>
-                  <th>Email</th>
-                  <th>Phone</th>
-                  <th>City</th>
-                  <th>Orders</th>
-                  <th>Spent</th>
-                  <th>Action</th>
+                  <td colSpan={8} className="orders-empty-cell">
+                    No customers found.
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {customers.length === 0 ? (
-                  <tr>
-                    <td colSpan={8} className="orders-empty-cell">
-                      No customers found.
+              ) : (
+                customers.map((c) => (
+                  <tr key={c._id}>
+                    <td>
+                      <div className="order-customer-cell">
+                        <span
+                          className="order-avatar"
+                          style={{ background: `hsl(${hueFromName(c.name)} 55% 42%)` }}
+                          aria-hidden
+                        >
+                          {initialsFromName(c.name)}
+                        </span>
+                        <span>{c.name}</span>
+                      </div>
+                    </td>
+                    <td className="customers-email-cell">{c.email}</td>
+                    <td>{c.phone}</td>
+                    <td>{c.city}</td>
+                    <td>{c.orderCount}</td>
+                    <td className="order-total-cell">{formatMoneyWhole(c.totalSpent)}</td>
+                    <td>
+                      <div className="flex items-center gap-2">
+                        <button type="button" className="order-view-btn" onClick={() => handleViewCustomer(c)}>
+                          View Orders
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteCustomer(c._id, c.name)}
+                          style={{ background: '#fee2e2', color: '#dc2626', border: '1px solid #fca5a5', borderRadius: '6px', padding: '4px 10px', cursor: 'pointer', fontWeight: '600', fontSize: '12px' }}
+                          title="Delete Customer"
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </td>
                   </tr>
-                ) : (
-                  customers.map((c) => (
-                    <tr key={c._id}>
-                      <td>
-                        <div className="order-customer-cell">
-                          <span
-                            className="order-avatar"
-                            style={{ background: `hsl(${hueFromName(c.name)} 55% 42%)` }}
-                            aria-hidden
-                          >
-                            {initialsFromName(c.name)}
-                          </span>
-                          <span>{c.name}</span>
-                        </div>
-                      </td>
-                      <td className="customers-email-cell">{c.email}</td>
-                      <td>{c.phone}</td>
-                      <td>{c.city}</td>
-                      <td>{c.orderCount}</td>
-                      <td className="order-total-cell">{formatMoneyWhole(c.totalSpent)}</td>
-                      <td>
-                        <div className="flex items-center gap-2">
-                          <button type="button" className="order-view-btn" onClick={() => handleViewCustomer(c)}>
-                            View Orders
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteCustomer(c._id, c.name)}
-                            style={{ background: '#fee2e2', color: '#dc2626', border: '1px solid #fca5a5', borderRadius: '6px', padding: '4px 10px', cursor: 'pointer', fontWeight: '600', fontSize: '12px' }}
-                            title="Delete Customer"
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                ))
+              )}
+            </tbody>
+          </table>
 
-            {pagination.pages > 1 && (
-              <div className="pager customers-pager">
-                {Array.from({ length: pagination.pages }).map((_, idx) => {
-                  const n = idx + 1;
-                  return (
-                    <button
-                      type="button"
-                      key={n}
-                      className={n === page ? "page-chip active" : "page-chip"}
-                      onClick={() => setPage(n)}
-                    >
-                      {n}
-                    </button>
-                  );
-                })}
-                <button
-                  type="button"
-                  className="page-chip"
-                  onClick={() => setPage((p) => Math.min(pagination.pages, p + 1))}
-                  disabled={page >= pagination.pages}
-                >
-                  →
-                </button>
-              </div>
-            )}
-          </div>
+          {pagination.pages > 1 && (
+            <div className="pager customers-pager">
+              {Array.from({ length: pagination.pages }).map((_, idx) => {
+                const n = idx + 1;
+                return (
+                  <button
+                    type="button"
+                    key={n}
+                    className={n === page ? "page-chip active" : "page-chip"}
+                    onClick={() => setPage(n)}
+                  >
+                    {n}
+                  </button>
+                );
+              })}
+              <button
+                type="button"
+                className="page-chip"
+                onClick={() => setPage((p) => Math.min(pagination.pages, p + 1))}
+                disabled={page >= pagination.pages}
+              >
+                →
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Customer Orders Modal */}
@@ -342,8 +340,8 @@ const AdminCustomersPanel = () => {
                   {selectedCustomer.email} • {selectedCustomer.phone}
                 </p>
               </div>
-              <button 
-                onClick={() => setSelectedCustomer(null)} 
+              <button
+                onClick={() => setSelectedCustomer(null)}
                 className="border-none bg-[#e1ecd0] cursor-pointer text-sm w-8 h-8 rounded-full flex items-center justify-center text-[#52720d] hover:bg-[#d3e1b7] transition-colors"
               >
                 ✕
@@ -373,14 +371,14 @@ const AdminCustomersPanel = () => {
                           </div>
                         </div>
                       </div>
-                      
+
                       {o.lineItems && o.lineItems.length > 0 && (
                         <div className="mt-4 pt-4 border-t border-gray-100">
                           <div className="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-3">Items Purchased</div>
                           <div className="flex flex-col gap-3">
                             {o.lineItems.map((item, idx) => (
                               <div key={idx} className="flex items-center gap-3 md:gap-4">
-                                <div 
+                                <div
                                   className="w-12 h-12 rounded-lg bg-gray-100 bg-cover bg-center shrink-0 border border-gray-100"
                                   style={{ backgroundImage: `url(${getCategoryImg(item.category)})` }}
                                 />
